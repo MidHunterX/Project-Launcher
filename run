@@ -3,11 +3,11 @@
 # -----------------------------[ CONFIGURATION ]----------------------------- #
 
 SESSION_NAME=""
-AUTOSTART_SERVER=true
-AUTORUN_COMMANDS=true
-
 INIT_SETUP=""  # [ none | python | node ]
 TMUX_LAYOUT="" # [ custom | fastapi | nextjs | django | node | rust ]
+
+AUTOSTART_SERVER=true
+AUTORUN_COMMANDS=true
 
 # USE_POSTGRES=true
 # USE_MONGODB=true
@@ -201,7 +201,7 @@ main() {
   "node") setup_node_env ;;
   *)
     echo "Unknown primary language: $INIT_SETUP"
-    exit 1
+    echo "Skipping init check..."
     ;;
   esac
 
@@ -216,7 +216,7 @@ main() {
   *)
     echo "Unknown project type: $TMUX_LAYOUT"
     echo "Using default layout..."
-    create_tmux_session "Server" "echo 'Configure commands in run script'"
+    create_tmux_session "Cmd"
     create_temp_window "Editor" "nvim"
     ;;
   esac
