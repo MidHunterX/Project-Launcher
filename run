@@ -2,9 +2,9 @@
 
 # -----------------------------[ CONFIGURATION ]----------------------------- #
 
-SESSION_NAME=""
-INIT_SETUP=""  # [ none | python | node ]
-TMUX_LAYOUT="" # [ custom | fastapi | nextjs | django | node | rust ]
+SESSION_NAME="" # default: project dir name
+INIT_SETUP=""   # [ none | python | node ]
+TMUX_LAYOUT=""  # [ custom | fastapi | nextjs | django | node | rust ]
 
 AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
@@ -186,6 +186,11 @@ check_tmux_dependency() {
 main() {
   init_services
   check_tmux_dependency
+
+  # SESSION_NAME Fallback
+  if [[ -z "$SESSION_NAME" ]]; then
+    SESSION_NAME="$(basename "$PWD")"
+  fi
 
   # Attach session if exists
   if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
