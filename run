@@ -3,7 +3,7 @@
 # -----------------------------[ CONFIGURATION ]----------------------------- #
 
 SESSION_NAME="" # default: project dir name
-INIT_SETUP=""   # [ none | python | node ]
+INIT_SETUP=""   # [ none | python | node | elixir ]
 TMUX_LAYOUT=""  # [ custom | fastapi | nextjs | django | node | rust ]
 
 AUTOSTART_SERVER=true
@@ -160,6 +160,10 @@ setup_node_env() {
   setup_env "node_modules/" "npm install"
 }
 
+setup_elixir_env() {
+  setup_env "deps/" "mix setup"
+}
+
 check_tmux_dependency() {
   # Install tmux if missing
   if ! command -v tmux >/dev/null; then
@@ -204,6 +208,7 @@ main() {
   "none") ;;
   "python") setup_python_env ;;
   "node") setup_node_env ;;
+  "elixir") setup_elixir_env ;;
   *)
     echo "Unknown primary language: $INIT_SETUP"
     echo "Skipping init check..."
