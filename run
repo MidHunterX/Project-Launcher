@@ -10,6 +10,7 @@ AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
 
 # USE_POSTGRES=true
+# USE_DOCKER=true
 # USE_MONGODB=true
 # USE_REDIS=true
 
@@ -110,6 +111,7 @@ init_services() {
   # Syntax: [systemctl-service-name]="$USE_SERVICE"
   declare -A SERVICES=(
     [postgresql]="$USE_POSTGRES"
+    [docker]="$USE_DOCKER"
     [mongod]="$USE_MONGODB"
     [redis - server]="$USE_REDIS"
   )
