@@ -2,17 +2,21 @@
 
 # -----------------------------[ CONFIGURATION ]----------------------------- #
 
-SESSION_NAME="" # default: project dir name
-INIT_SETUP=""   # [ none | python | node | elixir ]
-TMUX_LAYOUT=""  # [ custom | fastapi | nextjs | django | node | rust ]
+# Default: project dir name
+SESSION_NAME=""
+# Default: none
+# [ none | python | django | fastapi | nodejs | nextjs | elixir | rust | custom ]
+PRIMARY_SETUP=""
 
+# Settings: [ true | false ]
 AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
 
-# USE_POSTGRES=true
-# USE_DOCKER=true
-# USE_MONGODB=true
-# USE_REDIS=true
+# Services: [ true | false ]
+USE_POSTGRES=false
+USE_DOCKER=false
+USE_MONGODB=false
+USE_REDIS=false
 
 # -----------------------------[ CUSTOM LAYOUT ]----------------------------- #
 
@@ -72,6 +76,16 @@ create_temp_window() {
 # █░░ ▄▀█ █▄█ █▀█ █░█ ▀█▀ █▀
 # █▄▄ █▀█ ░█░ █▄█ █▄█ ░█░ ▄█
 
+setup_default_layout() {
+  create_tmux_session "Cmd"
+  create_temp_window "Editor" "nvim"
+}
+
+setup_python_layout() {
+  create_tmux_session "Cmd" "python main.py"
+  create_temp_window "Editor" "nvim"
+}
+
 setup_fastapi_layout() {
   create_tmux_session "Server" "fastapi dev main.py"
   create_temp_window "Editor" "nvim"
@@ -81,15 +95,12 @@ setup_fastapi_layout() {
 setup_nextjs_layout() {
   create_tmux_session "Server" "npm run dev"
   create_temp_window "Editor" "nvim"
-  # create_window "Test" "npm test"
-  # create_window "Build" "npm run build"
 }
 
 setup_django_layout() {
   create_tmux_session "Server" "python manage.py runserver"
   create_temp_window "Editor" "nvim"
-  # create_window "Test" "python manage.py test"
-  # create_window "Shell" "python manage.py shell"
+  create_window "Test" "python manage.py test"
 }
 
 setup_node_layout() {
@@ -102,6 +113,11 @@ setup_rust_layout() {
   create_tmux_session "Run" "cargo run"
   create_temp_window "Editor" "nvim"
   create_window "Test" "cargo test"
+}
+
+setup_elixir_layout() {
+  create_tmux_session "Server" "iex -S mix phx.server"
+  create_temp_window "Editor" "nvim"
 }
 
 # █▀ █▀▀ █▀█ █░█ █ █▀▀ █▀▀ █▀
@@ -166,32 +182,17 @@ setup_elixir_env() {
   setup_env "deps/" "mix setup"
 }
 
-check_tmux_dependency() {
-  # Install tmux if missing
-  if ! command -v tmux >/dev/null; then
-    echo "Tmux is required for full functionality."
-    echo "Install with: sudo apt install tmux (or equivalent for your OS)"
-    echo "Running in basic mode without tmux..."
-
-    if [[ "$PROJECT_TYPE" == "fastapi" ]]; then
-      command -v fastapi >/dev/null || {
-        echo "Error: fastapi not found in PATH"
-        exit 1
-      }
-      fastapi dev main.py
-    elif [[ "$PROJECT_TYPE" == "nextjs" ]]; then
-      npm run dev
-    fi
-    exit 0
-  fi
-}
 
 # █▀▄▀█ ▄▀█ █ █▄░█
 # █░▀░█ █▀█ █ █░▀█
 
 main() {
+  if ! command -v tmux >/dev/null; then
+    echo "Tmux is required for full functionality."
+    echo "Install with: sudo apt install tmux (or equivalent for your OS)"
+    exit 0
+  fi
   init_services
-  check_tmux_dependency
 
   # SESSION_NAME Fallback
   if [[ -z "$SESSION_NAME" ]]; then
@@ -205,31 +206,45 @@ main() {
     exit 0
   fi
 
-  # Set up dependencies
-  case "$INIT_SETUP" in
-  "none") ;;
-  "python") setup_python_env ;;
-  "node") setup_node_env ;;
-  "elixir") setup_elixir_env ;;
-  *)
-    echo "Unknown primary language: $INIT_SETUP"
-    echo "Skipping init check..."
+  # Primary Setup
+  case "$PRIMARY_SETUP" in
+  "none")
+    setup_default_layout
     ;;
-  esac
-
-  # Set up tmux layouts
-  case "$TMUX_LAYOUT" in
-  "custom") setup_custom_layout ;;
-  "fastapi") setup_fastapi_layout ;;
-  "nextjs") setup_nextjs_layout ;;
-  "django") setup_django_layout ;;
-  "node") setup_node_layout ;;
-  "rust") setup_rust_layout ;;
+  "python")
+    setup_python_env
+    setup_python_layout
+    ;;
+  "django")
+    setup_python_env
+    setup_django_layout
+    ;;
+  "fastapi")
+    setup_python_env
+    setup_fastapi_layout
+    ;;
+  "nodejs")
+    setup_node_env
+    setup_node_layout
+    ;;
+  "nextjs")
+    setup_node_env
+    setup_nextjs_layout
+    ;;
+  "elixir")
+    setup_elixir_env
+    setup_elixir_layout
+    ;;
+  "rust")
+    setup_rust_layout
+    ;;
+  "custom")
+    setup_custom_layout
+    ;;
   *)
-    echo "Unknown project type: $TMUX_LAYOUT"
+    echo "Unknown primary language: $PRIMARY_SETUP"
     echo "Using default layout..."
-    create_tmux_session "Cmd"
-    create_temp_window "Editor" "nvim"
+    setup_default_layout
     ;;
   esac
 
