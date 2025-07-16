@@ -5,10 +5,11 @@
 # Default: project dir name
 SESSION_NAME=""
 # Default: none
-# [ none | python | django | fastapi | nodejs | nextjs | elixir | rust | custom ]
+# [ none | python | django | fastapi | nodejs | nextjs | elixir | rust ]
 PRIMARY_SETUP=""
 
 # Settings: [ true | false ]
+CUSTOM_LAYOUT=false
 AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
 
@@ -206,47 +207,38 @@ main() {
     exit 0
   fi
 
-  # Primary Setup
+  # ENV SETUP
   case "$PRIMARY_SETUP" in
-  "none")
-    setup_default_layout
-    ;;
-  "python")
-    setup_python_env
-    setup_python_layout
-    ;;
-  "django")
-    setup_python_env
-    setup_django_layout
-    ;;
-  "fastapi")
-    setup_python_env
-    setup_fastapi_layout
-    ;;
-  "nodejs")
-    setup_node_env
-    setup_node_layout
-    ;;
-  "nextjs")
-    setup_node_env
-    setup_nextjs_layout
-    ;;
-  "elixir")
-    setup_elixir_env
-    setup_elixir_layout
-    ;;
-  "rust")
-    setup_rust_layout
-    ;;
-  "custom")
-    setup_custom_layout
-    ;;
-  *)
-    echo "Unknown primary language: $PRIMARY_SETUP"
-    echo "Using default layout..."
-    setup_default_layout
-    ;;
+  "none") ;; # Do nothing
+  "python") setup_python_env ;;
+  "django") setup_python_env ;;
+  "fastapi") setup_python_env ;;
+  "nodejs") setup_node_env ;;
+  "nextjs") setup_node_env ;;
+  "elixir") setup_elixir_env ;;
+  "rust") ;; # Rust sets up its own environment with cargo
+  *) echo "Unknown primary language: $PRIMARY_SETUP" ;;
   esac
+
+  # LAYOUT SETUP
+  if [[ "$CUSTOM_LAYOUT" = true ]]; then
+    setup_custom_layout
+  else
+    case "$PRIMARY_SETUP" in
+      "none") setup_default_layout ;;
+      "python") setup_python_layout ;;
+      "django") setup_django_layout ;;
+      "fastapi") setup_fastapi_layout ;;
+      "nodejs") setup_node_layout ;;
+      "nextjs") setup_nextjs_layout ;;
+      "elixir") setup_elixir_layout ;;
+      "rust") setup_rust_layout ;;
+      *)
+        echo "Using default layout..."
+        setup_default_layout
+        ;;
+    esac
+  fi
 
   tmux attach -t "$SESSION_NAME"
 }
