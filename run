@@ -19,24 +19,45 @@ USE_DOCKER=false
 USE_MONGODB=false
 USE_REDIS=false
 
-# -----------------------------[ CUSTOM LAYOUT ]----------------------------- #
+# ------------------------[ CUSTOM LAYOUT OVERRIDES ]------------------------ #
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd $SCRIPT_DIR
+cd "$SCRIPT_DIR"
 
 setup_custom_layout() {
-  # NextJS Server
-  cd $SCRIPT_DIR
-  create_tmux_session "Server" "npm run dev"
+  # Server (FastAPI)
+  cd "../fastapi-project/"
+  setup_python_env
+  source "./venv/bin/activate"
+  create_tmux_session "API Server" "fastapi dev main.py"
 
-  # FastAPI Server
-  cd ../fast-api-project/
-  source ./venv/bin/activate
-  create_window "API" "fastapi dev main.py"
+  # Server (NextJS)
+  cd "$SCRIPT_DIR"
+  setup_node_env
+  create_window "Web Server" "npm run dev"
+
+  # Editor (FastAPI)
+  cd "../fastapi-project/"
+  create_window "Editor (API)" "nvim"
   deactivate
 
-  cd $SCRIPT_DIR
-  create_temp_window "Editor" "nvim"
+  # Editor (NextJS)
+  cd "$SCRIPT_DIR"
+  create_window "Editor (Web)" "nvim"
+
+  # Open Browser
+  (
+    cd $SCRIPT_DIR
+    PROFILE="Personal"
+    NEW_TAB_URL="http://localhost:3000" # Frontend
+    FF_ATTRIB="-P $PROFILE -no-remote -new-tab $NEW_TAB_URL"
+    WORKSPACE='hyprctl dispatch -- exec [workspace 2]'
+    # Wait for host url to be available to prevent race condition
+    while ! curl -sf "$NEW_TAB_URL" > /dev/null; do
+      sleep 0.2
+    done
+    $WORKSPACE firefox-developer-edition $FF_ATTRIB &
+  ) &
 }
 
 # =========================================================================== #
