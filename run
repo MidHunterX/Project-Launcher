@@ -14,10 +14,10 @@ AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
 
 # Services: [ true | false ]
-USE_POSTGRES=false
-USE_DOCKER=false
-USE_MONGODB=false
-USE_REDIS=false
+# USE_POSTGRES=true
+# USE_DOCKER=true
+# USE_MONGODB=true
+# USE_REDIS=true
 
 # ------------------------[ CUSTOM LAYOUT OVERRIDES ]------------------------ #
 
@@ -25,6 +25,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 setup_custom_layout() {
+  # Project specific custom layout setup example
+
   # Server (FastAPI)
   cd "../fastapi-project/"
   setup_python_env
