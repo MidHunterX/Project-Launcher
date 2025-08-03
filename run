@@ -3,13 +3,14 @@
 # -----------------------------[ CONFIGURATION ]----------------------------- #
 
 # Default: project dir name
-SESSION_NAME=""
+PROJECT_NAME=""
 # Default: none
 # [ none | python | django | fastapi | nodejs | nextjs | elixir | rust ]
-PRIMARY_SETUP=""
+PROJECT_TYPE=""
 
 # Settings: [ true | false ]
 CUSTOM_LAYOUT=false
+CUSTOM_ENV=false
 AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
 
@@ -23,6 +24,11 @@ AUTORUN_COMMANDS=true
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
+
+setup_custom_env() {
+  # Project specific custom init setup example
+  setup_env "node_modules/" "npm install --force --legacy-peer-deps"
+}
 
 setup_custom_layout() {
   # Project specific custom layout setup example
@@ -55,7 +61,7 @@ setup_custom_layout() {
     FF_ATTRIB="-P $PROFILE -no-remote -new-tab $NEW_TAB_URL"
     WORKSPACE='hyprctl dispatch -- exec [workspace 2]'
     # Wait for host url to be available to prevent race condition
-    while ! curl -sf "$NEW_TAB_URL" > /dev/null; do
+    while ! curl -sf "$NEW_TAB_URL" >/dev/null; do
       sleep 0.2
     done
     $WORKSPACE firefox-developer-edition $FF_ATTRIB &
@@ -70,10 +76,10 @@ setup_custom_layout() {
 create_tmux_session() {
   local NAME="$1"
   local CMD="$2"
-  tmux new-session -d -s "$SESSION_NAME" -n "$NAME"
+  tmux new-session -d -s "$PROJECT_NAME" -n "$NAME"
   if command -v "${CMD%% *}" >/dev/null; then
-    tmux send-keys -t "$SESSION_NAME" "$CMD"
-    [ "$AUTOSTART_SERVER" = true ] && tmux send-keys -t "$SESSION_NAME" Enter
+    tmux send-keys -t "$PROJECT_NAME" "$CMD"
+    [ "$AUTOSTART_SERVER" = true ] && tmux send-keys -t "$PROJECT_NAME" Enter
   fi
 }
 
@@ -82,9 +88,9 @@ create_window() {
   local NAME="$1"
   local CMD="$2"
   if command -v "${CMD%% *}" >/dev/null; then
-    tmux new-window -t "$SESSION_NAME" -n "$NAME"
-    tmux send-keys -t "$SESSION_NAME" "$CMD"
-    [ "$AUTORUN_COMMANDS" = true ] && tmux send-keys -t "$SESSION_NAME" Enter
+    tmux new-window -t "$PROJECT_NAME" -n "$NAME"
+    tmux send-keys -t "$PROJECT_NAME" "$CMD"
+    [ "$AUTORUN_COMMANDS" = true ] && tmux send-keys -t "$PROJECT_NAME" Enter
   fi
 }
 
@@ -93,7 +99,7 @@ create_temp_window() {
   local NAME="$1"
   local CMD="$2"
   if command -v "${CMD%% *}" >/dev/null; then
-    tmux new-window -t "$SESSION_NAME" -n "$1" "$2"
+    tmux new-window -t "$PROJECT_NAME" -n "$1" "$2"
   fi
 }
 
@@ -206,7 +212,6 @@ setup_elixir_env() {
   setup_env "deps/" "mix setup"
 }
 
-
 # █▀▄▀█ ▄▀█ █ █▄░█
 # █░▀░█ █▀█ █ █░▀█
 
@@ -219,51 +224,55 @@ main() {
   init_services
 
   # SESSION_NAME Fallback
-  if [[ -z "$SESSION_NAME" ]]; then
-    SESSION_NAME="$(basename "$PWD")"
+  if [[ -z "$PROJECT_NAME" ]]; then
+    PROJECT_NAME="$(basename "$PWD")"
   fi
 
   # Attach session if exists
-  if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
-    echo "Session '$SESSION_NAME' already exists. Attaching..."
-    tmux attach -t "$SESSION_NAME"
+  if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
+    echo "Session '$PROJECT_NAME' already exists. Attaching..."
+    tmux attach -t "$PROJECT_NAME"
     exit 0
   fi
 
   # ENV SETUP
-  case "$PRIMARY_SETUP" in
-  "none") ;; # Do nothing
-  "python") setup_python_env ;;
-  "django") setup_python_env ;;
-  "fastapi") setup_python_env ;;
-  "nodejs") setup_node_env ;;
-  "nextjs") setup_node_env ;;
-  "elixir") setup_elixir_env ;;
-  "rust") ;; # Rust sets up its own environment with cargo
-  *) echo "Unknown primary language: $PRIMARY_SETUP" ;;
-  esac
+  if [[ "$CUSTOM_ENV" = true ]]; then
+    setup_custom_env
+  else
+    case "$PROJECT_TYPE" in
+    "none") ;; # Do nothing
+    "python") setup_python_env ;;
+    "django") setup_python_env ;;
+    "fastapi") setup_python_env ;;
+    "nodejs") setup_node_env ;;
+    "nextjs") setup_node_env ;;
+    "elixir") setup_elixir_env ;;
+    "rust") ;; # Rust sets up its own environment with cargo
+    *) echo "Unknown technology: $PROJECT_TYPE" ;;
+    esac
+  fi
 
   # LAYOUT SETUP
   if [[ "$CUSTOM_LAYOUT" = true ]]; then
     setup_custom_layout
   else
-    case "$PRIMARY_SETUP" in
-      "none") setup_default_layout ;;
-      "python") setup_python_layout ;;
-      "django") setup_django_layout ;;
-      "fastapi") setup_fastapi_layout ;;
-      "nodejs") setup_node_layout ;;
-      "nextjs") setup_nextjs_layout ;;
-      "elixir") setup_elixir_layout ;;
-      "rust") setup_rust_layout ;;
-      *)
-        echo "Using default layout..."
-        setup_default_layout
-        ;;
+    case "$PROJECT_TYPE" in
+    "none") setup_default_layout ;;
+    "python") setup_python_layout ;;
+    "django") setup_django_layout ;;
+    "fastapi") setup_fastapi_layout ;;
+    "nodejs") setup_node_layout ;;
+    "nextjs") setup_nextjs_layout ;;
+    "elixir") setup_elixir_layout ;;
+    "rust") setup_rust_layout ;;
+    *)
+      echo "Using default layout..."
+      setup_default_layout
+      ;;
     esac
   fi
 
-  tmux attach -t "$SESSION_NAME"
+  tmux attach -t "$PROJECT_NAME"
 }
 
 main
