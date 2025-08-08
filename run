@@ -5,7 +5,7 @@
 # Default: project dir name
 PROJECT_NAME=""
 # Default: none
-# [ none | python | django | fastapi | nodejs | nextjs | elixir | rust ]
+# [ none | python | django | fastapi | nodejs | nextjs | elixir | rust | angular ]
 PROJECT_TYPE=""
 
 # Settings: [ true | false ]
@@ -150,6 +150,11 @@ setup_elixir_layout() {
   create_temp_window "Editor" "nvim"
 }
 
+setup_angular_layout() {
+  create_tmux_session "Server" "ng serve"
+  create_temp_window "Editor" "nvim"
+}
+
 # █▀ █▀▀ █▀█ █░█ █ █▀▀ █▀▀ █▀
 # ▄█ ██▄ █▀▄ ▀▄▀ █ █▄▄ ██▄ ▄█
 
@@ -246,6 +251,7 @@ main() {
     "fastapi") setup_python_env ;;
     "nodejs") setup_node_env ;;
     "nextjs") setup_node_env ;;
+    "angular") setup_node_env ;;
     "elixir") setup_elixir_env ;;
     "rust") ;; # Rust sets up its own environment with cargo
     *) echo "Unknown technology: $PROJECT_TYPE" ;;
@@ -263,6 +269,7 @@ main() {
     "fastapi") setup_fastapi_layout ;;
     "nodejs") setup_node_layout ;;
     "nextjs") setup_nextjs_layout ;;
+    "angular") setup_angular_layout ;;
     "elixir") setup_elixir_layout ;;
     "rust") setup_rust_layout ;;
     *)
