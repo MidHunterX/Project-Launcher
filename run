@@ -12,7 +12,7 @@ PROJECT_TYPE=""
 AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
 
-# Services: [ true | false ]
+# Services: uncomment to enable
 # USE_POSTGRES=true
 # USE_DOCKER=true
 # USE_MONGODB=true
@@ -26,6 +26,7 @@ cd "$SCRIPT_DIR"
 ENABLE_POST_EXECUTION_HOOK=true
 setup_post_execution_hook() {
   # Project specific post execution hook example
+  log "🔗 Launching browser..."
   (
     NEW_TAB_URL="http://localhost:4200"
     # Wait for host url to be available to prevent race condition
@@ -67,26 +68,18 @@ setup_custom_layout() {
   # Editor (NextJS)
   cd "$SCRIPT_DIR"
   create_window "Editor (Web)" "nvim"
-
-  # Open Browser
-  (
-    cd $SCRIPT_DIR
-    PROFILE="Personal"
-    NEW_TAB_URL="http://localhost:3000" # Frontend
-    FF_ATTRIB="-P $PROFILE -no-remote -new-tab $NEW_TAB_URL"
-    WORKSPACE='hyprctl dispatch -- exec [workspace 2]'
-    # Wait for host url to be available to prevent race condition
-    while ! curl -sf "$NEW_TAB_URL" >/dev/null; do
-      sleep 0.2
-    done
-    $WORKSPACE firefox-developer-edition $FF_ATTRIB &
-  ) &
 }
 
 # =========================================================================== #
 
 # █░█ ▀█▀ █ █░░ █▀
 # █▄█ ░█░ █ █▄▄ ▄█
+
+log() {
+  local GRN='\033[1;32m'
+  local RESET='\033[0;0m'
+  echo -e "[${GRN}$(date +'%H:%M:%S')${RESET}] $1"
+}
 
 create_tmux_session() {
   local NAME="$1"
@@ -179,13 +172,13 @@ init_services() {
     [postgresql]="$USE_POSTGRES"
     [docker]="$USE_DOCKER"
     [mongod]="$USE_MONGODB"
-    [redis - server]="$USE_REDIS"
+    [redis-server]="$USE_REDIS"
   )
 
   for service in "${!SERVICES[@]}"; do
     if [[ "${SERVICES[$service]}" = true ]]; then
       if ! systemctl is-active --quiet "$service"; then
-        echo "🚀 Starting up $service..."
+        log "🚀 Starting up $service..."
         sudo systemctl start "$service"
       fi
     fi
@@ -199,9 +192,9 @@ setup_env() {
   local DEPENDENCY_DIR="$1"
   local DEPENDENCY_CMD="$2"
   if [[ ! -d $DEPENDENCY_DIR ]]; then
-    echo "🚀 Setting up dependencies..."
+    log "🚀 Setting up dependencies..."
     command -v ${DEPENDENCY_CMD%% *} >/dev/null || {
-      echo "❌ Error: ${DEPENDENCY_CMD%% *} not found"
+      log "❌ Error: ${DEPENDENCY_CMD%% *} not found"
       exit 1
     }
     $DEPENDENCY_CMD
@@ -213,12 +206,12 @@ setup_python_env() {
   local DEPENDENCY_CMD="python -m venv venv"
   if [[ ! -d $DEPENDENCY_DIR ]]; then
     setup_env "$DEPENDENCY_DIR" "$DEPENDENCY_CMD"
-    echo "📦 Installing requirements..."
+    log "📦 Installing requirements..."
     source "$DEPENDENCY_DIR/bin/activate"
     if [[ -f "requirements.txt" ]]; then
       pip install -r requirements.txt
     else
-      echo "🚧 Warning: No requirements.txt found"
+      log "🚧 Warning: No requirements.txt found"
     fi
   fi
   source "$DEPENDENCY_DIR/bin/activate"
@@ -237,8 +230,8 @@ setup_elixir_env() {
 
 main() {
   if ! command -v tmux >/dev/null; then
-    echo "Tmux is required for full functionality."
-    echo "Install with: sudo apt install tmux (or equivalent for your OS)"
+    log "Tmux is required for full functionality."
+    log "Install with: sudo apt install tmux (or equivalent for your OS)"
     exit 0
   fi
   init_services
@@ -250,7 +243,7 @@ main() {
 
   # Attach session if exists
   if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
-    echo "Session '$PROJECT_NAME' already exists. Attaching..."
+    log "Session '$PROJECT_NAME' already exists. Attaching..."
     tmux attach -t "$PROJECT_NAME"
     exit 0
   fi
@@ -269,7 +262,7 @@ main() {
     "angular") setup_node_env ;;
     "elixir") setup_elixir_env ;;
     "rust") ;; # Rust sets up its own environment with cargo
-    *) echo "Unknown technology: $PROJECT_TYPE" ;;
+    *) log "Unknown technology: $PROJECT_TYPE" ;;
     esac
   fi
 
@@ -288,7 +281,7 @@ main() {
     "elixir") setup_elixir_layout ;;
     "rust") setup_rust_layout ;;
     *)
-      echo "Using default layout..."
+      log "Using default layout..."
       setup_default_layout
       ;;
     esac
