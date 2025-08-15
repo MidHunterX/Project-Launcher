@@ -9,8 +9,6 @@ PROJECT_NAME=""
 PROJECT_TYPE=""
 
 # Settings: [ true | false ]
-CUSTOM_LAYOUT=false
-CUSTOM_ENV=false
 AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
 
@@ -25,11 +23,28 @@ AUTORUN_COMMANDS=true
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+ENABLE_POST_EXECUTION_HOOK=true
+setup_post_execution_hook() {
+  # Project specific post execution hook example
+  (
+    NEW_TAB_URL="http://localhost:4200"
+    # Wait for host url to be available to prevent race condition
+    while ! curl -sf "$NEW_TAB_URL" >/dev/null; do
+      sleep 0.2
+    done
+    ATTRIBUTES="-P Personal -no-remote -new-tab $NEW_TAB_URL"
+    WORKSPACE='hyprctl dispatch -- exec [workspace 2]'
+    $WORKSPACE firefox-developer-edition $ATTRIBUTES &
+  ) &
+}
+
+ENABLE_CUSTOM_ENV=false
 setup_custom_env() {
   # Project specific custom init setup example
   setup_env "node_modules/" "npm install --force --legacy-peer-deps"
 }
 
+ENABLE_CUSTOM_LAYOUT=false
 setup_custom_layout() {
   # Project specific custom layout setup example
 
@@ -241,7 +256,7 @@ main() {
   fi
 
   # ENV SETUP
-  if [[ "$CUSTOM_ENV" = true ]]; then
+  if [[ "$ENABLE_CUSTOM_ENV" = true ]]; then
     setup_custom_env
   else
     case "$PROJECT_TYPE" in
@@ -259,7 +274,7 @@ main() {
   fi
 
   # LAYOUT SETUP
-  if [[ "$CUSTOM_LAYOUT" = true ]]; then
+  if [[ "$ENABLE_CUSTOM_LAYOUT" = true ]]; then
     setup_custom_layout
   else
     case "$PROJECT_TYPE" in
@@ -277,6 +292,11 @@ main() {
       setup_default_layout
       ;;
     esac
+  fi
+
+  # POST EXECUTION HOOK
+  if [[ "$ENABLE_POST_EXECUTION_HOOK" = true ]]; then
+    setup_post_execution_hook
   fi
 
   tmux attach -t "$PROJECT_NAME"
