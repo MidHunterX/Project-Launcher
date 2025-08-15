@@ -23,7 +23,7 @@ AUTORUN_COMMANDS=true
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-ENABLE_POST_EXECUTION_HOOK=true
+USE_POST_EXECUTION_HOOK=true
 setup_post_execution_hook() {
   # Project specific post execution hook example
   log "🔗 Launching browser..."
@@ -39,34 +39,34 @@ setup_post_execution_hook() {
   ) &
 }
 
-ENABLE_CUSTOM_ENV=false
+USE_CUSTOM_ENV=false
 setup_custom_env() {
-  # Project specific custom init setup example
+  # Project specific custom init setup override example
   setup_env "node_modules/" "npm install --force --legacy-peer-deps"
 }
 
-ENABLE_CUSTOM_LAYOUT=false
+USE_CUSTOM_LAYOUT=false
 setup_custom_layout() {
-  # Project specific custom layout setup example
+  # Project specific custom layout override example
 
-  # Server (FastAPI)
+  # 1. Server (FastAPI)
   cd "../fastapi-project/"
   setup_python_env
   source "./venv/bin/activate"
   create_tmux_session "API Server" "fastapi dev main.py"
-
-  # Server (NextJS)
   cd "$SCRIPT_DIR"
+
+  # 2. Server (NextJS)
   setup_node_env
   create_window "Web Server" "npm run dev"
 
-  # Editor (FastAPI)
+  # 3. Editor (FastAPI)
   cd "../fastapi-project/"
   create_window "Editor (API)" "nvim"
   deactivate
-
-  # Editor (NextJS)
   cd "$SCRIPT_DIR"
+
+  # 4. Editor (NextJS)
   create_window "Editor (Web)" "nvim"
 }
 
@@ -249,7 +249,7 @@ main() {
   fi
 
   # ENV SETUP
-  if [[ "$ENABLE_CUSTOM_ENV" = true ]]; then
+  if [[ "$USE_CUSTOM_ENV" = true ]]; then
     setup_custom_env
   else
     case "$PROJECT_TYPE" in
@@ -262,12 +262,12 @@ main() {
     "angular") setup_node_env ;;
     "elixir") setup_elixir_env ;;
     "rust") ;; # Rust sets up its own environment with cargo
-    *) log "Unknown technology: $PROJECT_TYPE" ;;
+    *) log "🚧 Unknown technology: $PROJECT_TYPE" ;;
     esac
   fi
 
   # LAYOUT SETUP
-  if [[ "$ENABLE_CUSTOM_LAYOUT" = true ]]; then
+  if [[ "$USE_CUSTOM_LAYOUT" = true ]]; then
     setup_custom_layout
   else
     case "$PROJECT_TYPE" in
@@ -281,14 +281,14 @@ main() {
     "elixir") setup_elixir_layout ;;
     "rust") setup_rust_layout ;;
     *)
-      log "Using default layout..."
+      log "🚧 Using default layout..."
       setup_default_layout
       ;;
     esac
   fi
 
   # POST EXECUTION HOOK
-  if [[ "$ENABLE_POST_EXECUTION_HOOK" = true ]]; then
+  if [[ "$USE_POST_EXECUTION_HOOK" = true ]]; then
     setup_post_execution_hook
   fi
 
