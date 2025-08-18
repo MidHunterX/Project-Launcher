@@ -17,6 +17,7 @@ AUTORUN_COMMANDS=true
 # USE_DOCKER=true
 # USE_MONGODB=true
 # USE_REDIS=true
+# USE_NGINX=true
 
 # ------------------------[ CUSTOM LAYOUT OVERRIDES ]------------------------ #
 
@@ -173,6 +174,7 @@ init_services() {
     [docker]="$USE_DOCKER"
     [mongod]="$USE_MONGODB"
     [redis-server]="$USE_REDIS"
+    [nginx]="$USE_NGINX"
   )
 
   for service in "${!SERVICES[@]}"; do
