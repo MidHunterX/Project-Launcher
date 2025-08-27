@@ -21,22 +21,22 @@ AUTORUN_COMMANDS=true
 
 # ------------------------[ CUSTOM LAYOUT OVERRIDES ]------------------------ #
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$script_dir"
 
 USE_POST_EXECUTION_HOOK=true
 setup_post_execution_hook() {
   # Project specific post execution hook example
   log "🔗 Launching browser..."
   (
-    NEW_TAB_URL="http://localhost:4200"
+    new_tab_url="http://localhost:4200"
     # Wait for host url to be available to prevent race condition
-    while ! curl -sf "$NEW_TAB_URL" >/dev/null; do
+    while ! curl -sf "$new_tab_url" >/dev/null; do
       sleep 0.2
     done
-    ATTRIBUTES="-P Personal -no-remote -new-tab $NEW_TAB_URL"
-    WORKSPACE='hyprctl dispatch -- exec [workspace 2]'
-    $WORKSPACE firefox-developer-edition $ATTRIBUTES &
+    attributes="-P Personal -no-remote -new-tab $new_tab_url"
+    workspace='hyprctl dispatch -- exec [workspace 2]'
+    $workspace firefox-developer-edition $attributes &
   ) &
 }
 
@@ -55,7 +55,7 @@ setup_custom_layout() {
   setup_python_env
   source "./venv/bin/activate"
   create_tmux_session "API Server" "fastapi dev main.py"
-  cd "$SCRIPT_DIR"
+  cd "$script_dir"
 
   # 2. Server (NextJS)
   setup_node_env
@@ -65,7 +65,7 @@ setup_custom_layout() {
   cd "../fastapi-project/"
   create_window "Editor (API)" "nvim"
   deactivate
-  cd "$SCRIPT_DIR"
+  cd "$script_dir"
 
   # 4. Editor (NextJS)
   create_window "Editor (Web)" "nvim"
@@ -77,37 +77,37 @@ setup_custom_layout() {
 # █▄█ ░█░ █ █▄▄ ▄█
 
 log() {
-  local GRN='\033[1;32m'
-  local RESET='\033[0;0m'
-  echo -e "[${GRN}$(date +'%H:%M:%S')${RESET}] $1"
+  local grn='\033[1;32m'
+  local reset='\033[0;0m'
+  echo -e "[${grn}$(date +'%H:%M:%S')${reset}] $1"
 }
 
 create_tmux_session() {
-  local NAME="$1"
-  local CMD="$2"
-  tmux new-session -d -s "$PROJECT_NAME" -n "$NAME"
-  if command -v "${CMD%% *}" >/dev/null; then
-    tmux send-keys -t "$PROJECT_NAME" "$CMD"
+  local name="$1"
+  local cmd="$2"
+  tmux new-session -d -s "$PROJECT_NAME" -n "$name"
+  if command -v "${cmd%% *}" >/dev/null; then
+    tmux send-keys -t "$PROJECT_NAME" "$cmd"
     [ "$AUTOSTART_SERVER" = true ] && tmux send-keys -t "$PROJECT_NAME" Enter
   fi
 }
 
 # create_window(str:window_name str:command int:window_index)
 create_window() {
-  local NAME="$1"
-  local CMD="$2"
-  if command -v "${CMD%% *}" >/dev/null; then
-    tmux new-window -t "$PROJECT_NAME" -n "$NAME"
-    tmux send-keys -t "$PROJECT_NAME" "$CMD"
+  local name="$1"
+  local cmd="$2"
+  if command -v "${cmd%% *}" >/dev/null; then
+    tmux new-window -t "$PROJECT_NAME" -n "$name"
+    tmux send-keys -t "$PROJECT_NAME" "$cmd"
     [ "$AUTORUN_COMMANDS" = true ] && tmux send-keys -t "$PROJECT_NAME" Enter
   fi
 }
 
 # create_temp_window(str:window_name str:command)
 create_temp_window() {
-  local NAME="$1"
-  local CMD="$2"
-  if command -v "${CMD%% *}" >/dev/null; then
+  local name="$1"
+  local cmd="$2"
+  if command -v "${cmd%% *}" >/dev/null; then
     tmux new-window -t "$PROJECT_NAME" -n "$1" "$2"
   fi
 }
@@ -169,7 +169,7 @@ setup_angular_layout() {
 
 init_services() {
   # Syntax: [systemctl-service-name]="$USE_SERVICE"
-  declare -A SERVICES=(
+  declare -A services=(
     [postgresql]="$USE_POSTGRES"
     [docker]="$USE_DOCKER"
     [mongod]="$USE_MONGODB"
@@ -177,8 +177,8 @@ init_services() {
     [nginx]="$USE_NGINX"
   )
 
-  for service in "${!SERVICES[@]}"; do
-    if [[ "${SERVICES[$service]}" = true ]]; then
+  for service in "${!services[@]}"; do
+    if [[ "${services[$service]}" = true ]]; then
       if ! systemctl is-active --quiet "$service"; then
         log "🚀 Starting up $service..."
         sudo systemctl start "$service"
@@ -191,32 +191,32 @@ init_services() {
 # ██▄ █░▀█ ▀▄▀   ▄█ ██▄ ░█░ █▄█ █▀▀
 
 setup_env() {
-  local DEPENDENCY_DIR="$1"
-  local DEPENDENCY_CMD="$2"
-  if [[ ! -d $DEPENDENCY_DIR ]]; then
+  local dependency_dir="$1"
+  local dependency_cmd="$2"
+  if [[ ! -d $dependency_dir ]]; then
     log "🚀 Setting up dependencies..."
-    command -v ${DEPENDENCY_CMD%% *} >/dev/null || {
-      log "❌ Error: ${DEPENDENCY_CMD%% *} not found"
+    command -v ${dependency_cmd%% *} >/dev/null || {
+      log "❌ Error: ${dependency_cmd%% *} not found"
       exit 1
     }
-    $DEPENDENCY_CMD
+    $dependency_cmd
   fi
 }
 
 setup_python_env() {
-  local DEPENDENCY_DIR="venv/"
-  local DEPENDENCY_CMD="python -m venv venv"
-  if [[ ! -d $DEPENDENCY_DIR ]]; then
-    setup_env "$DEPENDENCY_DIR" "$DEPENDENCY_CMD"
+  local dependency_dir="venv/"
+  local dependency_cmd="python -m venv venv"
+  if [[ ! -d $dependency_dir ]]; then
+    setup_env "$dependency_dir" "$dependency_cmd"
     log "📦 Installing requirements..."
-    source "$DEPENDENCY_DIR/bin/activate"
+    source "$dependency_dir/bin/activate"
     if [[ -f "requirements.txt" ]]; then
       pip install -r requirements.txt
     else
       log "🚧 Warning: No requirements.txt found"
     fi
   fi
-  source "$DEPENDENCY_DIR/bin/activate"
+  source "$dependency_dir/bin/activate"
 }
 
 setup_node_env() {
