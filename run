@@ -8,10 +8,6 @@ PROJECT_NAME=""
 # [ none | python | django | fastapi | nodejs | nextjs | elixir | rust | angular ]
 PROJECT_TYPE=""
 
-# Settings: [ true | false ]
-AUTOSTART_SERVER=true
-AUTORUN_COMMANDS=true
-
 # Services: uncomment to enable
 ENABLED_SERVICES=(
   # postgresql
@@ -21,13 +17,17 @@ ENABLED_SERVICES=(
   # nginx
 )
 
+# Settings: [ true | false ]
+AUTOSTART_SERVER=true
+AUTORUN_COMMANDS=true
+
 # ------------------------[ CUSTOM LAYOUT OVERRIDES ]------------------------ #
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$script_dir"
 
-USE_POST_EXECUTION_HOOK=false
-setup_post_execution_hook() {
+USE_POST_INITIALIZATION_HOOK=false
+setup_post_init_hook() {
   # Project specific post execution hook example
   log "🔗 Launching browser..."
   (
@@ -35,7 +35,7 @@ setup_post_execution_hook() {
     timeout=30 # seconds
     # Wait for host url to be available to prevent race condition
     while ! curl -sf "$new_tab_url" >/dev/null; do
-      sleep 1;
+      sleep 1
       ((timeout--)) || { exit 1; }
     done
     attributes="-P Personal -no-remote -new-tab $new_tab_url"
@@ -276,18 +276,20 @@ main() {
     "elixir") setup_elixir_layout ;;
     "rust") setup_rust_layout ;;
     *)
-      log "🚧 Using default layout..."
+      log "🚧 Unknown technology: $PROJECT_TYPE. Using default layout..."
       setup_default_layout
       ;;
     esac
   fi
 
-  # POST EXECUTION HOOK
-  if [[ "$USE_POST_EXECUTION_HOOK" = true ]]; then
-    setup_post_execution_hook
+  # POST INIT HOOK
+  if [[ "$USE_POST_INITIALIZATION_HOOK" = true ]]; then
+    setup_post_init_hook
   fi
 
   tmux attach -t "$PROJECT_NAME"
 }
 
 main
+
+log "👋 Goodbye!"
