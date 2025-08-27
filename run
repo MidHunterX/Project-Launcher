@@ -13,26 +13,30 @@ AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
 
 # Services: uncomment to enable
-# USE_POSTGRES=true
-# USE_DOCKER=true
-# USE_MONGODB=true
-# USE_REDIS=true
-# USE_NGINX=true
+ENABLED_SERVICES=(
+  # postgresql
+  # docker
+  # mongod
+  # redis-server
+  # nginx
+)
 
 # ------------------------[ CUSTOM LAYOUT OVERRIDES ]------------------------ #
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$script_dir"
 
-USE_POST_EXECUTION_HOOK=true
+USE_POST_EXECUTION_HOOK=false
 setup_post_execution_hook() {
   # Project specific post execution hook example
   log "🔗 Launching browser..."
   (
     new_tab_url="http://localhost:4200"
+    timeout=30 # seconds
     # Wait for host url to be available to prevent race condition
     while ! curl -sf "$new_tab_url" >/dev/null; do
-      sleep 0.2
+      sleep 1;
+      ((timeout--)) || { exit 1; }
     done
     attributes="-P Personal -no-remote -new-tab $new_tab_url"
     workspace='hyprctl dispatch -- exec [workspace 2]'
@@ -168,21 +172,10 @@ setup_angular_layout() {
 # ▄█ ██▄ █▀▄ ▀▄▀ █ █▄▄ ██▄ ▄█
 
 init_services() {
-  # Syntax: [systemctl-service-name]="$USE_SERVICE"
-  declare -A services=(
-    [postgresql]="$USE_POSTGRES"
-    [docker]="$USE_DOCKER"
-    [mongod]="$USE_MONGODB"
-    [redis-server]="$USE_REDIS"
-    [nginx]="$USE_NGINX"
-  )
-
-  for service in "${!services[@]}"; do
-    if [[ "${services[$service]}" = true ]]; then
-      if ! systemctl is-active --quiet "$service"; then
-        log "🚀 Starting up $service..."
-        sudo systemctl start "$service"
-      fi
+  for service in "${ENABLED_SERVICES[@]}"; do
+    if ! systemctl is-active --quiet "$service"; then
+      log "🔧 Starting $service..."
+      sudo systemctl start "$service"
     fi
   done
 }
