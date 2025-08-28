@@ -4,8 +4,10 @@
 
 # Default: project dir name
 PROJECT_NAME=""
-# Default: none
-# [ none | python | django | fastapi | nodejs | nextjs | elixir | rust | angular ]
+# Default: automatic detection
+# Available project types:
+# [ none | python | django | fastapi | nodejs ]
+# [ nextjs | elixir | rust | angular ]
 PROJECT_TYPE=""
 
 # Services: uncomment to enable
@@ -242,26 +244,50 @@ setup_elixir_env() {
 # █░▀░█ █▀█ █ █░▀█
 
 main() {
+  # CHECK: tmux dependency
   if ! command -v tmux >/dev/null; then
     log "Tmux is required for full functionality."
     log "Install with: sudo apt install tmux (or equivalent for your OS)"
     exit 0
   fi
+
   init_services
 
-  # SESSION_NAME Fallback
+  # FALLBACK: PROJECT_NAME={project dir name}
   if [[ -z "$PROJECT_NAME" ]]; then
     PROJECT_NAME="$(basename "$PWD")"
   fi
 
-  # Attach session if exists
+  # ACTION: Attach session if exists
   if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
     log "Session '$PROJECT_NAME' already exists. Attaching..."
     tmux attach -t "$PROJECT_NAME"
     exit 0
   fi
 
-  # ENV SETUP
+  # FALLBACK: PROJECT_TYPE={automatic detection}
+  if [[ -z "$PROJECT_TYPE" ]]; then
+    declare -A project_files=(
+      ["python"]="main.py"
+      ["django"]="manage.py"
+      ["fastapi"]="main.py"
+      ["nodejs"]="package.json"
+      ["nextjs"]="next.config.js"
+      ["angular"]="angular.json"
+      ["elixir"]="mix.exs"
+      ["rust"]="Cargo.toml"
+    )
+    PROJECT_TYPE="none"
+    for project_type in "${!project_files[@]}"; do
+      if [[ -f "${project_files[$project_type]}" ]]; then
+        PROJECT_TYPE="$project_type"
+        break
+      fi
+    done
+    log "🔍 Detected project type: $PROJECT_TYPE"
+  fi
+
+  # SETUP: ENV
   if [[ "$USE_CUSTOM_ENV" = true ]]; then
     setup_custom_env
   else
@@ -279,7 +305,7 @@ main() {
     esac
   fi
 
-  # LAYOUT SETUP
+  # SETUP: LAYOUT
   if [[ "$USE_CUSTOM_LAYOUT" = true ]]; then
     setup_custom_layout
   else
@@ -300,7 +326,7 @@ main() {
     esac
   fi
 
-  # POST INIT HOOK
+  # ACTION: POST INIT HOOK
   if [[ "$USE_POST_INITIALIZATION_HOOK" = true ]]; then
     setup_post_init_hook
   fi
