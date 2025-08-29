@@ -76,7 +76,6 @@ setup_custom_layout() {
   # 1. Server (FastAPI)
   cd "../fastapi-project/"
   setup_python_env
-  source "./venv/bin/activate"
   create_tmux_session "API Server" "fastapi dev main.py"
 
   # 2. Server (NextJS)
@@ -251,11 +250,13 @@ detect_project_type() {
     echo "django"
 
   elif [[ -f "package.json" ]]; then
-    if [[ -f "next.config.js" ]]; then
-      echo "nextjs"
-    else
-      echo "nodejs"
-    fi
+    for ext in js ts; do
+      if [[ -f "next.config.$ext" ]]; then
+        echo "nextjs"
+        return
+      fi
+    done
+    echo "nodejs"
 
   elif [[ -f "angular.json" ]]; then
     echo "angular"

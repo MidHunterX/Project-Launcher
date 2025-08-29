@@ -35,17 +35,17 @@ The script will:
 
 ## ℹ️ Supported Project Types
 
-| Project Type | Detection Method                  | Default Layout       |
-| ------------ | --------------------------------- | -------------------- |
-| **FastAPI**  | `main.py` with FastAPI imports    | Server, Editor, Test |
-| **Python**   | `main.py` file                    | Server, Editor       |
-| **Django**   | `manage.py` file                  | Server, Editor, Test |
-| **Next.js**  | `next.config.js` + `package.json` | Server, Editor       |
-| **Node.js**  | `package.json` file               | Server, Editor, Test |
-| **Angular**  | `angular.json` file               | Server, Editor       |
-| **Rust**     | `Cargo.toml` file                 | Run, Editor, Test    |
-| **Elixir**   | `mix.exs` file                    | Server, Editor       |
-| **Generic**  | No specific files found           | Command, Editor      |
+| Project Type | Detection Method                       | Default Layout       |
+| ------------ | -------------------------------------- | -------------------- |
+| FastAPI      | `main.py` with FastAPI imports         | Server, Editor, Test |
+| Python       | `main.py`                              | Server, Editor       |
+| Django       | `manage.py`                            | Server, Editor, Test |
+| Next.js      | `next.config.{js,ts}` + `package.json` | Server, Editor       |
+| Node.js      | `package.json`                         | Server, Editor, Test |
+| Angular      | `angular.json`                         | Server, Editor       |
+| Rust         | `Cargo.toml`                           | Run, Editor, Test    |
+| Elixir       | `mix.exs`                              | Server, Editor       |
+| Generic      | No specific files found                | Command, Editor      |
 
 ## ⚙️ Configuration
 
@@ -57,7 +57,7 @@ Edit the configuration section at the top of the script:
 # Project name (defaults to directory name)
 PROJECT_NAME=""
 
-# Force a specific project type
+# Force a specific project type (defaults to auto-detection)
 PROJECT_TYPE=""
 
 # Enable system services
@@ -98,7 +98,7 @@ setup_custom_env() {
 
 ### Custom Layouts
 
-Override the default layout for complex multi-project setups:
+Override the default layout for complex multi-project setups (or just use Docker at this point):
 
 ```bash
 USE_CUSTOM_LAYOUT=true
@@ -106,9 +106,8 @@ setup_custom_layout() {
   # Example: FastAPI + Next.js setup
 
   # 1. Start FastAPI server
-  cd "../api-project/"
+  cd "../fastapi-project/"
   setup_python_env
-  source "./venv/bin/activate"
   create_tmux_session "API Server" "fastapi dev main.py"
 
   # 2. Start Next.js server
@@ -117,8 +116,9 @@ setup_custom_layout() {
   create_window "Web Server" "npm run dev"
 
   # 3. Create editor windows
-  cd "../api-project/"
+  cd "../fastapi-project/"
   create_window "Editor (API)" "nvim"
+
   cd "$script_dir"
   create_window "Editor (Web)" "nvim"
 }
