@@ -2,16 +2,16 @@
 
 Project Launcher automatically detects your project type and sets up a complete tmux development environment with pre-configured windows, services, and commands.
 
-## Features
+## 🔥 Features
 
-- 🔍 **Auto-detection**: Automatically detects project type (Python, FastAPI, Django, Node.js, Next.js, Angular, Rust, Elixir)
-- 🚀 **Quick Setup**: Installs dependencies and sets up virtual environments automatically
-- 🖥️ **Tmux Integration**: Creates organized tmux sessions with dedicated windows for different tasks
-- 🛠️ **Service Management**: Automatically starts required system services (PostgreSQL, Docker, MongoDB, Redis, Nginx)
-- ⚙️ **Highly Customizable**: Override layouts, environments, and post-initialization hooks
-- 🔄 **Session Management**: Reattaches to existing sessions or creates new ones
+- **Auto-detection**: Automatically detects project type (Python, FastAPI, Django, Node.js, Next.js, Angular, Rust, Elixir)
+- **Quick Setup**: Installs dependencies and sets up virtual environments automatically
+- **Tmux Integration**: Creates organized tmux sessions with dedicated windows for different tasks
+- **Service Management**: Automatically starts required system services (PostgreSQL, Docker, MongoDB, Redis, Nginx)
+- **Highly Customizable**: Override layouts, environments, and post-initialization hooks
+- **Session Management**: Reattaches to existing sessions or creates new ones
 
-## Quick Start
+## 🚀 Quick Start
 
 1. Make the script executable:
 
@@ -33,7 +33,7 @@ The script will:
 - Create a tmux session with appropriate windows
 - Launch your development server
 
-## Supported Project Types
+## ℹ️ Supported Project Types
 
 | Project Type | Detection Method                  | Default Layout       |
 | ------------ | --------------------------------- | -------------------- |
@@ -47,7 +47,7 @@ The script will:
 | **Elixir**   | `mix.exs` file                    | Server, Editor       |
 | **Generic**  | No specific files found           | Command, Editor      |
 
-## Configuration
+## ⚙️ Configuration
 
 ### Basic Settings
 
@@ -140,7 +140,7 @@ setup_post_init_hook() {
 }
 ```
 
-## Commands Reference
+## 📚 Commands Reference
 
 ### Tmux Session Functions
 
@@ -161,7 +161,7 @@ setup_post_init_hook() {
 - `detect_project_type()` - Auto-detect project type
 - `init_services()` - Start enabled system services
 
-## Examples
+## 📝 Examples
 
 ### Python FastAPI Project
 
@@ -190,23 +190,7 @@ ENABLED_SERVICES=(postgresql redis-server)
 # Custom layout handles multiple related projects
 ```
 
-## Tmux Key Bindings
-
-Once in your tmux session, use these common commands:
-
-- `Ctrl+b c` - Create new window
-- `Ctrl+b n` - Next window
-- `Ctrl+b p` - Previous window
-- `Ctrl+b d` - Detach from session
-- `Ctrl+b [` - Enter scroll mode
-
-To reattach to your session later:
-
-```bash
-tmux attach -t your-project-name
-```
-
-## Troubleshooting
+## 🐞 Troubleshooting
 
 ### Common Issues
 
@@ -246,7 +230,7 @@ brew install tmux
 sudo pacman -S tmux
 ```
 
-## Advanced Usage
+## 🎯 Advanced Usage
 
 ### Multiple Project Environments
 
