@@ -2,6 +2,22 @@
 
 Project Launcher automatically detects your project type and sets up a complete tmux development environment with pre-configured windows, services, and commands.
 
+### Supported Technologies
+
+<span>
+  <img src="https://img.shields.io/badge/Rust-black?style=for-the-badge&logo=rust&logoColor=#E57324" />
+
+  <img src="https://img.shields.io/badge/Elixir-4B275F?style=for-the-badge&logo=elixir&logoColor=white" />
+
+  <img src="https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue" />
+  <img src="https://img.shields.io/badge/fastapi-109989?style=for-the-badge&logo=FASTAPI&logoColor=white" />
+  <img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green" />
+
+  <img src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
+  <img src="https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />
+  <img src="https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white" />
+</span>
+
 ## 🔥 Features
 
 - **Auto-detection**: Automatically detects project type (Python, FastAPI, Django, Rust, Node.js, Next.js etc.)
@@ -57,28 +73,6 @@ AUTOSTART_SERVER=true    # Automatically start development servers
 AUTORUN_COMMANDS=true    # Automatically execute commands in tmux
 ```
 
-### Supported Project Types
-
-- `none` - Generic project (default if not detected)
-- `python` - Basic Python project with venv
-- `django` - Django Full-Stack Framework
-- `fastapi` - FastAPI Framework
-- `nodejs` - Node.js Backend with NPM
-- `nextjs` - Next.js Framework
-- `angular` - Angular Framework
-- `elixir` - Elixir Framework with Mix
-- `rust` - Rust Project with Cargo
-
-### Available Services
-
-Uncomment services in `ENABLED_SERVICES` to auto-start them:
-
-- `postgresql` - PostgreSQL database
-- `docker` - Docker daemon
-- `mongod` - MongoDB
-- `redis-server` - Redis server
-- `nginx` - Nginx web server
-
 ### Custom Environment Setup
 
 Enable custom environment setup for complex dependency management:
@@ -119,9 +113,11 @@ setup_custom_layout() {
 }
 ```
 
-### Post-Initialization Hook
+### Post-Initialization Hook Examples
 
-Add custom actions after setup completion:
+#### Opening Browser
+
+Enable a post-initialization hook to open browser with specific URL.
 
 ```bash
 USE_POST_INITIALIZATION_HOOK=true
@@ -135,39 +131,7 @@ setup_post_init_hook() {
 }
 ```
 
-## 📚 Commands Reference
-
-### Tmux Session Functions
-
-- `create_tmux_session(name, command)` - Create new tmux session
-- `create_window(name, command)` - Add window to existing session
-- `create_temp_window(name, command)` - Add window that runs command once
-
-### Environment Setup Functions
-
-- `setup_python_env()` - Create Python venv and install requirements
-- `setup_node_env()` - Run npm install
-- `setup_elixir_env()` - Run mix setup
-- `setup_env(dir, command)` - Generic dependency setup
-
-### Utility Functions
-
-- `log(message)` - Timestamped logging
-- `detect_project_type()` - Auto-detect project type
-- `init_services()` - Start enabled system services
-
-## 🎯 Advanced Usage
-
-### Multiple Project Environments
-
-For complex setups with multiple related projects:
-
-1. Place the script in a parent directory
-2. Use `USE_CUSTOM_LAYOUT=true`
-3. Navigate between project directories in your custom layout
-4. Each project can have its own window with appropriate environments
-
-### Integration with IDEs
+#### Integration with IDEs
 
 The script works well with terminal-based editors (nvim, emacs) but can be adapted for GUI editors:
 
@@ -178,15 +142,6 @@ setup_post_init_hook() {
   code . &
 }
 ```
-
-## 🤝 Contributing
-
-This script is designed to be easily customizable for your specific workflow. Common improvements:
-
-1. Add support for new project types in `detect_project_type()`
-2. Create new layout functions for specific frameworks
-3. Add new service integrations in `init_services()`
-4. Enhance environment setup for complex dependency chains
 
 ## 📜 License
 
