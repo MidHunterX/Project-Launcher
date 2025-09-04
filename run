@@ -9,7 +9,7 @@ PROJECT_NAME=""
 # none | rust | python | django | fastapi | nodejs | nextjs | elixir | angular
 PROJECT_TYPE=""
 
-# Services: uncomment to enable
+# Services: add any valid systemd services here
 ENABLED_SERVICES=(
   # postgresql
   # docker
@@ -146,41 +146,41 @@ select_server() {
 # █░░ ▄▀█ █▄█ █▀█ █░█ ▀█▀ █▀
 # █▄▄ █▀█ ░█░ █▄█ █▄█ ░█░ ▄█
 
-setup_default_layout() {
+setup_base_layout() {
   create_tmux_session "Cmd" "$(select_server $PROJECT_TYPE)"
   create_temp_window "Editor" "nvim"
 }
 
 setup_fastapi_layout() {
-  setup_default_layout
+  setup_base_layout
   create_window "Test" "clear && pytest"
 }
 
 setup_django_layout() {
-  setup_default_layout
+  setup_base_layout
   create_window "Test" "python manage.py test"
 }
 
 setup_rust_layout() {
-  setup_default_layout
+  setup_base_layout
   create_window "Test" "cargo test"
 }
 
 select_layout() {
   local project_type="$1"
   case "$project_type" in
-  "none") setup_default_layout ;;
-  "python") setup_default_layout ;;
+  "none") setup_base_layout ;;
+  "python") setup_base_layout ;;
   "django") setup_django_layout ;;
   "fastapi") setup_fastapi_layout ;;
-  "nodejs") setup_default_layout ;;
-  "nextjs") setup_default_layout ;;
-  "angular") setup_default_layout ;;
-  "elixir") setup_default_layout ;;
+  "nodejs") setup_base_layout ;;
+  "nextjs") setup_base_layout ;;
+  "angular") setup_base_layout ;;
+  "elixir") setup_base_layout ;;
   "rust") setup_rust_layout ;;
   *)
     log "🚧 Unknown technology: ${project_type}. Using default layout..."
-    setup_default_layout
+    setup_base_layout
     ;;
   esac
 }
@@ -200,7 +200,7 @@ init_services() {
 # █▀▀ █▄░█ █░█   █▀ █▀▀ ▀█▀ █░█ █▀█
 # ██▄ █░▀█ ▀▄▀   ▄█ ██▄ ░█░ █▄█ █▀▀
 
-setup_env() {
+setup_base_env() {
   local dependency_dir="$1"
   local dependency_cmd="$2"
   if [[ ! -d $dependency_dir ]]; then
@@ -217,7 +217,7 @@ setup_python_env() {
   local dependency_dir="venv/"
   local dependency_cmd="python -m venv venv"
   if [[ ! -d $dependency_dir ]]; then
-    setup_env "$dependency_dir" "$dependency_cmd"
+    setup_base_env "$dependency_dir" "$dependency_cmd"
     log "📦 Installing requirements..."
     source "$dependency_dir/bin/activate"
     if [[ -f "requirements.txt" ]]; then
@@ -230,11 +230,11 @@ setup_python_env() {
 }
 
 setup_node_env() {
-  setup_env "node_modules/" "npm install"
+  setup_base_env "node_modules/" "npm install"
 }
 
 setup_elixir_env() {
-  setup_env "deps/" "mix setup"
+  setup_base_env "deps/" "mix setup"
 }
 
 select_env() {
