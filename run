@@ -266,13 +266,6 @@ detect_project_type() {
 # █░▀░█ █▀█ █ █░▀█
 
 main() {
-  # CHECK: tmux dependency
-  if ! command -v tmux >/dev/null; then
-    log "Tmux is required for full functionality."
-    log "Install with: sudo apt install tmux (or equivalent for your OS)"
-    exit 0
-  fi
-
   init_services
 
   # FALLBACK: PROJECT_NAME={project dir name}
@@ -309,6 +302,13 @@ main() {
     "rust") ;; # Rust sets up its own environment with cargo
     *) log "🚧 Unknown technology: $PROJECT_TYPE" ;;
     esac
+  fi
+
+  # CHECK: tmux dependency for LAYOUT
+  if ! command -v tmux >/dev/null; then
+    log "ℹ️ Info: tmux not found. Running server without tmux.."
+    run_server "$PROJECT_TYPE"
+    exit 0
   fi
 
   # SETUP: LAYOUT

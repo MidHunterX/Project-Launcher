@@ -22,7 +22,7 @@ Project Launcher automatically detects your project type and sets up a complete 
 
 - **Auto-detection**: Automatically detects project type (Python, FastAPI, Django, Rust, Node.js, Next.js etc.)
 - **Quick Setup**: Installs dependencies and sets up virtual environments automatically
-- **Tmux Integration**: Creates organized tmux sessions with dedicated windows for different tasks
+- **Tmux (optional) Integration**: Creates organized tmux sessions with dedicated windows for different tasks
 - **Service Management**: Automatically starts required system services (PostgreSQL, Docker, MongoDB, Redis, Nginx etc.)
 - **Highly Customizable**: Override layouts, environments, and post-initialization hooks
 - **Session Management**: Reattaches to existing sessions or creates new ones
@@ -46,9 +46,9 @@ The script will:
 - Detect your project type automatically
 - Install dependencies if needed
 - Start required services
-- Create a tmux session with appropriate windows
+- Create a tmux session (if available) with appropriate windows
 - Launch your development server
-- Run post-initialization commands if enabled
+- Run post-initialization commands if enabled (need tmux)
 
 ## ⚙️ Configuration
 
