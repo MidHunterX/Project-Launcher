@@ -35,31 +35,24 @@ setup_post_init_hook() {
     new_tab_url="http://localhost:3000"
     firefox_profile="Personal"
 
-    function is_firefox_profile_running() {
-      local profile="$1"
-      local proc=$(ps aux | grep "firefox -P $profile" | head -n 1 | awk {printf'$13'})
-      [[ $proc == $profile ]]
-    }
-
     function wait_for_server() {
       local url="$1"
-      local timeout=30
+      local timeout=20
       while ! curl -sf "$url" >/dev/null; do
         sleep 1
         ((timeout--)) || { exit 1; }
       done
     }
+    wait_for_server "$new_tab_url"
 
-    if is_firefox_profile_running "$firefox_profile"; then
-      wait_for_server "$new_tab_url"
-    else
-      # Give some time for the server to start
-      sleep 1.1
-    fi
-
-    attributes="-P $firefox_profile -no-remote -new-tab $new_tab_url"
-    workspace='hyprctl dispatch -- exec [workspace 2]'
-    $workspace firefox-developer-edition $attributes &
+    function run_custom_browser() {
+      local url="$1"
+      local profile="$2"
+      attributes="-P $profile -no-remote -new-tab $url"
+      workspace='hyprctl dispatch -- exec [workspace 2]'
+      $workspace firefox-developer-edition $attributes >/dev/null &
+    }
+    run_custom_browser "$new_tab_url" "$firefox_profile"
   ) &
 }
 
