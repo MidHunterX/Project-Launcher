@@ -134,56 +134,43 @@ create_temp_window() {
   fi
 }
 
+run_server() {
+  local project_type="$1"
+  case "$project_type" in
+  "none") ;; # Do nothing
+  "python") echo "python main.py" ;;
+  "fastapi") echo "fastapi dev main.py" ;;
+  "django") echo "python manage.py runserver" ;;
+  "nodejs") echo "npm start" ;;
+  "nextjs") echo "npm run dev" ;;
+  "angular") echo "ng serve" ;;
+  "elixir") echo "iex -S mix phx.server" ;;
+  "rust") echo "cargo run" ;;
+  *) log "🚧 Warning: No server setup for $project_type" ;;
+  esac
+}
+
 # █░░ ▄▀█ █▄█ █▀█ █░█ ▀█▀ █▀
 # █▄▄ █▀█ ░█░ █▄█ █▄█ ░█░ ▄█
 
 setup_default_layout() {
-  create_tmux_session "Cmd"
-  create_temp_window "Editor" "nvim"
-}
-
-setup_python_layout() {
-  create_tmux_session "Cmd" "python main.py"
+  create_tmux_session "Cmd" "$(run_server $PROJECT_TYPE)"
   create_temp_window "Editor" "nvim"
 }
 
 setup_fastapi_layout() {
-  create_tmux_session "Server" "fastapi dev main.py"
-  create_temp_window "Editor" "nvim"
+  setup_default_layout
   create_window "Test" "clear && pytest"
 }
 
-setup_nextjs_layout() {
-  create_tmux_session "Server" "npm run dev"
-  create_temp_window "Editor" "nvim"
-}
-
 setup_django_layout() {
-  create_tmux_session "Server" "python manage.py runserver"
-  create_temp_window "Editor" "nvim"
+  setup_default_layout
   create_window "Test" "python manage.py test"
 }
 
-setup_node_layout() {
-  create_tmux_session "Server" "npm start"
-  create_temp_window "Editor" "nvim"
-  create_window "Test" "npm test"
-}
-
 setup_rust_layout() {
-  create_tmux_session "Run" "cargo run"
-  create_temp_window "Editor" "nvim"
+  setup_default_layout
   create_window "Test" "cargo test"
-}
-
-setup_elixir_layout() {
-  create_tmux_session "Server" "iex -S mix phx.server"
-  create_temp_window "Editor" "nvim"
-}
-
-setup_angular_layout() {
-  create_tmux_session "Server" "ng serve"
-  create_temp_window "Editor" "nvim"
 }
 
 # █▀ █▀▀ █▀█ █░█ █ █▀▀ █▀▀ █▀
@@ -237,6 +224,9 @@ setup_node_env() {
 setup_elixir_env() {
   setup_env "deps/" "mix setup"
 }
+
+# █▀▄ █▀▀ ▀█▀ █▀▀ █▀▀ ▀█▀ █ █▀█ █▄░█
+# █▄▀ ██▄ ░█░ ██▄ █▄▄ ░█░ █ █▄█ █░▀█
 
 detect_project_type() {
   if [[ -f "main.py" ]]; then
@@ -327,13 +317,13 @@ main() {
   else
     case "$PROJECT_TYPE" in
     "none") setup_default_layout ;;
-    "python") setup_python_layout ;;
+    "python") setup_default_layout ;;
     "django") setup_django_layout ;;
     "fastapi") setup_fastapi_layout ;;
-    "nodejs") setup_node_layout ;;
-    "nextjs") setup_nextjs_layout ;;
-    "angular") setup_angular_layout ;;
-    "elixir") setup_elixir_layout ;;
+    "nodejs") setup_default_layout ;;
+    "nextjs") setup_default_layout ;;
+    "angular") setup_default_layout ;;
+    "elixir") setup_default_layout ;;
     "rust") setup_rust_layout ;;
     *)
       log "🚧 Unknown technology: $PROJECT_TYPE. Using default layout..."
