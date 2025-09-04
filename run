@@ -127,7 +127,7 @@ create_temp_window() {
   fi
 }
 
-run_server() {
+select_server() {
   local project_type="$1"
   case "$project_type" in
   "none") ;; # Do nothing
@@ -139,7 +139,7 @@ run_server() {
   "angular") echo "ng serve" ;;
   "elixir") echo "iex -S mix phx.server" ;;
   "rust") echo "cargo run" ;;
-  *) log "🚧 Warning: No server setup for $project_type" ;;
+  *) log "🚧 Warning: No server setup for ${project_type}" ;;
   esac
 }
 
@@ -147,7 +147,7 @@ run_server() {
 # █▄▄ █▀█ ░█░ █▄█ █▄█ ░█░ ▄█
 
 setup_default_layout() {
-  create_tmux_session "Cmd" "$(run_server $PROJECT_TYPE)"
+  create_tmux_session "Cmd" "$(select_server $PROJECT_TYPE)"
   create_temp_window "Editor" "nvim"
 }
 
@@ -164,6 +164,25 @@ setup_django_layout() {
 setup_rust_layout() {
   setup_default_layout
   create_window "Test" "cargo test"
+}
+
+select_layout() {
+  local project_type="$1"
+  case "$project_type" in
+  "none") setup_default_layout ;;
+  "python") setup_default_layout ;;
+  "django") setup_django_layout ;;
+  "fastapi") setup_fastapi_layout ;;
+  "nodejs") setup_default_layout ;;
+  "nextjs") setup_default_layout ;;
+  "angular") setup_default_layout ;;
+  "elixir") setup_default_layout ;;
+  "rust") setup_rust_layout ;;
+  *)
+    log "🚧 Unknown technology: ${project_type}. Using default layout..."
+    setup_default_layout
+    ;;
+  esac
 }
 
 # █▀ █▀▀ █▀█ █░█ █ █▀▀ █▀▀ █▀
@@ -216,6 +235,22 @@ setup_node_env() {
 
 setup_elixir_env() {
   setup_env "deps/" "mix setup"
+}
+
+select_env() {
+  local project_type="$1"
+  case "$project_type" in
+  "none") ;; # Do nothing
+  "python") setup_python_env ;;
+  "django") setup_python_env ;;
+  "fastapi") setup_python_env ;;
+  "nodejs") setup_node_env ;;
+  "nextjs") setup_node_env ;;
+  "angular") setup_node_env ;;
+  "elixir") setup_elixir_env ;;
+  "rust") ;; # Rust sets up its own environment with cargo
+  *) log "🚧 Unknown technology: ${project_type}" ;;
+  esac
 }
 
 # █▀▄ █▀▀ ▀█▀ █▀▀ █▀▀ ▀█▀ █ █▀█ █▄░█
@@ -283,24 +318,13 @@ main() {
   if [[ "$USE_CUSTOM_ENV" = true ]]; then
     setup_custom_env
   else
-    case "$PROJECT_TYPE" in
-    "none") ;; # Do nothing
-    "python") setup_python_env ;;
-    "django") setup_python_env ;;
-    "fastapi") setup_python_env ;;
-    "nodejs") setup_node_env ;;
-    "nextjs") setup_node_env ;;
-    "angular") setup_node_env ;;
-    "elixir") setup_elixir_env ;;
-    "rust") ;; # Rust sets up its own environment with cargo
-    *) log "🚧 Unknown technology: $PROJECT_TYPE" ;;
-    esac
+    select_env "$PROJECT_TYPE"
   fi
 
   # CHECK: tmux dependency for LAYOUT
   if ! command -v tmux >/dev/null; then
     log "ℹ️ Info: tmux not found. Running server without tmux.."
-    run_server "$PROJECT_TYPE"
+    select_server "$PROJECT_TYPE"
     exit 0
   fi
 
@@ -308,21 +332,7 @@ main() {
   if [[ "$USE_CUSTOM_LAYOUT" = true ]]; then
     setup_custom_layout
   else
-    case "$PROJECT_TYPE" in
-    "none") setup_default_layout ;;
-    "python") setup_default_layout ;;
-    "django") setup_django_layout ;;
-    "fastapi") setup_fastapi_layout ;;
-    "nodejs") setup_default_layout ;;
-    "nextjs") setup_default_layout ;;
-    "angular") setup_default_layout ;;
-    "elixir") setup_default_layout ;;
-    "rust") setup_rust_layout ;;
-    *)
-      log "🚧 Unknown technology: $PROJECT_TYPE. Using default layout..."
-      setup_default_layout
-      ;;
-    esac
+    select_layout "$PROJECT_TYPE"
   fi
 
   # ACTION: POST INIT HOOK
