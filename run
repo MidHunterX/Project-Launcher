@@ -91,12 +91,14 @@ setup_custom_layout() {
 # █░█ ▀█▀ █ █░░ █▀
 # █▄█ ░█░ █ █▄▄ ▄█
 
+# log(str:message)
 log() {
   local grn='\033[1;32m'
   local reset='\033[0;0m'
   echo -e "[${grn}$(date +'%H:%M:%S')${reset}] $1"
 }
 
+# create_tmux_session(str:session_name str:command)
 create_tmux_session() {
   local name="$1"
   local cmd="$2"
@@ -127,7 +129,11 @@ create_temp_window() {
   fi
 }
 
-select_server() {
+# █░░ ▄▀█ █▄█ █▀█ █░█ ▀█▀ █▀
+# █▄▄ █▀█ ░█░ █▄█ █▄█ ░█░ ▄█
+
+# run_server_command(str:project_type)
+run_server_command() {
   local project_type="$1"
   case "$project_type" in
   "none") ;; # Do nothing
@@ -143,11 +149,8 @@ select_server() {
   esac
 }
 
-# █░░ ▄▀█ █▄█ █▀█ █░█ ▀█▀ █▀
-# █▄▄ █▀█ ░█░ █▄█ █▄█ ░█░ ▄█
-
 setup_base_layout() {
-  create_tmux_session "Cmd" "$(select_server $PROJECT_TYPE)"
+  create_tmux_session "Cmd" "$(run_server_command $PROJECT_TYPE)"
   create_temp_window "Editor" "nvim"
 }
 
@@ -324,7 +327,7 @@ main() {
   # CHECK: tmux dependency for LAYOUT
   if ! command -v tmux >/dev/null; then
     log "ℹ️ Info: tmux not found. Running server without tmux.."
-    select_server "$PROJECT_TYPE"
+    run_server_command "$PROJECT_TYPE"
     exit 0
   fi
 
