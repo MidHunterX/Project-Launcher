@@ -22,10 +22,11 @@ ENABLED_SERVICES=(
 AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
 
-# ------------------------[ CUSTOM LAYOUT OVERRIDES ]------------------------ #
+# ---------------------------[ CUSTOM OVERRIDES ]--------------------------- #
 
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$script_dir"
+# script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# cd "$script_dir"
+current_dir="$(pwd)"
 
 USE_CUSTOM_LAYOUT=false
 setup_custom_layout() {
@@ -37,7 +38,7 @@ setup_custom_layout() {
   create_tmux_session "API Server" "fastapi dev main.py"
 
   # 2. Server (NextJS)
-  cd "$script_dir"
+  cd "$current_dir"
   setup_node_env
   create_window "Web Server" "npm run dev"
 
@@ -47,7 +48,7 @@ setup_custom_layout() {
   deactivate
 
   # 4. Editor (NextJS)
-  cd "$script_dir"
+  cd "$current_dir"
   create_window "Editor (Web)" "nvim"
 }
 
@@ -312,7 +313,13 @@ main() {
     log "🔍 Detected project type: $PROJECT_TYPE"
   fi
 
-  # SETUP: ENV
+  # ACTION: Load custom overrides if available
+  OVERRIDE_FILE="run_lib.sh"
+  if [[ -f "$OVERRIDE_FILE" ]]; then
+    source "$OVERRIDE_FILE"
+  fi
+
+  # SETUP: ENV or custom
   if [[ "$USE_CUSTOM_ENV" = true ]]; then
     setup_custom_env
   else
@@ -326,7 +333,7 @@ main() {
     exit 0
   fi
 
-  # SETUP: LAYOUT
+  # SETUP: LAYOUT or custom
   if [[ "$USE_CUSTOM_LAYOUT" = true ]]; then
     setup_custom_layout
   else
