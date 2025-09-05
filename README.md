@@ -125,8 +125,17 @@ setup_post_init_hook() {
   # Example: Open browser automatically
   log "🔗 Launching browser..."
   (
-    sleep 2  # Wait for server to start
-    firefox-developer-edition -new-tab "http://localhost:3000" &
+    new_tab_url="http://localhost:3000"
+
+    # Wait for server to start
+    local timeout=20
+    while ! curl -sf "$new_tab_url" >/dev/null; do
+      sleep 1
+      ((timeout--)) || { exit 1; }
+    done
+
+    # Open browser
+    firefox-developer-edition -new-tab "$new_tab_url" &
   ) &
 }
 ```
