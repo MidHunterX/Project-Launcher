@@ -29,17 +29,17 @@ AUTORUN_COMMANDS=true
 current_dir="$(pwd)"
 
 USE_CUSTOM_LAYOUT=false
-setup_custom_layout() {
+setup_layout_custom() {
   # Project specific custom layout override example
 
   # 1. Server (FastAPI)
   cd "../fastapi-project/"
-  setup_python_env
+  setup_env "fastapi"
   create_tmux_session "API Server" "fastapi dev main.py"
 
   # 2. Server (NextJS)
   cd "$current_dir"
-  setup_node_env
+  setup_env "nextjs"
   create_window "Web Server" "npm run dev"
 
   # 3. Editor (FastAPI)
@@ -53,7 +53,7 @@ setup_custom_layout() {
 }
 
 USE_CUSTOM_ENV=false
-setup_custom_env() {
+setup_env_custom() {
   # Project specific custom init setup override example
   setup_env "node_modules/" "npm install --force --legacy-peer-deps"
 }
@@ -163,7 +163,7 @@ setup_rust_layout() {
 }
 
 # select_layout(str:project_type)
-select_layout() {
+setup_layout() {
   local project_type="$1"
   case "$project_type" in
   "none") setup_base_layout ;;
@@ -236,7 +236,7 @@ setup_elixir_env() {
 }
 
 # select_env(str:project_type)
-select_env() {
+setup_env() {
   local project_type="$1"
   case "$project_type" in
   "none") ;; # Do nothing
@@ -321,9 +321,9 @@ main() {
 
   # SETUP: ENV or custom
   if [[ "$USE_CUSTOM_ENV" = true ]]; then
-    setup_custom_env
+    setup_env_custom
   else
-    select_env "$PROJECT_TYPE"
+    setup_env "$PROJECT_TYPE"
   fi
 
   # CHECK: tmux dependency for LAYOUT
@@ -335,9 +335,9 @@ main() {
 
   # SETUP: LAYOUT or custom
   if [[ "$USE_CUSTOM_LAYOUT" = true ]]; then
-    setup_custom_layout
+    setup_layout_custom
   else
-    select_layout "$PROJECT_TYPE"
+    setup_layout "$PROJECT_TYPE"
   fi
 
   # ACTION: POST INIT HOOK
