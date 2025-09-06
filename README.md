@@ -71,7 +71,7 @@ The runner will:
 3. Start required services
 4. Create a tmux session (if available) with appropriate windows
 5. Launch your development server
-6. Run post-initialization commands if enabled (need tmux)
+6. Run post-initialization commands if enabled
 
 ## ⚙️ Full Configuration
 
