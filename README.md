@@ -73,76 +73,48 @@ The runner will:
 5. Launch your development server
 6. Run post-initialization commands if enabled (need tmux)
 
-## ⚙️ Basic Configuration Overrides
+## ⚙️ Full Configuration
 
 Create a `.run_env` file in your project root and add following overrides for
-project-specific customization:
-
-### TMUX Session Name
-
-By default, the runner uses the project directory name as the tmux session name.
+project-specific customization. All overrides are optional.
 
 ```bash
-PROJECT_NAME="your-project-name"
-```
+#!/usr/bin/env bash
 
-### Project Type
+# -----------------------------[ CONFIGURATION ]----------------------------- #
 
-By default, the runner tries to detect the project type based on files present
-in the directory. If you need to override this detection, you can specify the
-project type to use:
-
-```bash
+# Default: project dir name
+PROJECT_NAME=""
+# Default: automatic detection
 # Available values:
 # none | rust | python | django | fastapi | nodejs | nextjs | elixir | angular
-PROJECT_TYPE="type-to-use"
-```
+PROJECT_TYPE=""
 
-### Service Management (Systemd)
-
-You can add any valid systemd service names to start using the `ENABLED_SERVICES` array.
-
-```bash
+# Services: add any valid systemd service names here to start
 ENABLED_SERVICES=(
-  postgresql
-  docker
-  nginx
+  # postgresql
+  # docker
+  # nginx
 )
-```
 
-### Behavior settings
-
-```bash
+# Settings: [ true | false ]
 AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
-```
 
-## ⚙️ Advanced Configuration Overrides
+# ---------------------------[ CUSTOM OVERRIDES ]--------------------------- #
 
-Add the snippets in the same `.run_env` file for those extra override needs.
+current_dir="$(pwd)"
 
-Place `#!/usr/bin/env bash` on the first line for syntax highlighting in nvim.
-
-### Custom Environment Setup
-
-```bash
-USE_CUSTOM_ENV=true
+USE_CUSTOM_ENV=false
 setup_env_custom() {
-  # Custom dependency installation
-  setup_env "node_modules/" "npm install --legacy-peer-deps"
-
-  # Additional setup steps
-  npm run build:deps
+  # Project specific custom init setup example
+  setup_env "node_modules/" "npm install --force --legacy-peer-deps"
 }
-```
 
-### Custom Layout Setup
-
-Example: For mono-repo setups (or just use Docker at this point)
-
-```bash
-USE_CUSTOM_LAYOUT=true
+USE_CUSTOM_LAYOUT=false
 setup_layout_custom() {
+  # Project specific custom layout example
+
   # 1. Server (FastAPI)
   cd "../backend/"
   setup_env "fastapi"
@@ -162,13 +134,7 @@ setup_layout_custom() {
   cd "$current_dir"
   create_window "Editor (Web)" "nvim"
 }
-```
 
-### Post-Initialization Hook
-
-Example: Launch Browser
-
-```bash
 USE_POST_INITIALIZATION_HOOK=false
 setup_post_init_hook() {
   # Project specific post execution hook example
@@ -189,7 +155,7 @@ setup_post_init_hook() {
 }
 ```
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
 ### Common Issues
 

@@ -24,59 +24,23 @@ AUTORUN_COMMANDS=true
 
 # ---------------------------[ CUSTOM OVERRIDES ]--------------------------- #
 
-# script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# cd "$script_dir"
-current_dir="$(pwd)"
+red='\033[1;31m'
+cyan='\033[1;36m'
+rst='\033[0;0m'
 
 USE_CUSTOM_LAYOUT=false
 setup_layout_custom() {
-  # Project specific custom layout override example
-
-  # 1. Server (FastAPI)
-  cd "../fastapi-project/"
-  setup_env "fastapi"
-  create_tmux_session "API Server" "fastapi dev main.py"
-
-  # 2. Server (NextJS)
-  cd "$current_dir"
-  setup_env "nextjs"
-  create_window "Web Server" "npm run dev"
-
-  # 3. Editor (FastAPI)
-  cd "../fastapi-project/"
-  create_window "Editor (API)" "nvim"
-  deactivate
-
-  # 4. Editor (NextJS)
-  cd "$current_dir"
-  create_window "Editor (Web)" "nvim"
+  log "🔴 Error: ${red}setup_layout_custom()${rst} not defined after ${cyan}USE_CUSTOM_LAYOUT=true${rst}"
 }
 
 USE_CUSTOM_ENV=false
 setup_env_custom() {
-  # Project specific custom init setup override example
-  setup_env "node_modules/" "npm install --force --legacy-peer-deps"
+  log "🔴 Error: ${red}setup_env_custom()${rst} not defined after ${cyan}USE_CUSTOM_ENV=true${rst}"
 }
 
 USE_POST_INITIALIZATION_HOOK=false
 setup_post_init_hook() {
-  # Project specific post execution hook example
-  log "🔗 Launching browser..."
-  (
-    new_tab_url="http://localhost:3000"
-
-    # Wait for the server to start
-    local timeout=20
-    while ! curl -sf "$new_tab_url" >/dev/null; do
-      sleep 1
-      ((timeout--)) || { exit 1; }
-    done
-
-    # Launch the browser
-    hyprctl dispatch -- exec [workspace 2] \
-      firefox-developer-edition -P Personal -no-remote -new-tab $new_tab_url \
-      >/dev/null &
-  ) &
+  log "🔴 Error: ${red}setup_post_init_hook()${rst} not defined after ${cyan}USE_POST_INITIALIZATION_HOOK=true${rst}"
 }
 
 # =========================================================================== #
