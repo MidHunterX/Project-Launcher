@@ -293,6 +293,12 @@ detect_project_type() {
 # █░▀░█ █▀█ █ █░▀█
 
 main() {
+  # ACTION: Load custom overrides if available
+  OVERRIDE_FILE="run_lib.sh"
+  if [[ -f "$OVERRIDE_FILE" ]]; then
+    source "$OVERRIDE_FILE"
+  fi
+
   init_services
 
   # FALLBACK: PROJECT_NAME={project dir name}
@@ -311,12 +317,6 @@ main() {
   if [[ -z "$PROJECT_TYPE" ]]; then
     PROJECT_TYPE="$(detect_project_type)"
     log "🔍 Detected project type: $PROJECT_TYPE"
-  fi
-
-  # ACTION: Load custom overrides if available
-  OVERRIDE_FILE="run_lib.sh"
-  if [[ -f "$OVERRIDE_FILE" ]]; then
-    source "$OVERRIDE_FILE"
   fi
 
   # SETUP: ENV or custom
