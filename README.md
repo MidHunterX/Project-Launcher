@@ -25,7 +25,7 @@ A universal, intelligent project launcher that automatically detects your projec
 - **Environment Management**: Automatically sets up virtual environments and dependencies
 - **Tmux Integration**: Creates organized tmux sessions with dedicated windows for development
 - **System Service Management**: Start required services (PostgreSQL, Docker, MongoDB, etc.)
-- **Custom Overrides**: Project-specific customization via `run_lib.sh`
+- **Custom Overrides**: Project-specific customizations
 - **Flexible Configuration**: Extensive configuration options for different workflows
 
 ### Session Management
@@ -75,7 +75,7 @@ The runner will:
 
 ## ⚙️ Basic Configuration Overrides
 
-Create a `run_lib.sh` file in your project root and add following overrides for
+Create a `.run_env` file in your project root and add following overrides for
 project-specific customization:
 
 ### TMUX Session Name
@@ -100,7 +100,7 @@ PROJECT_TYPE="type-to-use"
 
 ### Service Management (Systemd)
 
-You can specify valid systemd service names to start using the `ENABLED_SERVICES` array.
+You can add any valid systemd service names to start using the `ENABLED_SERVICES` array.
 
 ```bash
 ENABLED_SERVICES=(
@@ -118,6 +118,8 @@ AUTORUN_COMMANDS=true
 ```
 
 ## ⚙️ Advanced Configuration Overrides
+
+Add the snippets in the same `.run_env` file for those extra override needs.
 
 ### Custom Environment Setup
 
@@ -205,15 +207,6 @@ setup_post_init_hook() {
    tmux kill-session -t project-name
    run
    ```
-
-## Contributing
-
-The runner is designed to be extensible. To add support for new technologies:
-
-1. Add detection logic to `detect_project_type()`
-2. Add environment setup in `setup_env()`
-3. Add server command in `run_server_command()`
-4. Optionally add custom layout in `setup_layout()`
 
 ## 📜 License
 

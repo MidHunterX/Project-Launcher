@@ -294,7 +294,7 @@ detect_project_type() {
 
 main() {
   # ACTION: Load custom overrides if available
-  OVERRIDE_FILE="run_lib.sh"
+  OVERRIDE_FILE=".run_env"
   if [[ -f "$OVERRIDE_FILE" ]]; then
     source "$OVERRIDE_FILE"
   fi
