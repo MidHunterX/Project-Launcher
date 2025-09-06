@@ -28,6 +28,18 @@ A universal, intelligent project launcher that automatically detects your projec
 - **Custom Overrides**: Project-specific customization via `run_lib.sh`
 - **Flexible Configuration**: Extensive configuration options for different workflows
 
+### Session Management
+
+- **Existing Sessions**: Automatically attaches to existing session
+- **Clean Shutdown**: Proper cleanup and deactivation
+- **Multiple Projects**: Each project gets its own isolated session
+
+### Error Handling
+
+- **Missing Dependencies**: Graceful fallback without tmux
+- **Command Not Found**: Skips unavailable commands
+- **Service Failures**: Continues execution with warnings
+
 ## 📦 Installation
 
 Make the runner globally accessible:
@@ -37,6 +49,12 @@ Make the runner globally accessible:
 sudo cp run /usr/local/bin/
 sudo chmod +x /usr/local/bin/run
 ```
+
+### Dependencies
+
+- **Required**: `bash`, `systemctl` (for services)
+- **Optional**: `tmux` (for session management)
+- **Per-project**: Technology-specific tools (npm, pip, cargo, etc.)
 
 ## 🚀 Quick Start
 
@@ -156,24 +174,6 @@ setup_post_init_hook() {
 }
 ```
 
-## Advanced Features
-
-### Environment Detection Logic
-
-The runner uses intelligent detection of project type to optimize setup.
-
-### Session Management
-
-- **Existing Sessions**: Automatically attaches to existing session
-- **Clean Shutdown**: Proper cleanup and deactivation
-- **Multiple Projects**: Each project gets its own isolated session
-
-### Error Handling
-
-- **Missing Dependencies**: Graceful fallback without tmux
-- **Command Not Found**: Skips unavailable commands
-- **Service Failures**: Continues execution with warnings
-
 ## Troubleshooting
 
 ### Common Issues
@@ -214,12 +214,6 @@ The runner is designed to be extensible. To add support for new technologies:
 2. Add environment setup in `setup_env()`
 3. Add server command in `run_server_command()`
 4. Optionally add custom layout in `setup_layout()`
-
-## Dependencies
-
-- **Required**: `bash`, `systemctl` (for services)
-- **Optional**: `tmux` (for session management)
-- **Per-project**: Technology-specific tools (npm, pip, cargo, etc.)
 
 ## 📜 License
 
