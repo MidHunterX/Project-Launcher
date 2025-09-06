@@ -71,7 +71,7 @@ The runner will:
 3. Start required services
 4. Create a tmux session (if available) with appropriate windows
 5. Launch your development server
-6. Run post-initialization commands if enabled (need tmux)
+6. Run post-initialization commands if enabled
 
 ## ⚙️ Full Configuration
 
@@ -81,7 +81,7 @@ project-specific customization. All overrides are optional.
 ```bash
 #!/usr/bin/env bash
 
-# -----------------------------[ CONFIGURATION ]----------------------------- #
+# ------------------------------------------------------------- PROJECT DETAILS
 
 # Default: project dir name
 PROJECT_NAME=""
@@ -90,6 +90,8 @@ PROJECT_NAME=""
 # none | rust | python | django | fastapi | nodejs | nextjs | elixir | angular
 PROJECT_TYPE=""
 
+# ------------------------------------------------------------- SYSTEM SERVICES
+
 # Services: add any valid systemd service names here to start
 ENABLED_SERVICES=(
   # postgresql
@@ -97,13 +99,13 @@ ENABLED_SERVICES=(
   # nginx
 )
 
+# --------------------------------------------------------- BEHAVIORAL SETTINGS
+
 # Settings: [ true | false ]
 AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
 
-# ---------------------------[ CUSTOM OVERRIDES ]--------------------------- #
-
-current_dir="$(pwd)"
+# ------------------------------------------------------ OVERRIDE PROJECT SETUP
 
 USE_CUSTOM_ENV=false
 setup_env_custom() {
@@ -111,9 +113,12 @@ setup_env_custom() {
   setup_env "node_modules/" "npm install --force --legacy-peer-deps"
 }
 
+# -------------------------------------------------------- OVERRIDE TMUX LAYOUT
+
 USE_CUSTOM_LAYOUT=false
 setup_layout_custom() {
   # Project specific custom layout example
+  current_dir="$(pwd)"
 
   # 1. Server (FastAPI)
   cd "../backend/"
@@ -134,6 +139,8 @@ setup_layout_custom() {
   cd "$current_dir"
   create_window "Editor (Web)" "nvim"
 }
+
+# ------------------------------------------------------- CUSTOM POST INIT HOOK
 
 USE_POST_INITIALIZATION_HOOK=false
 setup_post_init_hook() {

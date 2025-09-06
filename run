@@ -50,9 +50,9 @@ setup_post_init_hook() {
 
 # log(str:message)
 log() {
-  local grn='\033[1;32m'
+  local green='\033[1;32m'
   local reset='\033[0;0m'
-  echo -e "[${grn}$(date +'%H:%M:%S')${reset}] $1"
+  echo -e "[${green}$(date +'%H:%M:%S')${reset}] $1"
 }
 
 # create_tmux_session(str:session_name str:command)
@@ -292,6 +292,11 @@ main() {
 
   # CHECK: tmux dependency for LAYOUT
   if ! command -v tmux >/dev/null; then
+    # ACTION: POST INIT HOOK
+    if [[ "$USE_POST_INITIALIZATION_HOOK" = true ]]; then
+      setup_post_init_hook
+    fi
+    # FALLBACK: RUN SERVER (Blocking)
     log "ℹ️ Info: tmux not found. Running server without tmux.."
     run_server_command "$PROJECT_TYPE"
     exit 0
