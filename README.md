@@ -134,9 +134,37 @@ setup_env_custom() {
 }
 ```
 
+### Custom Layout Setup
+
+Example: For mono-repo setups (or just use Docker at this point)
+
+```bash
+USE_CUSTOM_LAYOUT=true
+setup_layout_custom() {
+  # 1. Server (FastAPI)
+  cd "../backend/"
+  setup_env "fastapi"
+  create_tmux_session "API Server" "fastapi dev main.py"
+
+  # 2. Server (NextJS)
+  cd "$current_dir"
+  setup_env "nextjs"
+  create_window "Web Server" "npm run dev"
+
+  # 3. Editor (FastAPI)
+  cd "../backend/"
+  create_window "Editor (API)" "nvim"
+  deactivate
+
+  # 4. Editor (NextJS)
+  cd "$current_dir"
+  create_window "Editor (Web)" "nvim"
+}
+```
+
 ### Post-Initialization Hook
 
-Example 1: Launch Browser
+Example: Launch Browser
 
 ```bash
 USE_POST_INITIALIZATION_HOOK=false
@@ -155,23 +183,6 @@ setup_post_init_hook() {
 
     # Launch the browser
     firefox-developer-edition -P Personal -no-remote -new-tab $new_tab_url &
-  ) &
-}
-```
-
-Example 2: GUI IDE Integration
-
-```bash
-USE_POST_INITIALIZATION_HOOK=true
-setup_post_init_hook() {
-  log "🔗 Launching browser & VSCode..."
-  (
-    # Launch browser automatically
-    sleep 3
-    firefox --new-tab http://localhost:3000 &
-
-    # Open IDE
-    code . &
   ) &
 }
 ```
