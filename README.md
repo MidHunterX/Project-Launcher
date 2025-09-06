@@ -121,6 +121,8 @@ AUTORUN_COMMANDS=true
 
 Add the snippets in the same `.run_env` file for those extra override needs.
 
+Place `#!/usr/bin/env bash` on the first line for syntax highlighting in nvim.
+
 ### Custom Environment Setup
 
 ```bash
@@ -208,14 +210,6 @@ setup_post_init_hook() {
    ```bash
    # Clean up and retry
    rm -rf venv/
-   run
-   ```
-
-4. Session already exists:
-
-   ```bash
-   # Kill existing session
-   tmux kill-session -t project-name
    run
    ```
 
