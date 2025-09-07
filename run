@@ -14,12 +14,10 @@ ENABLED_SERVICES=(
   # postgresql
   # docker
   # mongod
-  # redis-server
   # nginx
 )
 
 # Settings: [ true | false ]
-AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
 
 # ---------------------------[ CUSTOM OVERRIDES ]--------------------------- #
@@ -55,23 +53,16 @@ log() {
   echo -e "[${green}$(date +'%H:%M:%S')${reset}] $1"
 }
 
-# create_tmux_session(str:session_name str:command)
-create_tmux_session() {
-  local name="$1"
-  local cmd="$2"
-  tmux new-session -d -s "$PROJECT_NAME" -n "$name"
-  if command -v "${cmd%% *}" >/dev/null; then
-    tmux send-keys -t "$PROJECT_NAME" "$cmd"
-    [ "$AUTOSTART_SERVER" = true ] && tmux send-keys -t "$PROJECT_NAME" Enter
-  fi
-}
-
 # create_window(str:window_name str:command int:window_index)
 create_window() {
   local name="$1"
   local cmd="$2"
   if command -v "${cmd%% *}" >/dev/null; then
-    tmux new-window -t "$PROJECT_NAME" -n "$name"
+    if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
+      tmux new-window -t "$PROJECT_NAME" -n "$name"
+    else
+      tmux new-session -d -s "$PROJECT_NAME" -n "$name"
+    fi
     tmux send-keys -t "$PROJECT_NAME" "$cmd"
     [ "$AUTORUN_COMMANDS" = true ] && tmux send-keys -t "$PROJECT_NAME" Enter
   fi
@@ -82,7 +73,7 @@ create_temp_window() {
   local name="$1"
   local cmd="$2"
   if command -v "${cmd%% *}" >/dev/null; then
-    tmux new-window -t "$PROJECT_NAME" -n "$1" "$2"
+    tmux new-window -t "$PROJECT_NAME" -n "$name" "$cmd"
   fi
 }
 
@@ -107,7 +98,7 @@ run_server_command() {
 }
 
 setup_base_layout() {
-  create_tmux_session "Cmd" "$(run_server_command $PROJECT_TYPE)"
+  create_window "Cmd" "$(run_server_command $PROJECT_TYPE)"
   create_temp_window "Editor" "nvim"
 }
 

@@ -102,7 +102,6 @@ ENABLED_SERVICES=(
 # --------------------------------------------------------- BEHAVIORAL SETTINGS
 
 # Settings: [ true | false ]
-AUTOSTART_SERVER=true
 AUTORUN_COMMANDS=true
 
 # ------------------------------------------------------ OVERRIDE PROJECT SETUP
@@ -118,12 +117,12 @@ setup_env_custom() {
 USE_CUSTOM_LAYOUT=false
 setup_layout_custom() {
   # Project specific custom layout example
-  current_dir="$(pwd)"
+  local current_dir="$(pwd)"
 
   # 1. Server (FastAPI)
   cd "../backend/"
   setup_env "fastapi"
-  create_tmux_session "API Server" "fastapi dev main.py"
+  create_window "API Server" "fastapi dev main.py"
 
   # 2. Server (NextJS)
   cd "$current_dir"
