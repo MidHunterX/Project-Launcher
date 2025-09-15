@@ -17,6 +17,13 @@ ENABLED_SERVICES=(
   # nginx
 )
 
+# Default: automatic detection
+# Available values: none | {custom url}
+URL=""
+# Default: xdg-open
+# Available values: {custom command with arguments ending with newtab flag}
+BROWSER=""
+
 # Settings: [ true | false ]
 AUTORUN_COMMANDS=true
 
@@ -53,6 +60,39 @@ log() {
   echo -e "[${green}$(date +'%H:%M:%S')${reset}] $1"
 }
 
+# open_browser(str:new_tab_url str:browser_cmd?)
+open_browser() {
+    # CHECK: Valid URL
+    local url="$1"
+    if [[ -z "$url" ]]; then
+        return
+    fi
+
+    # CHECK: Valid browser
+    local browser="$2"
+    if [[ -z "$browser" ]]; then
+        browser="xdg-open"
+    else
+        command -v "${browser%% *}" >/dev/null || {
+            log "❌ Error: ${browser%% *} not found"
+            exit 1
+        }
+    fi
+
+    log "🔗 Launching browser..."
+    (
+        # Wait for the server to start
+        local timeout=20
+        while ! curl -sf "$url" >/dev/null; do
+            sleep 1
+            ((timeout--)) || { exit 1; }
+        done
+
+        # Launch the browser
+        $browser $url >/dev/null &
+    ) &
+}
+
 # create_window(str:window_name str:command int:window_index)
 create_window() {
   local name="$1"
@@ -75,6 +115,25 @@ create_temp_window() {
   if command -v "${cmd%% *}" >/dev/null; then
     tmux new-window -t "$PROJECT_NAME" -n "$name" "$cmd"
   fi
+}
+
+# █▄▄ █▀█ █▀█ █░█░█ █▀ █▀▀ █▀█
+# █▄█ █▀▄ █▄█ ▀▄▀▄▀ ▄█ ██▄ █▀▄
+
+get_server_url() {
+  local project_type="$1"
+  case "$project_type" in
+  "none") ;; # Do nothing
+  "python") ;;
+  "fastapi") ;;
+  "django") echo "http://localhost:8000" ;;
+  "nodejs") ;;
+  "nextjs") echo "http://localhost:3000" ;;
+  "angular") echo "http://localhost:4200" ;;
+  "elixir") echo "http://localhost:4000" ;;
+  "rust") ;;
+  *) log "🚧 Warning: No server url for ${project_type}" ;;
+  esac
 }
 
 # █░░ ▄▀█ █▄█ █▀█ █░█ ▀█▀ █▀
@@ -298,6 +357,16 @@ main() {
     setup_layout_custom
   else
     setup_layout "$PROJECT_TYPE"
+  fi
+
+  # FALLBACK: NEW_TAB_URL={automatic detection}
+  if [[ -z "$URL" ]]; then
+      URL=$(get_server_url "$PROJECT_TYPE")
+  fi
+
+  # ACTION: OPEN BROWSER
+  if [[ "$URL" != "none" ]]; then
+      open_browser "$URL" "$BROWSER"
   fi
 
   # ACTION: POST INIT HOOK

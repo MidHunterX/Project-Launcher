@@ -1,6 +1,6 @@
 # Project Launcher
 
-A universal, intelligent project launcher that automatically detects your project type and sets up an optimized development environment with tmux sessions, proper virtual environments, and optional system services.
+A universal, intelligent project runner that automatically detects your project type and sets up an optimized development environment with tmux sessions, proper virtual environments, and optional system services.
 
 ### Supported Technologies
 
@@ -25,27 +25,12 @@ A universal, intelligent project launcher that automatically detects your projec
 - **Environment Management**: Automatically sets up virtual environments and dependencies
 - **Tmux Integration**: Creates organized tmux sessions with dedicated windows for development
 - **System Service Management**: Start required services (PostgreSQL, Docker, MongoDB, etc.)
-- **Custom Overrides**: Project-specific customizations
+- **Custom Overrides**: Project-specific customizations with `.run_env`
 - **Flexible Configuration**: Extensive configuration options for different workflows
-
-### Session Management
-
-- **Existing Sessions**: Automatically attaches to existing session
-- **Clean Shutdown**: Proper cleanup and deactivation
-- **Multiple Projects**: Each project gets its own isolated session
-
-### Error Handling
-
-- **Missing Dependencies**: Graceful fallback without tmux
-- **Command Not Found**: Skips unavailable commands
-- **Service Failures**: Continues execution with warnings
 
 ## 📦 Installation
 
-Make the runner globally accessible:
-
 ```bash
-# Copy to a directory in your PATH
 sudo cp run /usr/local/bin/
 sudo chmod +x /usr/local/bin/run
 ```
@@ -73,18 +58,19 @@ The runner will:
 5. Launch your development server
 6. Run post-initialization commands if enabled
 
-## ⚙️ Full Configuration
+## ⚙️ Configuration Settings
 
 Create a `.run_env` file in your project root and add following overrides for
-project-specific customization. All overrides are optional.
+project-specific customization. All settings are optional.
+
+### ⚙️ Per-Project Configuration
 
 ```bash
-#!/usr/bin/env bash
-
 # ------------------------------------------------------------- PROJECT DETAILS
 
 # Default: project dir name
 PROJECT_NAME=""
+
 # Default: automatic detection
 # Available values:
 # none | rust | python | django | fastapi | nodejs | nextjs | elixir | angular
@@ -99,11 +85,30 @@ ENABLED_SERVICES=(
   # nginx
 )
 
+# ------------------------------------------------------------ BROWSER SETTINGS
+
+# Default: automatic detection
+# Available values: none | {custom url}
+URL=""
+
+# Default: xdg-open
+# Available values: {custom command with arguments ending with newtab flag}
+BROWSER=""
+
 # --------------------------------------------------------- BEHAVIORAL SETTINGS
 
 # Settings: [ true | false ]
 AUTORUN_COMMANDS=true
 
+```
+
+### ⚙️ Per-Project Logic Overriding
+
+Use the following overrides in `.run_env` for more granular customization.
+
+Add `#!/usr/bin/env bash` at the top of the file to make it play nice with LSP.
+
+```bash
 # ------------------------------------------------------ OVERRIDE PROJECT SETUP
 
 USE_CUSTOM_ENV=false
@@ -144,6 +149,7 @@ setup_layout_custom() {
 USE_POST_INITIALIZATION_HOOK=false
 setup_post_init_hook() {
   # Project specific post execution hook example
+  # Custom browser launch logic
   log "🔗 Launching browser..."
   (
     new_tab_url="http://localhost:3000"
@@ -184,6 +190,18 @@ setup_post_init_hook() {
    rm -rf venv/
    run
    ```
+
+### Session Management
+
+- **Existing Sessions**: Automatically attaches to existing session
+- **Clean Shutdown**: Proper cleanup and deactivation
+- **Multiple Projects**: Each project gets its own isolated session
+
+### Error Handling
+
+- **Missing Dependencies**: Graceful fallback without tmux
+- **Command Not Found**: Skips unavailable commands
+- **Service Failures**: Continues execution with warnings
 
 ## 📜 License
 
