@@ -93,10 +93,22 @@ open_browser() {
     ) &
 }
 
-# create_window(str:window_name str:command int:window_index)
+# create_window(window_name:str command?:str)
 create_window() {
   local name="$1"
   local cmd="$2"
+
+  # CASE: Window without command
+  if [[ -z "$cmd" ]]; then
+    if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
+      tmux new-window -t "$PROJECT_NAME" -n "$name"
+    else
+      tmux new-session -d -s "$PROJECT_NAME" -n "$name"
+    fi
+    return
+  fi
+
+  # CHECK: Create only if Valid command
   if command -v "${cmd%% *}" >/dev/null; then
     if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
       tmux new-window -t "$PROJECT_NAME" -n "$name"
@@ -104,7 +116,7 @@ create_window() {
       tmux new-session -d -s "$PROJECT_NAME" -n "$name"
     fi
     tmux send-keys -t "$PROJECT_NAME" "$cmd"
-    [ "$AUTORUN_COMMANDS" = true ] && tmux send-keys -t "$PROJECT_NAME" Enter
+    [ "$AUTORUN_COMMANDS" == true ] && tmux send-keys -t "$PROJECT_NAME" Enter
   fi
 }
 
@@ -158,7 +170,7 @@ run_server_command() {
 
 setup_base_layout() {
   create_window "Cmd" "$(run_server_command $PROJECT_TYPE)"
-  create_temp_window "Editor" "nvim"
+  create_window "Editor" "nvim"
 }
 
 setup_fastapi_layout() {
