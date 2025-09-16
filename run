@@ -122,7 +122,8 @@ create_window() {
   # ACTION: Create window only if valid command
   if command -v "${cmd%% *}" >/dev/null; then
     ensure_window "$name"
-    tmux send-keys -t "$PROJECT_NAME:$name" "$cmd"
+    # "clear" Enter fixes send-keys doubling text due to shell race condition
+    tmux send-keys -t "$PROJECT_NAME:$name" "clear" Enter "$cmd"
     if [ "$AUTORUN_COMMANDS" == true ]; then
       tmux send-keys -t "$PROJECT_NAME:$name" Enter
     fi
@@ -356,7 +357,7 @@ main() {
   # FALLBACK: PROJECT_TYPE={automatic detection}
   if [[ -z "$PROJECT_TYPE" ]]; then
     PROJECT_TYPE="$(detect_project_type)"
-    log "🔍 Detected project type: $PROJECT_TYPE"
+    log "🔍 Detected: $PROJECT_TYPE"
   fi
 
   # SETUP: ENV or custom
