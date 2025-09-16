@@ -62,35 +62,35 @@ log() {
 
 # open_browser(str:new_tab_url str:browser_cmd?)
 open_browser() {
-    # CHECK: Valid URL
-    local url="$1"
-    if [[ -z "$url" ]]; then
-        return
-    fi
+  # CHECK: Valid URL
+  local url="$1"
+  if [[ -z "$url" ]]; then
+    return
+  fi
 
-    # CHECK: Valid browser
-    local browser="$2"
-    if [[ -z "$browser" ]]; then
-        browser="xdg-open"
-    else
-        command -v "${browser%% *}" >/dev/null || {
-            log "❌ Error: ${browser%% *} not found"
-            exit 1
-        }
-    fi
+  # CHECK: Valid browser
+  local browser="$2"
+  if [[ -z "$browser" ]]; then
+    browser="xdg-open"
+  else
+    command -v "${browser%% *}" >/dev/null || {
+      log "❌ Error: ${browser%% *} not found"
+      exit 1
+    }
+  fi
 
-    log "🔗 Launching browser..."
-    (
-        # Wait for the server to start
-        local timeout=20
-        while ! curl -sf "$url" >/dev/null; do
-            sleep 1
-            ((timeout--)) || { exit 1; }
-        done
+  log "🔗 Launching browser..."
+  (
+    # Wait for the server to start
+    local timeout=20
+    while ! curl -sf "$url" >/dev/null; do
+      sleep 1
+      ((timeout--)) || { exit 1; }
+    done
 
-        # Launch the browser
-        $browser $url >/dev/null &
-    ) &
+    # Launch the browser
+    $browser $url >/dev/null &
+  ) &
 }
 
 # create_window(window_name:str command?:str)
@@ -104,7 +104,7 @@ create_window() {
     return
   fi
 
-  # CHECK: Window without command
+  # ACTION: Window without command
   if [[ -z "$cmd" ]]; then
     if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
       tmux new-window -t "$PROJECT_NAME" -n "$name"
@@ -388,12 +388,12 @@ main() {
 
   # FALLBACK: NEW_TAB_URL={automatic detection}
   if [[ -z "$URL" ]]; then
-      URL=$(get_server_url "$PROJECT_TYPE")
+    URL=$(get_server_url "$PROJECT_TYPE")
   fi
 
   # ACTION: OPEN BROWSER
   if [[ "$URL" != "none" ]]; then
-      open_browser "$URL" "$BROWSER"
+    open_browser "$URL" "$BROWSER"
   fi
 
   # ACTION: POST INIT HOOK
