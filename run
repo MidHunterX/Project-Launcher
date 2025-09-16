@@ -93,6 +93,15 @@ open_browser() {
   ) &
 }
 
+ensure_window() {
+  local name="$1"
+  if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
+    tmux new-window -t "$PROJECT_NAME" -n "$name"
+  else
+    tmux new-session -d -s "$PROJECT_NAME" -n "$name"
+  fi
+}
+
 # create_window(window_name:str command?:str)
 create_window() {
   local name="$1"
@@ -106,24 +115,14 @@ create_window() {
 
   # ACTION: Window without command
   if [[ -z "$cmd" ]]; then
-    if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
-      tmux new-window -t "$PROJECT_NAME" -n "$name"
-    else
-      tmux new-session -d -s "$PROJECT_NAME" -n "$name"
-    fi
+    ensure_window "$name"
     return
   fi
 
   # ACTION: Create window only if valid command
   if command -v "${cmd%% *}" >/dev/null; then
-    if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
-      tmux new-window -t "$PROJECT_NAME" -n "$name"
-    else
-      tmux new-session -d -s "$PROJECT_NAME" -n "$name"
-    fi
-
+    ensure_window "$name"
     tmux send-keys -t "$PROJECT_NAME:$name" "$cmd"
-
     if [ "$AUTORUN_COMMANDS" == true ]; then
       tmux send-keys -t "$PROJECT_NAME:$name" Enter
     fi
