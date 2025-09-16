@@ -293,16 +293,15 @@ detect_project_type() {
     echo "django"
 
   elif [[ -f "package.json" ]]; then
-    for ext in js ts; do
-      if [[ -f "next.config.$ext" ]]; then
-        echo "nextjs"
-        return
-      fi
-    done
-    echo "nodejs"
-
-  elif [[ -f "angular.json" ]]; then
-    echo "angular"
+    if [[ -f "angular.json" ]]; then
+      echo "angular"
+    elif [[ -f "next.config.ts" ]]; then
+      echo "nextjs"
+    elif [[ -f "next.config.js" ]]; then
+      echo "nextjs"
+    else
+      echo "nodejs"
+    fi
 
   elif [[ -f "mix.exs" ]]; then
     echo "elixir"
