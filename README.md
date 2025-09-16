@@ -63,7 +63,7 @@ The runner will:
 Create a `.run_env` file in your project root and add following overrides for
 project-specific customization. All settings are optional.
 
-### ⚙️ Per-Project Configuration
+### Per-Project Configuration
 
 ```bash
 # ------------------------------------------------------------- PROJECT DETAILS
@@ -99,10 +99,9 @@ BROWSER=""
 
 # Settings: [ true | false ]
 AUTORUN_COMMANDS=true
-
 ```
 
-### ⚙️ Per-Project Logic Overriding
+### Per-Project Logic Overriding
 
 Use the following overrides in `.run_env` for more granular customization.
 
@@ -165,6 +164,14 @@ setup_post_init_hook() {
     firefox-developer-edition -P Personal -no-remote -new-tab $new_tab_url &
   ) &
 }
+```
+
+### Environment Variables
+
+You can also add environment variables to `.run_env`
+
+```bash
+export RUST_LOG=debug
 ```
 
 ## 🔧 Troubleshooting
