@@ -92,7 +92,7 @@ ENABLED_SERVICES=(
 URL=""
 
 # Default: xdg-open
-# Available values: {custom command with arguments ending with newtab flag}
+# Available values: {custom command, arguments and newtab flag at the end}
 BROWSER=""
 
 # --------------------------------------------------------- BEHAVIORAL SETTINGS
@@ -100,6 +100,26 @@ BROWSER=""
 # Settings: [ true | false ]
 AUTORUN_COMMANDS=true
 ```
+
+### Global Configuration
+
+Create `run/config.conf` in your config directory.
+
+Example 1:
+
+```bash
+# custom browser, arguments and newtab flag at the end
+BROWSER="firefox --new-tab"
+```
+
+Example 2 (ft. Hyprland):
+
+```bash
+# custom browser, arguments and newtab flag at the end
+BROWSER="hyprctl dispatch -- exec [workspace 2] firefox-developer-edition -P Personal -no-remote -new-tab"
+```
+
+The global configuration file sets default values for all projects.
 
 ### Per-Project Logic Overriding
 

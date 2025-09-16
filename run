@@ -318,7 +318,13 @@ detect_project_type() {
 # █░▀░█ █▀█ █ █░▀█
 
 main() {
-  # ACTION: Load custom overrides if available
+  # INIT: Load global config if available
+  config_file="$XDG_CONFIG_HOME/run/config.conf"
+  if [[ -f "$config_file" ]]; then
+    source "$config_file"
+  fi
+
+  # INIT: Load custom overrides if available
   OVERRIDE_FILE=".run_env"
   if [[ -f "$OVERRIDE_FILE" ]]; then
     source "$OVERRIDE_FILE"
