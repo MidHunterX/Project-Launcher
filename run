@@ -98,7 +98,13 @@ create_window() {
   local name="$1"
   local cmd="$2"
 
-  # CASE: Window without command
+  # CHECK: Valid Name
+  if [[ -z "$name" ]]; then
+    log "🚫 Error: Missing window name"
+    return
+  fi
+
+  # CHECK: Window without command
   if [[ -z "$cmd" ]]; then
     if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
       tmux new-window -t "$PROJECT_NAME" -n "$name"
@@ -108,15 +114,19 @@ create_window() {
     return
   fi
 
-  # CHECK: Create only if Valid command
+  # ACTION: Create window only if valid command
   if command -v "${cmd%% *}" >/dev/null; then
     if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
       tmux new-window -t "$PROJECT_NAME" -n "$name"
     else
       tmux new-session -d -s "$PROJECT_NAME" -n "$name"
     fi
-    tmux send-keys -t "$PROJECT_NAME" "$cmd"
-    [ "$AUTORUN_COMMANDS" == true ] && tmux send-keys -t "$PROJECT_NAME" Enter
+
+    tmux send-keys -t "$PROJECT_NAME:$name" "$cmd"
+
+    if [ "$AUTORUN_COMMANDS" == true ]; then
+      tmux send-keys -t "$PROJECT_NAME:$name" Enter
+    fi
   fi
 }
 
