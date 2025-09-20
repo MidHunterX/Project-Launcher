@@ -105,18 +105,18 @@ AUTORUN_COMMANDS=true
 
 Create `run/config.conf` in your config directory.
 
-Example 1:
+Example 1: Just Browser
 
 ```bash
 # custom browser, arguments and newtab flag at the end
 BROWSER="firefox --new-tab"
 ```
 
-Example 2 (ft. Hyprland):
+Example 2: Window Manager + Custom Timezone + Custom Browser Profile
 
 ```bash
 # custom browser, arguments and newtab flag at the end
-BROWSER="hyprctl dispatch -- exec [workspace 2] firefox-developer-edition -P Personal -no-remote -new-tab"
+BROWSER="hyprctl dispatch -- exec [workspace 2] TZ=Asia/Dubai firefox-developer-edition -P Personal -no-remote -new-tab"
 ```
 
 The global configuration file sets default values for all projects.
@@ -124,6 +124,8 @@ The global configuration file sets default values for all projects.
 ### Per-Project Logic Overriding
 
 Use the following overrides in `.run_env` for more granular customization.
+
+These can also be used to extend support for new technologies as well.
 
 Add `#!/usr/bin/env bash` at the top of the file to make it play nice with LSP.
 
@@ -133,6 +135,7 @@ Add `#!/usr/bin/env bash` at the top of the file to make it play nice with LSP.
 USE_CUSTOM_ENV=false
 setup_env_custom() {
   # Project specific custom init setup example
+  # Syntax: setup_env "env_directory" "command if env_directory not found"
   setup_env "node_modules/" "npm install --force --legacy-peer-deps"
 }
 
@@ -141,20 +144,21 @@ setup_env_custom() {
 USE_CUSTOM_LAYOUT=false
 setup_layout_custom() {
   # Project specific custom layout example
-  local current_dir="$(pwd)"
+  local current_dir=$(pwd)
+  local api_dir="../example-fastapi-project"
 
   # 1. Server (FastAPI)
-  cd "../backend/"
-  setup_env "fastapi"
+  cd "$api_dir"
+  setup_python_env
   create_window "API Server" "fastapi dev main.py"
 
   # 2. Server (NextJS)
   cd "$current_dir"
-  setup_env "nextjs"
+  setup_node_env
   create_window "Web Server" "npm run dev"
 
   # 3. Editor (FastAPI)
-  cd "../backend/"
+  cd "$api_dir"
   create_window "Editor (API)" "nvim"
   deactivate
 
