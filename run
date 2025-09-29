@@ -353,6 +353,16 @@ main() {
     log "🔍 Detected: $PROJECT_TYPE"
   fi
 
+  # FALLBACK: NEW_TAB_URL={automatic detection}
+  if [[ -z "$URL" ]]; then
+    URL=$(get_server_url "$PROJECT_TYPE")
+  fi
+
+  # ACTION: OPEN BROWSER
+  if [[ "$URL" != "none" ]]; then
+    open_browser "$URL" "$BROWSER"
+  fi
+
   # SETUP: ENV or custom
   if [[ "$USE_CUSTOM_ENV" = true ]]; then
     setup_env_custom
@@ -365,7 +375,7 @@ main() {
     # FALLBACK: RUN SERVER (Blocking)
     cmd=$(run_server_command "$PROJECT_TYPE")
     if [[ -z "$cmd" ]]; then
-      log "🚫 Error: No server setup for $PROJECT_TYPE"
+      log "🚫 Error: No server found for this type"
       exit 1
     fi
     log "ℹ️ Running server without tmux..."
@@ -385,16 +395,6 @@ main() {
     setup_layout_custom
   else
     setup_layout "$PROJECT_TYPE"
-  fi
-
-  # FALLBACK: NEW_TAB_URL={automatic detection}
-  if [[ -z "$URL" ]]; then
-    URL=$(get_server_url "$PROJECT_TYPE")
-  fi
-
-  # ACTION: OPEN BROWSER
-  if [[ "$URL" != "none" ]]; then
-    open_browser "$URL" "$BROWSER"
   fi
 
   # ACTION: POST INIT HOOK

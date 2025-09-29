@@ -54,9 +54,14 @@ The runner will:
 1. Detect your project type automatically
 2. Install dependencies if needed
 3. Start required services
-4. Create a tmux session (if available) with appropriate windows
+4. Create a tmux session with appropriate windows
 5. Launch your development server
 6. Run post-initialization commands if enabled
+7. Open server URL (if any) in browser
+
+> [!NOTE]
+> If TMUX is not installed, the runner will just detect project, run the
+> appropriate server command and open server URL in browser.
 
 ## ⚙️ Configuration Settings
 
