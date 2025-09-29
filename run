@@ -347,13 +347,6 @@ main() {
     PROJECT_NAME="$(basename "$PWD")"
   fi
 
-  # ACTION: Attach session if exists
-  if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
-    log "Session '$PROJECT_NAME' already exists. Attaching..."
-    tmux attach -t "$PROJECT_NAME"
-    exit 0
-  fi
-
   # FALLBACK: PROJECT_TYPE={automatic detection}
   if [[ -z "$PROJECT_TYPE" ]]; then
     PROJECT_TYPE="$(detect_project_type)"
@@ -367,15 +360,23 @@ main() {
     setup_env "$PROJECT_TYPE"
   fi
 
-  # CHECK: tmux dependency for LAYOUT
+  # REQUIRE: tmux dependency for LAYOUT
   if ! command -v tmux >/dev/null; then
-    # ACTION: POST INIT HOOK
-    if [[ "$USE_POST_INITIALIZATION_HOOK" = true ]]; then
-      setup_post_init_hook
-    fi
     # FALLBACK: RUN SERVER (Blocking)
-    log "ℹ️ Info: tmux not found. Running server without tmux.."
-    run_server_command "$PROJECT_TYPE"
+    cmd=$(run_server_command "$PROJECT_TYPE")
+    if [[ -z "$cmd" ]]; then
+      log "🚫 Error: No server setup for $PROJECT_TYPE"
+      exit 1
+    fi
+    log "ℹ️ Running server without tmux..."
+    eval "$cmd"
+    exit 0
+  fi
+
+  # ACTION: Attach session if exists
+  if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
+    log "Session '$PROJECT_NAME' already exists. Attaching..."
+    tmux attach -t "$PROJECT_NAME"
     exit 0
   fi
 
