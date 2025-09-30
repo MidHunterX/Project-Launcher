@@ -6,7 +6,7 @@
 PROJECT_NAME=""
 # Default: automatic detection
 # Available values:
-# none | rust | python | django | fastapi | nodejs | nextjs | elixir | angular
+# none | rust | python | django | fastapi | flask | nodejs | nextjs | elixir | angular
 PROJECT_TYPE=""
 
 # Services: add any valid systemd services here
@@ -148,6 +148,7 @@ get_server_url() {
   "none") ;; # Do nothing
   "python") ;;
   "fastapi") ;;
+  "flask") echo "http://localhost:5000" ;;
   "django") echo "http://localhost:8000" ;;
   "nodejs") ;;
   "nextjs") echo "http://localhost:3000" ;;
@@ -168,6 +169,7 @@ run_server_command() {
   "none") ;; # Do nothing
   "python") echo "python main.py" ;;
   "fastapi") echo "fastapi dev main.py" ;;
+  "flask") echo "python main.py" ;;
   "django") echo "python manage.py runserver" ;;
   "nodejs") echo "npm start" ;;
   "nextjs") echo "npm run dev" ;;
@@ -206,6 +208,7 @@ setup_layout() {
   "python") setup_base_layout ;;
   "django") setup_django_layout ;;
   "fastapi") setup_fastapi_layout ;;
+  "flask") setup_base_layout ;;
   "nodejs") setup_base_layout ;;
   "nextjs") setup_base_layout ;;
   "angular") setup_base_layout ;;
@@ -279,6 +282,7 @@ setup_env() {
   "python") setup_python_env ;;
   "django") setup_python_env ;;
   "fastapi") setup_python_env ;;
+  "flask") setup_python_env ;;
   "nodejs") setup_node_env ;;
   "nextjs") setup_node_env ;;
   "angular") setup_node_env ;;
@@ -295,6 +299,8 @@ detect_project_type() {
   if [[ -f "main.py" ]]; then
     if grep -q "from fastapi import FastAPI" main.py; then
       echo "fastapi"
+    elif grep -q "from flask import Flask" main.py; then
+      echo "flask"
     else
       echo "python"
     fi

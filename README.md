@@ -10,6 +10,7 @@ A universal, intelligent project runner that automatically detects your project 
   <img src="https://img.shields.io/badge/Elixir-4B275F?style=for-the-badge&logo=elixir&logoColor=white" />
 
   <img src="https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue" />
+  <img src="https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white" />
   <img src="https://img.shields.io/badge/fastapi-109989?style=for-the-badge&logo=FASTAPI&logoColor=white" />
   <img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green" />
 
@@ -31,8 +32,16 @@ A universal, intelligent project runner that automatically detects your project 
 ## 📦 Installation
 
 ```bash
+git clone https://github.com/MidHunterX/Project-Launcher --depth 1
+cd Project-Launcher
 sudo cp run /usr/local/bin/
 sudo chmod +x /usr/local/bin/run
+```
+
+### Uninstallation
+
+```bash
+sudo rm /usr/local/bin/run
 ```
 
 ### Dependencies
