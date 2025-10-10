@@ -364,16 +364,16 @@ main() {
     URL=$(get_server_url "$PROJECT_TYPE")
   fi
 
-  # ACTION: OPEN BROWSER
-  if [[ "$URL" != "none" ]]; then
-    open_browser "$URL" "$BROWSER"
-  fi
-
   # SETUP: ENV or custom
   if [[ "$USE_CUSTOM_ENV" = true ]]; then
     setup_env_custom
   else
     setup_env "$PROJECT_TYPE"
+  fi
+
+  # ACTION: OPEN BROWSER
+  if [[ "$URL" != "none" ]]; then
+    open_browser "$URL" "$BROWSER"
   fi
 
   # REQUIRE: tmux dependency for LAYOUT
