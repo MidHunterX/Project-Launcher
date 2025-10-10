@@ -266,6 +266,15 @@ setup_python_env() {
   source "$dependency_dir/bin/activate"
 }
 
+setup_django_env() {
+  setup_python_env
+  # Run migrations if needed
+  if python manage.py showmigrations --plan | grep '\[ \]'; then
+    log "✈️ Running migrations to database..."
+    python manage.py migrate
+  fi
+}
+
 setup_node_env() {
   setup_base_env "node_modules/" "npm install"
 }
@@ -280,7 +289,7 @@ setup_env() {
   case "$project_type" in
   "none") ;; # Do nothing
   "python") setup_python_env ;;
-  "django") setup_python_env ;;
+  "django") setup_django_env ;;
   "fastapi") setup_python_env ;;
   "flask") setup_python_env ;;
   "nodejs") setup_node_env ;;
