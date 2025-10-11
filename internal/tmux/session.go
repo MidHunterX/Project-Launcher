@@ -17,7 +17,7 @@ func CreateWindow(cfg *config.Config, name, command string) {
 		return
 	}
 	if command == "" {
-		ensureWindow(cfg.ProjectName, name)
+		ensureWindow(cfg.Project.Name, name)
 		return
 	}
 
@@ -27,15 +27,15 @@ func CreateWindow(cfg *config.Config, name, command string) {
 		return
 	}
 
-	ensureWindow(cfg.ProjectName, name)
-	injectedCmd := project.InjectEnv(cfg.ProjectType, command)
+	ensureWindow(cfg.Project.Name, name)
+	injectedCmd := project.InjectEnv(cfg.Project.Type, command)
 
-	SendKeys(cfg.ProjectName, name, "clear")
-	SendKeysEnter(cfg.ProjectName, name)
-	SendKeys(cfg.ProjectName, name, injectedCmd)
+	SendKeys(cfg.Project.Name, name, "clear")
+	SendKeysEnter(cfg.Project.Name, name)
+	SendKeys(cfg.Project.Name, name, injectedCmd)
 
-	if cfg.AutoRunCommands {
-		SendKeysEnter(cfg.ProjectName, name)
+	if cfg.Behavior.AutoRunCommands {
+		SendKeysEnter(cfg.Project.Name, name)
 	}
 }
 

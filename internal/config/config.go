@@ -1,43 +1,81 @@
 package config
 
 import (
-	"bufio"
 	"os"
 	"path/filepath"
-	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
-type Config struct {
-	ProjectName     string
-	ProjectType     string
-	EnabledServices []string
-	URL             string
-	Browser         string
-	AutoRunCommands bool
-	UseCustomLayout bool
-	UseCustomEnv    bool
-	UsePostInitHook bool
-	OverrideFile    string
-}
+const (
+	GlobalConfigFileName = "config.yaml"
+	LocalConfigFileName  = "run.yaml"
+)
 
 func Load() *Config {
-	cfg := &Config{
-		ProjectName:     "",
-		ProjectType:     "",
-		EnabledServices: []string{},
-		URL:             "",
-		Browser:         "",
+	cfg := &Config{}
+	cfg.loadDefaults()
+	cfg.loadGlobalConfig()
+	cfg.loadLocalConfig()
+	return cfg
+}
+
+func (c *Config) loadDefaults() {
+	c.Project = ProjectConfig{Name: "", Type: ""}
+	c.System = SystemConfig{EnabledServices: []string{}}
+	c.Browser = BrowserConfig{URL: "", Command: "xdg-open"}
+	c.Behavior = BehaviorConfig{
 		AutoRunCommands: true,
 		UseCustomLayout: false,
 		UseCustomEnv:    false,
 		UsePostInitHook: false,
-		OverrideFile:    ".run_env",
 	}
+	c.EnvSetup = nil
+	c.Layout = nil
+	c.ScriptHook = ""
+}
 
-	cfg.loadGlobalConfig()
-	cfg.loadProjectOverrides()
+type Config struct {
+	Project    ProjectConfig  `yaml:"project"`
+	System     SystemConfig   `yaml:"system"`
+	Browser    BrowserConfig  `yaml:"browser"`
+	Behavior   BehaviorConfig `yaml:"behavior"`
+	EnvSetup   []EnvSetupRule `yaml:"env_setup"`
+	Layout     []LayoutWindow `yaml:"layout"`
+	ScriptHook string         `yaml:"script_hook"`
+}
 
-	return cfg
+type ProjectConfig struct {
+	Name string `yaml:"name"`
+	Type string `yaml:"type"`
+}
+
+type SystemConfig struct {
+	EnabledServices []string `yaml:"enabled_services"`
+}
+
+type BrowserConfig struct {
+	URL     string `yaml:"url"`
+	Command string `yaml:"command"`
+}
+
+type BehaviorConfig struct {
+	AutoRunCommands bool `yaml:"autorun_commands"`
+	UseCustomLayout bool `yaml:"use_custom_layout"`
+	UseCustomEnv    bool `yaml:"use_custom_env"`
+	UsePostInitHook bool `yaml:"use_post_init_hook"`
+}
+
+type EnvSetupRule struct {
+	Check   string `yaml:"check"`
+	Command string `yaml:"command"`
+}
+
+type LayoutWindow struct {
+	Name    string `yaml:"name"`
+	Path    string `yaml:"path"`
+	Env     string `yaml:"env,omitempty"`
+	Command string `yaml:"command"`
 }
 
 func (c *Config) loadGlobalConfig() {
@@ -46,60 +84,18 @@ func (c *Config) loadGlobalConfig() {
 		home, _ := os.UserHomeDir()
 		configHome = filepath.Join(home, ".config")
 	}
-	configFile := filepath.Join(configHome, "run", "config.conf")
-
-	if _, err := os.Stat(configFile); err == nil {
-		c.loadConfigFile(configFile)
-	}
+	configFile := filepath.Join(configHome, "run", GlobalConfigFileName)
+	c.loadYAMLFile(configFile)
 }
 
-func (c *Config) loadProjectOverrides() {
-	if _, err := os.Stat(c.OverrideFile); err == nil {
-		c.loadConfigFile(c.OverrideFile)
-	}
+func (c *Config) loadLocalConfig() {
+	c.loadYAMLFile(LocalConfigFileName)
 }
 
-// TODO: Make config use YAML instead
-func (c *Config) loadConfigFile(filename string) {
-	file, err := os.Open(filename)
+func (c *Config) loadYAMLFile(filename string) {
+	data, err := os.ReadFile(filename)
 	if err != nil {
-		return
+		return // file not found or unreadable — silently ignore
 	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		if strings.Contains(line, "=") {
-			parts := strings.SplitN(line, "=", 2)
-			if len(parts) == 2 {
-				key := strings.TrimSpace(parts[0])
-				value := strings.Trim(strings.TrimSpace(parts[1]), "\"")
-
-				switch key {
-				case "PROJECT_NAME":
-					c.ProjectName = value
-				case "PROJECT_TYPE":
-					c.ProjectType = value
-				case "URL":
-					c.URL = value
-				case "BROWSER":
-					c.Browser = value
-				case "AUTORUN_COMMANDS":
-					c.AutoRunCommands = value == "true"
-				case "USE_CUSTOM_LAYOUT":
-					c.UseCustomLayout = value == "true"
-				case "USE_CUSTOM_ENV":
-					c.UseCustomEnv = value == "true"
-				case "USE_POST_INITIALIZATION_HOOK":
-					c.UsePostInitHook = value == "true"
-				}
-			}
-		}
-		// TODO: Parse EnabledServices array or YAML
-	}
+	_ = yaml.Unmarshal(data, c) // override existing fields
 }

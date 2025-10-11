@@ -6,7 +6,7 @@ import (
 )
 
 func SetupLayout(cfg *config.Config) {
-	switch cfg.ProjectType {
+	switch cfg.Project.Type {
 	case "fastapi":
 		setupFastAPILayout(cfg)
 	case "django":
@@ -19,7 +19,7 @@ func SetupLayout(cfg *config.Config) {
 }
 
 func setupBaseLayout(cfg *config.Config) {
-	serverCmd := project.GetServerCommand(cfg.ProjectType)
+	serverCmd := project.GetServerCommand(cfg.Project.Type)
 	CreateWindow(cfg, "Cmd", serverCmd)
 	CreateWindow(cfg, "Editor", "nvim")
 }
