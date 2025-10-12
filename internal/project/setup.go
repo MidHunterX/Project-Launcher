@@ -90,7 +90,7 @@ func InjectEnv(projectType string, cmd string) string {
 
 func injectVenv(cmd string) string {
 	if util.DirExists("venv/") {
-		return "source venv/bin/activate && " + cmd
+		return fmt.Sprintf(`bash -c "source venv/bin/activate && %s"`, cmd)
 	}
 	return cmd
 }
