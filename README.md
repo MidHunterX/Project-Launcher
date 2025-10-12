@@ -35,10 +35,10 @@ Clone the repository and run the install script:
 ```bash
 git clone "https://github.com/MidHunterX/Project-Launcher" --depth 1
 cd Project-Launcher
-bash install.sh
+bash ./install.sh
 ```
 
-### Dependencies
+### Requirements
 
 - **Required**: `bash`, `systemctl` (for services)
 - **Optional**: `tmux` (for session management)
@@ -205,42 +205,6 @@ You can also add environment variables to `.run_env`
 ```bash
 export RUST_LOG=debug
 ```
-
-## 🔧 Troubleshooting
-
-### Common Issues
-
-1. Runner won't start services:
-
-   ```bash
-   # Check if user has sudo privileges for systemctl
-   sudo systemctl start postgresql
-   ```
-
-2. Tmux not found:
-
-- Runner falls back to running server directly
-- Install tmux: `sudo apt install tmux` or `brew install tmux`
-
-3. Virtual environment issues:
-
-   ```bash
-   # Clean up and retry
-   rm -rf venv/
-   run
-   ```
-
-### Session Management
-
-- **Existing Sessions**: Automatically attaches to existing session
-- **Clean Shutdown**: Proper cleanup and deactivation
-- **Multiple Projects**: Each project gets its own isolated session
-
-### Error Handling
-
-- **Missing Dependencies**: Graceful fallback without tmux
-- **Command Not Found**: Skips unavailable commands
-- **Service Failures**: Continues execution with warnings
 
 ## 📜 License
 
