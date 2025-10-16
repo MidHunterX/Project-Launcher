@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# DevNote: This script most likely can't be re-written in a compiled language
-# due to the way how a spawned process vs shell script modifies its
-# environment. Using other forms of configs like yaml won't have the
-# flexibility a shell script + source conf offers.
+# DevNote: This script is kinda hard to re-write in a compiled language due to
+# the way how a spawned process vs shell script modifies its environment. Using
+# other forms of configs like yaml won't have the flexibility a shell script +
+# source conf offers.
 
 # -----------------------------[ CONFIGURATION ]----------------------------- #
 
