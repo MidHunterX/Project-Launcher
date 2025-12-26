@@ -15,10 +15,10 @@ PROJECT_TYPE=""
 
 # Services: add any valid systemd services here
 ENABLED_SERVICES=(
-  # postgresql
-  # docker
-  # mongod
-  # nginx
+    # postgresql
+    # docker
+    # mongod
+    # nginx
 )
 
 # Default: automatic detection
@@ -39,17 +39,17 @@ rst='\033[0;0m'
 
 USE_CUSTOM_LAYOUT=false
 setup_layout_custom() {
-  log "🔴 Error: ${red}setup_layout_custom()${rst} not defined after ${cyan}USE_CUSTOM_LAYOUT=true${rst}"
+    log "🔴 Error: ${red}setup_layout_custom()${rst} not defined after ${cyan}USE_CUSTOM_LAYOUT=true${rst}"
 }
 
 USE_CUSTOM_ENV=false
 setup_env_custom() {
-  log "🔴 Error: ${red}setup_env_custom()${rst} not defined after ${cyan}USE_CUSTOM_ENV=true${rst}"
+    log "🔴 Error: ${red}setup_env_custom()${rst} not defined after ${cyan}USE_CUSTOM_ENV=true${rst}"
 }
 
 USE_POST_INITIALIZATION_HOOK=false
 setup_post_init_hook() {
-  log "🔴 Error: ${red}setup_post_init_hook()${rst} not defined after ${cyan}USE_POST_INITIALIZATION_HOOK=true${rst}"
+    log "🔴 Error: ${red}setup_post_init_hook()${rst} not defined after ${cyan}USE_POST_INITIALIZATION_HOOK=true${rst}"
 }
 
 # =========================================================================== #
@@ -59,108 +59,108 @@ setup_post_init_hook() {
 
 # log(str:message)
 log() {
-  local green='\033[1;32m'
-  local reset='\033[0;0m'
-  echo -e "[${green}$(date +'%H:%M:%S')${reset}] $1"
+    local green='\033[1;32m'
+    local reset='\033[0;0m'
+    echo -e "[${green}$(date +'%H:%M:%S')${reset}] $1"
 }
 
 # open_browser(str:new_tab_url str:browser_cmd?)
 open_browser() {
-  # CHECK: Valid URL
-  local url="$1"
-  if [[ -z "$url" ]]; then
-    return
-  fi
+    # CHECK: Valid URL
+    local url="$1"
+    if [[ -z "$url" ]]; then
+        return
+    fi
 
-  # CHECK: Valid browser
-  local browser="$2"
-  if [[ -z "$browser" ]]; then
-    browser="xdg-open"
-  else
-    command -v "${browser%% *}" >/dev/null || {
-      log "❌ Error: ${browser%% *} not found"
-      exit 1
-    }
-  fi
+    # CHECK: Valid browser
+    local browser="$2"
+    if [[ -z "$browser" ]]; then
+        browser="xdg-open"
+    else
+        command -v "${browser%% *}" >/dev/null || {
+            log "❌ Error: ${browser%% *} not found"
+            exit 1
+        }
+    fi
 
-  log "🔗 Launching browser..."
-  (
-    # Wait for the server to start
-    local timeout=20
-    while ! curl -sf "$url" >/dev/null; do
-      sleep 1
-      ((timeout--)) || { exit 1; }
-    done
+    log "🔗 Launching browser..."
+    (
+        # Wait for the server to start
+        local timeout=20
+        while ! curl -sf "$url" >/dev/null; do
+            sleep 1
+            ((timeout--)) || { exit 1; }
+        done
 
-    # Launch the browser
-    $browser "$url" >/dev/null &
-  ) &
+        # Launch the browser
+        $browser "$url" >/dev/null &
+    ) &
 }
 
 ensure_window() {
-  local name="$1"
-  if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
-    tmux new-window -t "$PROJECT_NAME" -n "$name"
-  else
-    tmux new-session -d -s "$PROJECT_NAME" -n "$name"
-  fi
+    local name="$1"
+    if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
+        tmux new-window -t "$PROJECT_NAME" -n "$name"
+    else
+        tmux new-session -d -s "$PROJECT_NAME" -n "$name"
+    fi
 }
 
 # create_window(window_name:str command?:str)
 create_window() {
-  local name="$1"
-  local cmd="$2"
+    local name="$1"
+    local cmd="$2"
 
-  # CHECK: Valid Name
-  if [[ -z "$name" ]]; then
-    log "🚫 Error: Missing window name"
-    return
-  fi
-
-  # ACTION: Window without command
-  if [[ -z "$cmd" ]]; then
-    ensure_window "$name"
-    return
-  fi
-
-  # ACTION: Create window only if valid command
-  if command -v "${cmd%% *}" >/dev/null; then
-    ensure_window "$name"
-    # "clear" Enter fixes send-keys doubling text due to shell race condition
-    tmux send-keys -t "$PROJECT_NAME:$name" "clear" Enter "$cmd"
-    if [ "$AUTORUN_COMMANDS" == true ]; then
-      tmux send-keys -t "$PROJECT_NAME:$name" Enter
+    # CHECK: Valid Name
+    if [[ -z "$name" ]]; then
+        log "🚫 Error: Missing window name"
+        return
     fi
-  fi
+
+    # ACTION: Window without command
+    if [[ -z "$cmd" ]]; then
+        ensure_window "$name"
+        return
+    fi
+
+    # ACTION: Create window only if valid command
+    if command -v "${cmd%% *}" >/dev/null; then
+        ensure_window "$name"
+        # "clear" Enter fixes send-keys doubling text due to shell race condition
+        tmux send-keys -t "$PROJECT_NAME:$name" "clear" Enter "$cmd"
+        if [ "$AUTORUN_COMMANDS" == true ]; then
+            tmux send-keys -t "$PROJECT_NAME:$name" Enter
+        fi
+    fi
 }
 
 # create_temp_window(str:window_name str:command)
 create_temp_window() {
-  local name="$1"
-  local cmd="$2"
-  if command -v "${cmd%% *}" >/dev/null; then
-    tmux new-window -t "$PROJECT_NAME" -n "$name" "$cmd"
-  fi
+    local name="$1"
+    local cmd="$2"
+    if command -v "${cmd%% *}" >/dev/null; then
+        tmux new-window -t "$PROJECT_NAME" -n "$name" "$cmd"
+    fi
 }
 
 # █▄▄ █▀█ █▀█ █░█░█ █▀ █▀▀ █▀█
 # █▄█ █▀▄ █▄█ ▀▄▀▄▀ ▄█ ██▄ █▀▄
 
 get_server_url() {
-  local project_type="$1"
-  case "$project_type" in
-  "none") ;; # Do nothing
-  "python") ;;
-  "fastapi") ;;
-  "flask") echo "http://localhost:5000" ;;
-  "django") echo "http://localhost:8000" ;;
-  "nodejs") ;;
-  "nextjs") echo "http://localhost:3000" ;;
-  "angular") echo "http://localhost:4200" ;;
-  "elixir") echo "http://localhost:4000" ;;
-  "rust") ;;
-  *) log "🚧 Warning: No server url for ${project_type}" ;;
-  esac
+    local project_type="$1"
+    case "$project_type" in
+        "none") ;; # Do nothing
+        "python") ;;
+        "fastapi") ;;
+        "flask") echo "http://localhost:5000" ;;
+        "django") echo "http://localhost:8000" ;;
+        "nodejs") ;;
+        "nextjs") echo "http://localhost:3000" ;;
+        "angular") echo "http://localhost:4200" ;;
+        "elixir") echo "http://localhost:4000" ;;
+        "rust") ;;
+        *) log "🚧 Warning: No server url for ${project_type}" ;;
+    esac
 }
 
 # █░░ ▄▀█ █▄█ █▀█ █░█ ▀█▀ █▀
@@ -168,73 +168,73 @@ get_server_url() {
 
 # run_server_command(str:project_type)
 run_server_command() {
-  local project_type="$1"
-  case "$project_type" in
-  "none") ;; # Do nothing
-  "python") echo "python main.py" ;;
-  "fastapi") echo "fastapi dev main.py" ;;
-  "flask") echo "python main.py" ;;
-  "django") echo "python manage.py runserver" ;;
-  "nodejs") echo "npm start" ;;
-  "nextjs") echo "npm run dev" ;;
-  "angular") echo "ng serve" ;;
-  "elixir") echo "iex -S mix phx.server" ;;
-  "rust") echo "cargo run" ;;
-  *) log "🚧 Warning: No server setup for ${project_type}" ;;
-  esac
+    local project_type="$1"
+    case "$project_type" in
+        "none") ;; # Do nothing
+        "python") echo "python main.py" ;;
+        "fastapi") echo "fastapi dev main.py" ;;
+        "flask") echo "python main.py" ;;
+        "django") echo "python manage.py runserver" ;;
+        "nodejs") echo "npm start" ;;
+        "nextjs") echo "npm run dev" ;;
+        "angular") echo "ng serve" ;;
+        "elixir") echo "iex -S mix phx.server" ;;
+        "rust") echo "cargo run" ;;
+        *) log "🚧 Warning: No server setup for ${project_type}" ;;
+    esac
 }
 
 setup_base_layout() {
-  create_window "Cmd" "$(run_server_command "$PROJECT_TYPE")"
-  create_window "Editor" "nvim"
+    create_window "Cmd" "$(run_server_command "$PROJECT_TYPE")"
+    create_window "Editor" "nvim"
 }
 
 setup_fastapi_layout() {
-  setup_base_layout
-  create_window "Test" "clear && pytest"
+    setup_base_layout
+    create_window "Test" "clear && pytest"
 }
 
 setup_django_layout() {
-  setup_base_layout
-  create_window "Test" "python manage.py test"
+    setup_base_layout
+    create_window "Test" "python manage.py test"
 }
 
 setup_rust_layout() {
-  setup_base_layout
-  create_window "Test" "cargo test"
+    setup_base_layout
+    create_window "Test" "cargo test"
 }
 
 # select_layout(str:project_type)
 setup_layout() {
-  local project_type="$1"
-  case "$project_type" in
-  "none") setup_base_layout ;;
-  "python") setup_base_layout ;;
-  "django") setup_django_layout ;;
-  "fastapi") setup_fastapi_layout ;;
-  "flask") setup_base_layout ;;
-  "nodejs") setup_base_layout ;;
-  "nextjs") setup_base_layout ;;
-  "angular") setup_base_layout ;;
-  "elixir") setup_base_layout ;;
-  "rust") setup_rust_layout ;;
-  *)
-    log "🚧 Unknown technology: ${project_type}. Using default layout..."
-    setup_base_layout
-    ;;
-  esac
+    local project_type="$1"
+    case "$project_type" in
+        "none") setup_base_layout ;;
+        "python") setup_base_layout ;;
+        "django") setup_django_layout ;;
+        "fastapi") setup_fastapi_layout ;;
+        "flask") setup_base_layout ;;
+        "nodejs") setup_base_layout ;;
+        "nextjs") setup_base_layout ;;
+        "angular") setup_base_layout ;;
+        "elixir") setup_base_layout ;;
+        "rust") setup_rust_layout ;;
+        *)
+            log "🚧 Unknown technology: ${project_type}. Using default layout..."
+            setup_base_layout
+            ;;
+    esac
 }
 
 # █▀ █▀▀ █▀█ █░█ █ █▀▀ █▀▀ █▀
 # ▄█ ██▄ █▀▄ ▀▄▀ █ █▄▄ ██▄ ▄█
 
 init_services() {
-  for service in "${ENABLED_SERVICES[@]}"; do
-    if ! systemctl is-active --quiet "$service"; then
-      log "🔧 Starting $service..."
-      sudo systemctl start "$service"
-    fi
-  done
+    for service in "${ENABLED_SERVICES[@]}"; do
+        if ! systemctl is-active --quiet "$service"; then
+            log "🔧 Starting $service..."
+            sudo systemctl start "$service"
+        fi
+    done
 }
 
 # █▀▀ █▄░█ █░█   █▀ █▀▀ ▀█▀ █░█ █▀█
@@ -242,191 +242,191 @@ init_services() {
 
 # setup_base_env(str:dependency_dir str:dependency_cmd)
 setup_base_env() {
-  local dependency_dir="$1"
-  local dependency_cmd="$2"
-  if [[ ! -d $dependency_dir ]]; then
-    log "🚀 Setting up dependencies..."
-    command -v "${dependency_cmd%% *}" >/dev/null || {
-      log "❌ Error: ${dependency_cmd%% *} not found"
-      exit 1
-    }
-    $dependency_cmd
-  fi
+    local dependency_dir="$1"
+    local dependency_cmd="$2"
+    if [[ ! -d $dependency_dir ]]; then
+        log "🚀 Setting up dependencies..."
+        command -v "${dependency_cmd%% *}" >/dev/null || {
+            log "❌ Error: ${dependency_cmd%% *} not found"
+            exit 1
+        }
+        $dependency_cmd
+    fi
 }
 
 setup_python_env() {
-  local dependency_dir="venv/"
-  local dependency_cmd="python -m venv venv"
-  if [[ ! -d $dependency_dir ]]; then
-    setup_base_env "$dependency_dir" "$dependency_cmd"
-    log "📦 Installing requirements..."
+    local dependency_dir="venv/"
+    local dependency_cmd="python -m venv venv"
+    if [[ ! -d $dependency_dir ]]; then
+        setup_base_env "$dependency_dir" "$dependency_cmd"
+        log "📦 Installing requirements..."
+        # shellcheck disable=SC1090
+        source "./$dependency_dir/bin/activate"
+        if [[ -f "requirements.txt" ]]; then
+            pip install -r requirements.txt
+        else
+            log "🚧 Warning: No requirements.txt found"
+        fi
+    fi
+
     # shellcheck disable=SC1090
     source "./$dependency_dir/bin/activate"
-    if [[ -f "requirements.txt" ]]; then
-      pip install -r requirements.txt
-    else
-      log "🚧 Warning: No requirements.txt found"
-    fi
-  fi
-
-  # shellcheck disable=SC1090
-  source "./$dependency_dir/bin/activate"
 }
 
 setup_django_env() {
-  setup_python_env
-  # Run migrations if needed
-  if python manage.py showmigrations --plan | grep '\[ \]'; then
-    log "✈️ Running migrations to database..."
-    python manage.py migrate
-  fi
+    setup_python_env
+    # Run migrations if needed
+    if python manage.py showmigrations --plan | grep '\[ \]'; then
+        log "✈️ Running migrations to database..."
+        python manage.py migrate
+    fi
 }
 
 setup_node_env() {
-  setup_base_env "node_modules/" "npm install"
+    setup_base_env "node_modules/" "npm install"
 }
 
 setup_elixir_env() {
-  setup_base_env "deps/" "mix setup"
+    setup_base_env "deps/" "mix setup"
 }
 
 # select_env(str:project_type)
 setup_env() {
-  local project_type="$1"
-  case "$project_type" in
-  "none") ;; # Do nothing
-  "python") setup_python_env ;;
-  "django") setup_django_env ;;
-  "fastapi") setup_python_env ;;
-  "flask") setup_python_env ;;
-  "nodejs") setup_node_env ;;
-  "nextjs") setup_node_env ;;
-  "angular") setup_node_env ;;
-  "elixir") setup_elixir_env ;;
-  "rust") ;; # Rust sets up its own environment with cargo
-  *) log "🚧 Unknown technology: ${project_type}" ;;
-  esac
+    local project_type="$1"
+    case "$project_type" in
+        "none") ;; # Do nothing
+        "python") setup_python_env ;;
+        "django") setup_django_env ;;
+        "fastapi") setup_python_env ;;
+        "flask") setup_python_env ;;
+        "nodejs") setup_node_env ;;
+        "nextjs") setup_node_env ;;
+        "angular") setup_node_env ;;
+        "elixir") setup_elixir_env ;;
+        "rust") ;; # Rust sets up its own environment with cargo
+        *) log "🚧 Unknown technology: ${project_type}" ;;
+    esac
 }
 
 # █▀▄ █▀▀ ▀█▀ █▀▀ █▀▀ ▀█▀ █ █▀█ █▄░█
 # █▄▀ ██▄ ░█░ ██▄ █▄▄ ░█░ █ █▄█ █░▀█
 
 detect_project_type() {
-  if [[ -f "main.py" ]]; then
-    if grep -q "from fastapi import FastAPI" main.py; then
-      echo "fastapi"
-    elif grep -q "from flask import Flask" main.py; then
-      echo "flask"
+    if [[ -f "main.py" ]]; then
+        if grep -q "from fastapi import FastAPI" main.py; then
+            echo "fastapi"
+        elif grep -q "from flask import Flask" main.py; then
+            echo "flask"
+        else
+            echo "python"
+        fi
+
+    elif [[ -f "manage.py" ]]; then
+        echo "django"
+
+    elif [[ -f "package.json" ]]; then
+        if [[ -f "angular.json" ]]; then
+            echo "angular"
+        elif [[ -f "next.config.ts" ]]; then
+            echo "nextjs"
+        elif [[ -f "next.config.js" ]]; then
+            echo "nextjs"
+        else
+            echo "nodejs"
+        fi
+
+    elif [[ -f "mix.exs" ]]; then
+        echo "elixir"
+
+    elif [[ -f "Cargo.toml" ]]; then
+        echo "rust"
+
     else
-      echo "python"
+        echo "none"
     fi
-
-  elif [[ -f "manage.py" ]]; then
-    echo "django"
-
-  elif [[ -f "package.json" ]]; then
-    if [[ -f "angular.json" ]]; then
-      echo "angular"
-    elif [[ -f "next.config.ts" ]]; then
-      echo "nextjs"
-    elif [[ -f "next.config.js" ]]; then
-      echo "nextjs"
-    else
-      echo "nodejs"
-    fi
-
-  elif [[ -f "mix.exs" ]]; then
-    echo "elixir"
-
-  elif [[ -f "Cargo.toml" ]]; then
-    echo "rust"
-
-  else
-    echo "none"
-  fi
 }
 
 # █▀▄▀█ ▄▀█ █ █▄░█
 # █░▀░█ █▀█ █ █░▀█
 
 main() {
-  # INIT: Load global config if available
-  config_file="$XDG_CONFIG_HOME/run/config.conf"
-  if [[ -f "$config_file" ]]; then
-    # shellcheck disable=SC1090
-    source "$config_file"
-  fi
-
-  # INIT: Load custom overrides if available
-  OVERRIDE_FILE=".run_env"
-  if [[ -f "$OVERRIDE_FILE" ]]; then
-    # shellcheck disable=SC1090
-    source "$OVERRIDE_FILE"
-  fi
-
-  init_services
-
-  # FALLBACK: PROJECT_NAME={project dir name}
-  if [[ -z "$PROJECT_NAME" ]]; then
-    PROJECT_NAME="$(basename "$PWD")"
-  fi
-
-  # FALLBACK: PROJECT_TYPE={automatic detection}
-  if [[ -z "$PROJECT_TYPE" ]]; then
-    PROJECT_TYPE="$(detect_project_type)"
-    log "🔍 Detected: $PROJECT_TYPE"
-  fi
-
-  # FALLBACK: NEW_TAB_URL={automatic detection}
-  if [[ -z "$URL" ]]; then
-    URL=$(get_server_url "$PROJECT_TYPE")
-  fi
-
-  # SETUP: ENV or custom
-  if [[ "$USE_CUSTOM_ENV" = true ]]; then
-    setup_env_custom
-  else
-    setup_env "$PROJECT_TYPE"
-  fi
-
-  # ACTION: OPEN BROWSER
-  if [[ "$URL" != "none" ]]; then
-    open_browser "$URL" "$BROWSER"
-  fi
-
-  # REQUIRE: tmux dependency for LAYOUT
-  if ! command -v tmux >/dev/null; then
-    # FALLBACK: RUN SERVER (Blocking)
-    cmd=$(run_server_command "$PROJECT_TYPE")
-    if [[ -z "$cmd" ]]; then
-      log "🚫 Error: No server found for this type"
-      exit 1
+    # INIT: Load global config if available
+    config_file="$XDG_CONFIG_HOME/run/config.conf"
+    if [[ -f "$config_file" ]]; then
+        # shellcheck disable=SC1090
+        source "$config_file"
     fi
-    log "ℹ️ Running server without tmux..."
-    eval "$cmd"
-    exit 0
-  fi
 
-  # ACTION: Attach session if exists
-  if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
-    log "Session '$PROJECT_NAME' already exists. Attaching..."
+    # INIT: Load custom overrides if available
+    OVERRIDE_FILE=".run_env"
+    if [[ -f "$OVERRIDE_FILE" ]]; then
+        # shellcheck disable=SC1090
+        source "$OVERRIDE_FILE"
+    fi
+
+    init_services
+
+    # FALLBACK: PROJECT_NAME={project dir name}
+    if [[ -z "$PROJECT_NAME" ]]; then
+        PROJECT_NAME="$(basename "$PWD")"
+    fi
+
+    # FALLBACK: PROJECT_TYPE={automatic detection}
+    if [[ -z "$PROJECT_TYPE" ]]; then
+        PROJECT_TYPE="$(detect_project_type)"
+        log "🔍 Detected: $PROJECT_TYPE"
+    fi
+
+    # FALLBACK: NEW_TAB_URL={automatic detection}
+    if [[ -z "$URL" ]]; then
+        URL=$(get_server_url "$PROJECT_TYPE")
+    fi
+
+    # SETUP: ENV or custom
+    if [[ "$USE_CUSTOM_ENV" = true ]]; then
+        setup_env_custom
+    else
+        setup_env "$PROJECT_TYPE"
+    fi
+
+    # ACTION: OPEN BROWSER
+    if [[ "$URL" != "none" ]]; then
+        open_browser "$URL" "$BROWSER"
+    fi
+
+    # REQUIRE: tmux dependency for LAYOUT
+    if ! command -v tmux >/dev/null; then
+        # FALLBACK: RUN SERVER (Blocking)
+        cmd=$(run_server_command "$PROJECT_TYPE")
+        if [[ -z "$cmd" ]]; then
+            log "🚫 Error: No server found for this type"
+            exit 1
+        fi
+        log "ℹ️ Running server without tmux..."
+        eval "$cmd"
+        exit 0
+    fi
+
+    # ACTION: Attach session if exists
+    if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
+        log "Session '$PROJECT_NAME' already exists. Attaching..."
+        tmux attach -t "$PROJECT_NAME"
+        exit 0
+    fi
+
+    # SETUP: LAYOUT or custom
+    if [[ "$USE_CUSTOM_LAYOUT" = true ]]; then
+        setup_layout_custom
+    else
+        setup_layout "$PROJECT_TYPE"
+    fi
+
+    # ACTION: POST INIT HOOK
+    if [[ "$USE_POST_INITIALIZATION_HOOK" = true ]]; then
+        setup_post_init_hook
+    fi
+
     tmux attach -t "$PROJECT_NAME"
-    exit 0
-  fi
-
-  # SETUP: LAYOUT or custom
-  if [[ "$USE_CUSTOM_LAYOUT" = true ]]; then
-    setup_layout_custom
-  else
-    setup_layout "$PROJECT_TYPE"
-  fi
-
-  # ACTION: POST INIT HOOK
-  if [[ "$USE_POST_INITIALIZATION_HOOK" = true ]]; then
-    setup_post_init_hook
-  fi
-
-  tmux attach -t "$PROJECT_NAME"
 }
 
 main
