@@ -120,10 +120,15 @@ Example 1: Just Browser
 BROWSER="firefox --new-tab"
 ```
 
-Example 2: Window Manager + Custom Timezone + Custom Browser Profile
+Example 2: Custom Timezone + Browser
 
 ```bash
-# custom browser, arguments and newtab flag at the end
+BROWSER="TZ=Asia/Dubai firefox --new-tab"
+```
+
+Example 3: Window Manager + Custom Timezone + Custom Browser Profile
+
+```bash
 BROWSER="hyprctl dispatch -- exec [workspace 2] TZ=Asia/Dubai firefox-developer-edition -P Personal -no-remote -new-tab"
 ```
 
