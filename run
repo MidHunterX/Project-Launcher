@@ -93,7 +93,7 @@ open_browser() {
     done
 
     # Launch the browser
-    $browser $url >/dev/null &
+    $browser "$url" >/dev/null &
   ) &
 }
 
@@ -185,7 +185,7 @@ run_server_command() {
 }
 
 setup_base_layout() {
-  create_window "Cmd" "$(run_server_command $PROJECT_TYPE)"
+  create_window "Cmd" "$(run_server_command "$PROJECT_TYPE")"
   create_window "Editor" "nvim"
 }
 
@@ -246,7 +246,7 @@ setup_base_env() {
   local dependency_cmd="$2"
   if [[ ! -d $dependency_dir ]]; then
     log "🚀 Setting up dependencies..."
-    command -v ${dependency_cmd%% *} >/dev/null || {
+    command -v "${dependency_cmd%% *}" >/dev/null || {
       log "❌ Error: ${dependency_cmd%% *} not found"
       exit 1
     }
@@ -260,14 +260,17 @@ setup_python_env() {
   if [[ ! -d $dependency_dir ]]; then
     setup_base_env "$dependency_dir" "$dependency_cmd"
     log "📦 Installing requirements..."
-    source "$dependency_dir/bin/activate"
+    # shellcheck disable=SC1090
+    source "./$dependency_dir/bin/activate"
     if [[ -f "requirements.txt" ]]; then
       pip install -r requirements.txt
     else
       log "🚧 Warning: No requirements.txt found"
     fi
   fi
-  source "$dependency_dir/bin/activate"
+
+  # shellcheck disable=SC1090
+  source "./$dependency_dir/bin/activate"
 }
 
 setup_django_env() {
@@ -350,12 +353,14 @@ main() {
   # INIT: Load global config if available
   config_file="$XDG_CONFIG_HOME/run/config.conf"
   if [[ -f "$config_file" ]]; then
+    # shellcheck disable=SC1090
     source "$config_file"
   fi
 
   # INIT: Load custom overrides if available
   OVERRIDE_FILE=".run_env"
   if [[ -f "$OVERRIDE_FILE" ]]; then
+    # shellcheck disable=SC1090
     source "$OVERRIDE_FILE"
   fi
 
