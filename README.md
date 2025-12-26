@@ -1,12 +1,13 @@
 # Project Launcher
 
-A universal, intelligent project runner that automatically detects your project type and sets up an optimized development environment with tmux sessions, proper virtual environments, and optional system services.
+A simple development environment orchestrator that automatically detects your project type and sets up appropriate tmux sessions, environment variables, optional system services and other script based automations.
 
 ### Supported Technologies
 
 <p>
   <img src="https://img.shields.io/badge/Rust-black?style=for-the-badge&logo=rust&logoColor=#E57324" />
   <img src="https://img.shields.io/badge/Elixir-4B275F?style=for-the-badge&logo=elixir&logoColor=white" />
+  <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" />
 
   <img src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&&logo=nodedotjs&logoColor=white" />
   <img src="https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />

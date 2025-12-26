@@ -10,7 +10,7 @@
 PROJECT_NAME=""
 # Default: automatic detection
 # Available values:
-# none | rust | python | django | fastapi | flask | nodejs | nextjs | elixir | angular
+# none | rust | python | django | fastapi | flask | nodejs | nextjs | elixir | angular | flutter
 PROJECT_TYPE=""
 
 # Services: add any valid systemd services here
@@ -157,6 +157,7 @@ get_server_url() {
         "nodejs") ;;
         "nextjs") echo "http://localhost:3000" ;;
         "angular") echo "http://localhost:4200" ;;
+        "flutter") ;;
         "elixir") echo "http://localhost:4000" ;;
         "rust") ;;
         *) log "🚧 Warning: No server url for ${project_type}" ;;
@@ -178,6 +179,7 @@ run_server_command() {
         "nodejs") echo "npm start" ;;
         "nextjs") echo "npm run dev" ;;
         "angular") echo "ng serve" ;;
+        "flutter") echo "flutter run" ;;
         "elixir") echo "iex -S mix phx.server" ;;
         "rust") echo "cargo run" ;;
         *) log "🚧 Warning: No server setup for ${project_type}" ;;
@@ -216,6 +218,7 @@ setup_layout() {
         "nodejs") setup_base_layout ;;
         "nextjs") setup_base_layout ;;
         "angular") setup_base_layout ;;
+        "flutter") setup_base_layout ;;
         "elixir") setup_base_layout ;;
         "rust") setup_rust_layout ;;
         *)
@@ -302,6 +305,7 @@ setup_env() {
         "nodejs") setup_node_env ;;
         "nextjs") setup_node_env ;;
         "angular") setup_node_env ;;
+        "flutter") ;;
         "elixir") setup_elixir_env ;;
         "rust") ;; # Rust sets up its own environment with cargo
         *) log "🚧 Unknown technology: ${project_type}" ;;
@@ -334,6 +338,9 @@ detect_project_type() {
         else
             echo "nodejs"
         fi
+
+    elif [[ -f "pubspec.yaml" ]]; then
+        echo "flutter"
 
     elif [[ -f "mix.exs" ]]; then
         echo "elixir"
