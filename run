@@ -316,41 +316,48 @@ setup_env() {
 # █▄▀ ██▄ ░█░ ██▄ █▄▄ ░█░ █ █▄█ █░▀█
 
 detect_project_type() {
+    # python
     if [[ -f "main.py" ]]; then
         if grep -q "from fastapi import FastAPI" main.py; then
-            echo "fastapi"
+            echo "fastapi" && return
         elif grep -q "from flask import Flask" main.py; then
-            echo "flask"
-        else
-            echo "python"
+            echo "flask" && return
         fi
-
-    elif [[ -f "manage.py" ]]; then
-        echo "django"
-
-    elif [[ -f "package.json" ]]; then
-        if [[ -f "angular.json" ]]; then
-            echo "angular"
-        elif [[ -f "next.config.ts" ]]; then
-            echo "nextjs"
-        elif [[ -f "next.config.js" ]]; then
-            echo "nextjs"
-        else
-            echo "nodejs"
-        fi
-
-    elif [[ -f "pubspec.yaml" ]]; then
-        echo "flutter"
-
-    elif [[ -f "mix.exs" ]]; then
-        echo "elixir"
-
-    elif [[ -f "Cargo.toml" ]]; then
-        echo "rust"
-
-    else
-        echo "none"
+        echo "python" && return
     fi
+
+    # django
+    if [[ -f "manage.py" ]]; then
+        echo "django" && return
+    fi
+
+    # nodejs
+    if [[ -f "package.json" ]]; then
+        if [[ -f "angular.json" ]]; then
+            echo "angular" && return
+        elif [[ -f "next.config.js" ]] || [[ -f "next.config.ts" ]] || [[ -f "next.config.mjs" ]]; then
+            echo "nextjs" && return
+        fi
+        echo "nodejs" && return
+    fi
+
+    # flutter
+    if [[ -f "pubspec.yaml" ]]; then
+        echo "flutter" && return
+    fi
+
+    # elixir
+    if [[ -f "mix.exs" ]]; then
+        echo "elixir" && return
+    fi
+
+    # rust
+    if [[ -f "Cargo.toml" ]]; then
+        echo "rust" && return
+    fi
+
+    # none
+    echo "none" && return
 }
 
 # █▀▄▀█ ▄▀█ █ █▄░█
