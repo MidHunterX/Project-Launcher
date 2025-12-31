@@ -383,6 +383,18 @@ main() {
     # FALLBACK: PROJECT_NAME={project dir name}
     if [[ -z "$PROJECT_NAME" ]]; then
         PROJECT_NAME="$(basename "$PWD")"
+        # Break off after invalid character
+        PROJECT_NAME="${PROJECT_NAME%%[^a-zA-Z0-9 -]*}"
+        # EDGE_CASE: Possibily dir name starting with invalid character
+        if [[ -z "$PROJECT_NAME" ]]; then
+            PROJECT_NAME="$(basename "$PWD")"
+            # Remove invalid characters
+            PROJECT_NAME="${PROJECT_NAME//[^a-zA-Z0-9 -]/}"
+        fi
+        # EDGE_CASE: No valid characters at all
+        if [[ -z "$PROJECT_NAME" ]]; then
+            PROJECT_NAME="Your Project"
+        fi
     fi
 
     # FALLBACK: PROJECT_TYPE={automatic detection}
