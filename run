@@ -271,7 +271,6 @@ setup_python_env() {
             log "🚧 Warning: No requirements.txt found"
         fi
     fi
-
     # shellcheck disable=SC1090
     source "./$dependency_dir/bin/activate"
 }
@@ -383,17 +382,11 @@ main() {
     # FALLBACK: PROJECT_NAME={project dir name}
     if [[ -z "$PROJECT_NAME" ]]; then
         PROJECT_NAME="$(basename "$PWD")"
-        # Break off after invalid character
-        PROJECT_NAME="${PROJECT_NAME%%[^a-zA-Z0-9 -]*}"
-        # EDGE_CASE: Possibily dir name starting with invalid character
-        if [[ -z "$PROJECT_NAME" ]]; then
-            PROJECT_NAME="$(basename "$PWD")"
-            # Remove invalid characters
-            PROJECT_NAME="${PROJECT_NAME//[^a-zA-Z0-9 -]/}"
-        fi
+        # Remove invalid characters
+        PROJECT_NAME="${PROJECT_NAME//[^a-zA-Z0-9 -]/}"
         # EDGE_CASE: No valid characters at all
         if [[ -z "$PROJECT_NAME" ]]; then
-            PROJECT_NAME="Your Project"
+            PROJECT_NAME="Invalid Project Name"
         fi
     fi
 
