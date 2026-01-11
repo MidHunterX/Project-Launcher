@@ -10,7 +10,7 @@
 PROJECT_NAME=""
 # Default: automatic detection
 # Available values:
-# none | rust | python | django | fastapi | flask | nodejs | nextjs | elixir | angular | flutter
+# none | rust | python | django | fastapi | flask | html | nodejs | nextjs | elixir | angular | flutter
 PROJECT_TYPE=""
 
 # Services: add any valid systemd services here
@@ -153,6 +153,11 @@ get_server_url() {
         "python") ;;
         "fastapi") ;;
         "flask") echo "http://localhost:5000" ;;
+        "html")
+            if command -v live-server >/dev/null; then
+                echo "http://localhost:8080"
+            fi
+            ;;
         "django") echo "http://localhost:8000" ;;
         "nodejs") ;;
         "nextjs") echo "http://localhost:3000" ;;
@@ -175,6 +180,11 @@ run_server_command() {
         "python") echo "python main.py" ;;
         "fastapi") echo "fastapi dev main.py" ;;
         "flask") echo "python main.py" ;;
+        "html")
+            if command -v live-server >/dev/null; then
+                echo "live-server --no-browser"
+            fi
+            ;;
         "django") echo "python manage.py runserver" ;;
         "nodejs") echo "npm start" ;;
         "nextjs") echo "npm run dev" ;;
@@ -215,6 +225,7 @@ setup_layout() {
         "django") setup_django_layout ;;
         "fastapi") setup_fastapi_layout ;;
         "flask") setup_base_layout ;;
+        "html") setup_base_layout ;;
         "nodejs") setup_base_layout ;;
         "nextjs") setup_base_layout ;;
         "angular") setup_base_layout ;;
@@ -301,6 +312,7 @@ setup_env() {
         "django") setup_django_env ;;
         "fastapi") setup_python_env ;;
         "flask") setup_python_env ;;
+        "html") ;;
         "nodejs") setup_node_env ;;
         "nextjs") setup_node_env ;;
         "angular") setup_node_env ;;
@@ -353,6 +365,11 @@ detect_project_type() {
     # rust
     if [[ -f "Cargo.toml" ]]; then
         echo "rust" && return
+    fi
+
+    # html
+    if [[ -f "index.html" ]]; then
+        echo "html" && return
     fi
 
     # none
