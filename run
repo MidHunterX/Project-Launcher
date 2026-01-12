@@ -178,7 +178,7 @@ run_server_command() {
     case "$project_type" in
         "none") ;; # Do nothing
         "python") echo "python main.py" ;;
-        "fastapi") echo "fastapi dev main.py" ;;
+        "fastapi") echo "uvicorn main:app --reload" ;;
         "flask") echo "python main.py" ;;
         "html")
             if command -v live-server >/dev/null; then
@@ -383,17 +383,13 @@ detect_project_type() {
 main() {
     # INIT: Load global config if available
     config_file="$XDG_CONFIG_HOME/run/config.conf"
-    if [[ -f "$config_file" ]]; then
-        # shellcheck disable=SC1090
-        source "$config_file"
-    fi
+    # shellcheck disable=SC1090
+    [[ -f "$config_file" ]] && source "$config_file"
 
     # INIT: Load custom overrides if available
-    OVERRIDE_FILE=".run_env"
-    if [[ -f "$OVERRIDE_FILE" ]]; then
-        # shellcheck disable=SC1090
-        source "$OVERRIDE_FILE"
-    fi
+    OVERRIDE_FILE=".runrc"
+    # shellcheck disable=SC1090
+    [[ -f "$OVERRIDE_FILE" ]] && source "$OVERRIDE_FILE"
 
     init_services
 
