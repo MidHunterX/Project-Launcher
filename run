@@ -64,6 +64,34 @@ log() {
     echo -e "[${green}$(date +'%H:%M:%S')${reset}] $1"
 }
 
+# code_block(str:message)
+code_block() {
+    local green='\033[1;32m'
+    local bg_gray='\033[48;5;236m'
+    local reset='\033[0m'
+    local pad="  "
+    # Read input (supports \n)
+    local content
+    content=$(printf "%b" "$1")
+    # Split into lines
+    IFS=$'\n' read -r -d '' -a lines <<<"$content"$'\0'
+    # Calculate max line width
+    local max=0
+    for line in "${lines[@]}"; do
+        (( ${#line} > max )) && max=${#line}
+    done
+    local width=$((max + ${#pad} * 2))
+    # Top padding
+    printf "${bg_gray}${green}%*s${reset}\n" "$width" ""
+    # Content
+    for line in "${lines[@]}"; do
+        printf "${bg_gray}${green}%s%-*s%s${reset}\n" \
+            "$pad" "$max" "$line" "$pad"
+    done
+    # Bottom padding
+    printf "${bg_gray}${green}%*s${reset}\n" "$width" ""
+}
+
 # open_browser(str:new_tab_url str:browser_cmd?)
 open_browser() {
     # CHECK: Valid URL
@@ -303,7 +331,6 @@ migrate_alembic() {
         return
     fi
 
-    log "🔍 Detected: alembic"
     # Capture both stdout + stderr
     local check_output
     check_output="$(alembic check 2>&1)"
@@ -311,28 +338,21 @@ migrate_alembic() {
 
     if [[ $check_status == 0 ]]; then
         # CASE: Revision Created | DB Migrated
-        log "✅ Alembic revision exists and DB is up to date"
         return
     fi
 
     case "$check_output" in
         *"ERROR [alembic.util.messaging] New upgrade operations detected"*)
             # CASE: Model Changed | Revision Not Created
-            log "⚠️ Schema changes detected but no revision exists"
-
             case "$check_output" in
                 *"INFO  [alembic.autogenerate.compare] Detected added table"*)
                     table_name=$(grep -oP "Detected added table '\K[^']+" <<<"$check_output")
-                    log "💡 Hint: New tables detected. You probably want:"
-                    log "   alembic revision --autogenerate -m \"add $table_name\""
-                    log "   alembic upgrade head"
-                    read -r -p "Press enter to continue"
+                    log "📎 - New table detected. You probably want:"
+                    code_block "alembic revision --autogenerate -m \"add $table_name\"\nalembic upgrade head"
                     ;;
                 *)
-                    log "💡 Hint: Model changes detected. Consider:"
-                    log "   alembic revision --autogenerate -m \"schema changes\""
-                    log "   alembic upgrade head"
-                    read -r -p "Press enter to continue"
+                    log "📎 - Model changes detected. Consider:"
+                    code_block "alembic revision --autogenerate -m \"schema changes\"\nalembic upgrade head"
                     ;;
             esac
 
@@ -341,7 +361,7 @@ migrate_alembic() {
 
         *"ERROR [alembic.util.messaging] Target database is not up to date."*)
             # CASE: Revision Created | DB Not Migrated
-            log "⚠️  Alembic revision exists but DB is not migrated"
+            log "✈️  Migrating DB to latest alembic revision..."
             alembic upgrade head
             ;;
 
