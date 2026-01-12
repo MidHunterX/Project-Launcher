@@ -296,6 +296,70 @@ setup_django_env() {
     fi
 }
 
+migrate_alembic() {
+    # CHECK: alembic is installed
+    if ! command -v alembic >/dev/null; then
+        log "❌ Error: alembic.ini found but alembic is not installed"
+        return
+    fi
+
+    log "🔍 Detected: alembic"
+    # Capture both stdout + stderr
+    local check_output
+    check_output="$(alembic check 2>&1)"
+    local check_status=$?
+
+    if [[ $check_status == 0 ]]; then
+        # CASE: Revision Created | DB Migrated
+        log "✅ Alembic revision exists and DB is up to date"
+        return
+    fi
+
+    case "$check_output" in
+        *"ERROR [alembic.util.messaging] New upgrade operations detected"*)
+            # CASE: Model Changed | Revision Not Created
+            log "⚠️ Schema changes detected but no revision exists"
+
+            case "$check_output" in
+                *"INFO  [alembic.autogenerate.compare] Detected added table"*)
+                    table_name=$(grep -oP "Detected added table '\K[^']+" <<<"$check_output")
+                    log "💡 Hint: New tables detected. You probably want:"
+                    log "   alembic revision --autogenerate -m \"add $table_name\""
+                    log "   alembic upgrade head"
+                    read -r -p "Press enter to continue"
+                    ;;
+                *)
+                    log "💡 Hint: Model changes detected. Consider:"
+                    log "   alembic revision --autogenerate -m \"schema changes\""
+                    log "   alembic upgrade head"
+                    read -r -p "Press enter to continue"
+                    ;;
+            esac
+
+            return 1
+            ;;
+
+        *"ERROR [alembic.util.messaging] Target database is not up to date."*)
+            # CASE: Revision Created | DB Not Migrated
+            log "⚠️  Alembic revision exists but DB is not migrated"
+            alembic upgrade head
+            ;;
+
+        *)
+            # CASE: Unrecognized Error
+            log "❌ Alembic failed with an unrecognized error"
+            return 1
+            ;;
+    esac
+}
+
+setup_fastapi_env() {
+    setup_python_env
+    if [[ -f "alembic.ini" ]]; then
+        migrate_alembic
+    fi
+}
+
 setup_node_env() {
     setup_base_env "node_modules/" "npm install"
 }
@@ -311,7 +375,7 @@ setup_env() {
         "none") ;; # Do nothing
         "python") setup_python_env ;;
         "django") setup_django_env ;;
-        "fastapi") setup_python_env ;;
+        "fastapi") setup_fastapi_env ;;
         "flask") setup_python_env ;;
         "html") ;;
         "nodejs") setup_node_env ;;
