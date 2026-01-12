@@ -27,7 +27,7 @@ A simple development environment orchestrator that automatically detects your pr
 - **Environment Management**: Automatically sets up virtual environments and dependencies
 - **Tmux Integration**: Creates organized tmux sessions with dedicated windows for development
 - **System Service Management**: Start required services (PostgreSQL, Docker, MongoDB, etc.)
-- **Custom Overrides**: Project-specific customizations with `.run_env`
+- **Custom Overrides**: Project-specific customizations with `.runrc`
 - **Flexible Configuration**: Extensive configuration options for different workflows
 
 ## 📦 Installation
@@ -70,7 +70,7 @@ The runner will:
 
 ## ⚙️ Configuration Settings
 
-Create a `.run_env` file in your project root and add following overrides for
+Create a `.runrc` file in your project root and add following overrides for
 project-specific customization. All settings are optional.
 
 ### Per-Project Configuration
@@ -138,7 +138,7 @@ The global configuration file sets default values for all projects.
 
 ### Per-Project Logic Overriding
 
-Use the following overrides in `.run_env` for more granular customization.
+Use the following overrides in `.runrc` for more granular customization.
 
 These can also be used to extend support for new technologies as well.
 
@@ -207,7 +207,7 @@ setup_post_init_hook() {
 
 ### Environment Variables
 
-You can also add environment variables to `.run_env`
+You can also add environment variables to `.runrc`
 
 ```bash
 export RUST_LOG=debug
