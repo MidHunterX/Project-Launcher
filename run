@@ -78,10 +78,11 @@ code_block() {
     # Calculate max line width
     local max=0
     for line in "${lines[@]}"; do
-        (( ${#line} > max )) && max=${#line}
+        ((${#line} > max)) && max=${#line}
     done
     local width=$((max + ${#pad} * 2))
     # Top padding
+    echo ""
     printf "${bg_gray}${green}%*s${reset}\n" "$width" ""
     # Content
     for line in "${lines[@]}"; do
@@ -90,6 +91,7 @@ code_block() {
     done
     # Bottom padding
     printf "${bg_gray}${green}%*s${reset}\n" "$width" ""
+    echo ""
 }
 
 # open_browser(str:new_tab_url str:browser_cmd?)
@@ -332,44 +334,22 @@ migrate_alembic() {
     fi
 
     # Capture both stdout + stderr
-    local check_output
-    check_output="$(alembic check 2>&1)"
-    local check_status=$?
+    local alembic_output
+    alembic_output="$(alembic check 2>&1)"
+    local alembic_status=$?
 
-    if [[ $check_status == 0 ]]; then
+    if [[ $alembic_status == 0 ]]; then
         # CASE: Revision Created | DB Migrated
         return
     fi
 
-    case "$check_output" in
-        *"ERROR [alembic.util.messaging] New upgrade operations detected"*)
-            # CASE: Model Changed | Revision Not Created
-            case "$check_output" in
-                *"INFO  [alembic.autogenerate.compare] Detected added table"*)
-                    table_name=$(grep -oP "Detected added table '\K[^']+" <<<"$check_output")
-                    log "📎 - New table detected. You probably want:"
-                    code_block "alembic revision --autogenerate -m \"add $table_name\"\nalembic upgrade head"
-                    ;;
-                *)
-                    log "📎 - Model changes detected. Consider:"
-                    code_block "alembic revision --autogenerate -m \"schema changes\"\nalembic upgrade head"
-                    ;;
-            esac
-
-            return 1
-            ;;
-
+    case "$alembic_output" in
         *"ERROR [alembic.util.messaging] Target database is not up to date."*)
             # CASE: Revision Created | DB Not Migrated
             log "✈️  Migrating DB to latest alembic revision..."
             alembic upgrade head
             ;;
-
-        *)
-            # CASE: Unrecognized Error
-            log "❌ Alembic failed with an unrecognized error"
-            return 1
-            ;;
+        *) ;;
     esac
 }
 
@@ -405,6 +385,79 @@ setup_env() {
         "elixir") setup_elixir_env ;;
         "rust") ;; # Rust sets up its own environment with cargo
         *) log "🚧 Unknown technology: ${project_type}" ;;
+    esac
+}
+
+# █▀█ █▀█ █▀ ▀█▀   █░█ █▀▀ █▀█ █ █▀▀ █▄█
+# █▀▀ █▄█ ▄█ ░█░   ▀▄▀ ██▄ █▀▄ █ █▀░ ░█░
+
+verify_alembic() {
+    # CHECK: alembic is installed
+    if ! command -v alembic >/dev/null; then
+        log "❌ Error: alembic.ini found but alembic is not installed"
+        return
+    fi
+
+    # Capture both stdout + stderr
+    local alembic_output
+    alembic_output="$(alembic check 2>&1)"
+    local alembic_status=$?
+
+    if [[ $alembic_status == 0 ]]; then
+        # CASE: Revision Created | DB Migrated
+        return
+    fi
+
+    case "$alembic_output" in
+        *"ERROR [alembic.util.messaging] New upgrade operations detected"*)
+            # CASE: Model Changed | Revision Not Created
+            case "$alembic_output" in
+                *"INFO  [alembic.autogenerate.compare] Detected added table"*)
+                    table_name=$(grep -oP "Detected added table '\K[^']+" <<<"$alembic_output")
+                    log "📎 - New table detected. You probably want:"
+                    code_block "alembic revision --autogenerate -m \"add $table_name\"\nalembic upgrade head"
+                    ;;
+                *)
+                    log "📎 - Model changes detected. Consider:"
+                    code_block "alembic revision --autogenerate -m \"schema changes\"\nalembic upgrade head"
+                    ;;
+            esac
+
+            return 1
+            ;;
+
+        *)
+            # CASE: Unrecognized Error
+            log "❌ Alembic failed with an unrecognized error"
+            log "$alembic_output"
+            return 1
+            ;;
+    esac
+}
+
+verify_fastapi() {
+    if [[ -f "alembic.ini" ]]; then
+        verify_alembic
+    fi
+}
+
+# post_verify(str:project_type)
+post_verify() {
+    local project_type="$1"
+    case "$project_type" in
+        "none") ;;
+        "python") ;;
+        "django") ;;
+        "fastapi") verify_fastapi ;;
+        "flask") ;;
+        "html") ;;
+        "nodejs") ;;
+        "nextjs") ;;
+        "angular") ;;
+        "flutter") ;;
+        "elixir") ;;
+        "rust") ;;
+        *) ;;
     esac
 }
 
@@ -547,5 +600,7 @@ main() {
 }
 
 main
+
+post_verify "$PROJECT_TYPE"
 
 log "👋 Goodbye!"
