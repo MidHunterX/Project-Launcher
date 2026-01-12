@@ -281,9 +281,10 @@ setup_python_env() {
         else
             log "🚧 Warning: No requirements.txt found"
         fi
+    else
+        # shellcheck disable=SC1090
+        source "./$dependency_dir/bin/activate"
     fi
-    # shellcheck disable=SC1090
-    source "./$dependency_dir/bin/activate"
 }
 
 setup_django_env() {
