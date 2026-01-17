@@ -533,8 +533,10 @@ main() {
     # FALLBACK: PROJECT_NAME={project dir name}
     if [[ -z "$PROJECT_NAME" ]]; then
         PROJECT_NAME="$(basename "$PWD")"
-        # Remove invalid characters
-        PROJECT_NAME="${PROJECT_NAME//[^a-zA-Z0-9 -]/}"
+        # SANITIZE: Replace dots with underscores
+        PROJECT_NAME="${PROJECT_NAME//./_}"
+        # SANITIZE: Remove invalid characters
+        PROJECT_NAME="${PROJECT_NAME//[^a-zA-Z0-9 _-]/}"
         # EDGE_CASE: No valid characters at all
         if [[ -z "$PROJECT_NAME" ]]; then
             PROJECT_NAME="Invalid Project Name"
@@ -596,7 +598,7 @@ main() {
         setup_post_init_hook
     fi
 
-    tmux attach -t "$PROJECT_NAME"
+    tmux attach -t "$PROJECT_NAME:1"
 }
 
 main
