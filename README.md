@@ -58,11 +58,13 @@ The runner will:
 
 1. Detect your project type automatically
 2. Install dependencies if needed
-3. Start required services
-4. Create a tmux session with appropriate windows
-5. Launch your development server
-6. Run post-initialization commands if enabled
-7. Open server URL (if any) in browser
+3. Migrate database if any unapplied migrations are detected
+4. Start required services
+5. Create a tmux session with appropriate windows
+6. Launch your development server
+7. Run post-initialization commands if enabled
+8. Open server URL (if any) in browser
+9. Does a post validation and warns if models are left changed without creating migrations on exit
 
 > [!NOTE]
 > If TMUX is not installed, the runner will just detect project, run the
@@ -74,6 +76,21 @@ Create a `.runrc` file in your project root and add following overrides for
 project-specific customization. All settings are optional.
 
 ### Per-Project Configuration
+
+#### Minimal Configuration
+
+The most minimal configuration is actually NO configuration at all. But, if you
+are like me who don't want PostgreSQL running in the background all the time
+and only wants it running when developing a specific project only then, your
+minimal config for that project would just be:
+
+```bash
+ENABLED_SERVICES=(
+  postgresql
+)
+```
+
+#### Full Configuration
 
 ```bash
 # ------------------------------------------------------------- PROJECT DETAILS
@@ -150,8 +167,8 @@ Add `#!/usr/bin/env bash` at the top of the file to make it play nice with LSP.
 USE_CUSTOM_ENV=false
 setup_env_custom() {
   # Project specific custom init setup example
-  # Syntax: setup_env "env_directory" "command if env_directory not found"
-  setup_env "node_modules/" "npm install --force --legacy-peer-deps"
+  # Syntax: setup_base_env "env_directory" "command to init env_directory"
+  setup_base_env "node_modules/" "npm install --force --legacy-peer-deps"
 }
 
 # -------------------------------------------------------- OVERRIDE TMUX LAYOUT
@@ -164,12 +181,12 @@ setup_layout_custom() {
 
   # 1. Server (FastAPI)
   cd "$api_dir"
-  setup_python_env
+  setup_env "python"
   create_window "API Server" "fastapi dev main.py"
 
   # 2. Server (NextJS)
   cd "$current_dir"
-  setup_node_env
+  setup_env "nextjs"
   create_window "Web Server" "npm run dev"
 
   # 3. Editor (FastAPI)
