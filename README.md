@@ -1,6 +1,6 @@
 # Project Launcher
 
-A simple development environment orchestrator that automatically detects your project type and sets up appropriate tmux sessions, environment variables, optional system services and other script based automations.
+A development environment orchestrator that automatically detects your project type and sets up appropriate tmux sessions, environment variables, optional system services and other script based automations.
 
 ### Supported Technologies
 
@@ -21,6 +21,80 @@ A simple development environment orchestrator that automatically detects your pr
 
   <img src="https://img.shields.io/badge/Astal-5190cf?style=for-the-badge&logo=astral&logoColor=white" />
 </p>
+
+### What to expect
+
+<table>
+  <tr>
+    <td>Without run</td>
+    <td>With run</td>
+  </tr>
+  <tr>
+    <td>
+
+```bash
+> cd django-project
+# Now.. what was that venv command?
+> python -m venv venv
+> source venv/bin/activate
+# Phew almost done
+> python manage.py runserver
+# Error.. dependency not installed
+> pip install -r requirements.txt
+# Finally done
+> python manage.py runserver
+# Migration error dammit
+> python manage.py migrate
+# Open a new terminal
+> nvim
+# Now need to see output
+> python manage.py runserver
+# Open up browser and go to localhost:8000
+# Done! Start working on the project.
+
+# Finished development. Now for the next
+> cd fastapi-project
+> python -m venv venv
+> source venv/bin/activate
+> pip install -r requirements.txt
+# What was the run command again?
+> fastapi dev main.py
+# Open up a new terminal
+> cd nextjs-project
+> npm install
+> npm run dev
+# Open up browser and go to localhost:3000
+# Done! Wait.. features are not working
+# Go to fastapi-project
+# Debugging.. ahh found  new model changes
+> ^C
+# Look into README for migration command
+> alembic upgrade head
+# Ohh.. this project needs database server
+> systemctl start postgresql
+> fastapi dev main.py
+# Finally time to develop new features.
+> nvim
+# Now what was I supposed to build?
+```
+
+</td>
+  <td>
+
+```bash
+> cd django-project
+> run
+# Start coding right away!
+
+# Add a onetime mono-repo config
+> cd nextjs-project
+> run
+# Start coding right away again!
+```
+
+  </td>
+</tr>
+</table>
 
 ## 📦 Installation
 
@@ -92,7 +166,7 @@ PROJECT_NAME=""
 
 # Default: automatic detection
 # Available values:
-# none | rust | python | django | fastapi | nodejs | nextjs | elixir | angular
+# none | rust | python | django | fastapi | flask | html | nodejs | nextjs | elixir | angular | flutter | astal-gtk
 PROJECT_TYPE=""
 
 # ------------------------------------------------------------- SYSTEM SERVICES
