@@ -18,17 +18,9 @@ A simple development environment orchestrator that automatically detects your pr
   <img src="https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white" />
   <img src="https://img.shields.io/badge/fastapi-109989?style=for-the-badge&logo=FASTAPI&logoColor=white" />
   <img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green" />
+
+  <img src="https://img.shields.io/badge/Astal-5190cf?style=for-the-badge&logo=astral&logoColor=white" />
 </p>
-
-## 🔥 Features
-
-- **Automatic Project Detection**: Intelligently detects project type based on files present
-- **Multi-Technology Support**: Rust, Python, Django, FastAPI, Node.js, Next.js, Elixir, Angular
-- **Environment Management**: Automatically sets up virtual environments and dependencies
-- **Tmux Integration**: Creates organized tmux sessions with dedicated windows for development
-- **System Service Management**: Start required services (PostgreSQL, Docker, MongoDB, etc.)
-- **Custom Overrides**: Project-specific customizations with `.runrc`
-- **Flexible Configuration**: Extensive configuration options for different workflows
 
 ## 📦 Installation
 

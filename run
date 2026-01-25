@@ -10,7 +10,7 @@
 PROJECT_NAME=""
 # Default: automatic detection
 # Available values:
-# none | rust | python | django | fastapi | flask | html | nodejs | nextjs | elixir | angular | flutter
+# none | rust | python | django | fastapi | flask | html | nodejs | nextjs | elixir | angular | flutter | astal-gtk
 PROJECT_TYPE=""
 
 # Services: add any valid systemd services here
@@ -193,6 +193,7 @@ get_server_url() {
         "nextjs") echo "http://localhost:3000" ;;
         "angular") echo "http://localhost:4200" ;;
         "flutter") ;;
+        "astal-gtk") ;;
         "elixir") echo "http://localhost:4000" ;;
         "rust") ;;
         *) log "🚧 Warning: No server url for ${project_type}" ;;
@@ -220,6 +221,7 @@ run_server_command() {
         "nextjs") echo "npm run dev" ;;
         "angular") echo "ng serve" ;;
         "flutter") echo "flutter run" ;;
+        "astal-gtk") echo "ags run" ;;
         "elixir") echo "iex -S mix phx.server" ;;
         "rust") echo "cargo run" ;;
         *) log "🚧 Warning: No server setup for ${project_type}" ;;
@@ -260,6 +262,7 @@ setup_layout() {
         "nextjs") setup_base_layout ;;
         "angular") setup_base_layout ;;
         "flutter") setup_base_layout ;;
+        "astal-gtk") setup_base_layout ;;
         "elixir") setup_base_layout ;;
         "rust") setup_rust_layout ;;
         *)
@@ -382,6 +385,7 @@ setup_env() {
         "nextjs") setup_node_env ;;
         "angular") setup_node_env ;;
         "flutter") ;;
+        "astal-gtk") setup_node_env ;;
         "elixir") setup_elixir_env ;;
         "rust") ;; # Rust sets up its own environment with cargo
         *) log "🚧 Unknown technology: ${project_type}" ;;
@@ -455,6 +459,7 @@ post_verify() {
         "nextjs") ;;
         "angular") ;;
         "flutter") ;;
+        "astal-gtk") ;;
         "elixir") ;;
         "rust") ;;
         *) ;;
@@ -486,6 +491,9 @@ detect_project_type() {
             echo "angular" && return
         elif [[ -f "next.config.js" ]] || [[ -f "next.config.ts" ]] || [[ -f "next.config.mjs" ]]; then
             echo "nextjs" && return
+        fi
+        if [[ -d "@girs" ]]; then
+            echo "astal-gtk" && return
         fi
         echo "nodejs" && return
     fi
