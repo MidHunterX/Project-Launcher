@@ -296,6 +296,17 @@ You can also add environment variables to `.runrc`
 export RUST_LOG=debug
 ```
 
+### Example Scenarios
+
+A python project's requirements only works with an older python version.
+
+```sh
+USE_CUSTOM_ENV=true
+setup_env_custom() {
+  setup_python_env "venv" "python3.11 -m venv venv"
+}
+```
+
 ## 📜 License
 
 This runner is distributed under the [MIT License](LICENSE).

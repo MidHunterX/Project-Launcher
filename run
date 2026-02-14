@@ -302,8 +302,8 @@ setup_base_env() {
 }
 
 setup_python_env() {
-    local dependency_dir="venv/"
-    local dependency_cmd="python -m venv venv"
+    local dependency_dir="${1:-venv/}"
+    local dependency_cmd="${2:-python -m venv venv}"
     if [[ ! -d $dependency_dir ]]; then
         setup_base_env "$dependency_dir" "$dependency_cmd"
         log "📦 Installing requirements..."
