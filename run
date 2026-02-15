@@ -321,7 +321,9 @@ setup_python_env() {
 }
 
 setup_django_env() {
-    setup_python_env
+    local dependency_dir="${1:-venv/}"
+    local dependency_cmd="${2:-python -m venv venv}"
+    setup_python_env "$dependency_dir" "$dependency_cmd"
     # Run migrations if needed
     if python manage.py showmigrations --plan | grep '\[ \]'; then
         log "✈️ Running migrations to database..."
@@ -357,10 +359,18 @@ migrate_alembic() {
 }
 
 setup_fastapi_env() {
-    setup_python_env
+    local dependency_dir="${1:-venv/}"
+    local dependency_cmd="${2:-python -m venv venv}"
+    setup_python_env "$dependency_dir" "$dependency_cmd"
     if [[ -f "alembic.ini" ]]; then
         migrate_alembic
     fi
+}
+
+setup_flask_env() {
+    local dependency_dir="${1:-venv/}"
+    local dependency_cmd="${2:-python -m venv venv}"
+    setup_python_env "$dependency_dir" "$dependency_cmd"
 }
 
 setup_node_env() {
@@ -379,7 +389,7 @@ setup_env() {
         "python") setup_python_env ;;
         "django") setup_django_env ;;
         "fastapi") setup_fastapi_env ;;
-        "flask") setup_python_env ;;
+        "flask") setup_flask_env ;;
         "html") ;;
         "nodejs") setup_node_env ;;
         "nextjs") setup_node_env ;;

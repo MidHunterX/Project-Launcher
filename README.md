@@ -307,6 +307,14 @@ setup_env_custom() {
 }
 ```
 
+Same command override is available for other python based frameworks as well.
+
+```bash
+setup_fastapi_env "venv/" "python3.11 -m venv venv"
+setup_django_env "venv/" "python3.11 -m venv venv"
+setup_flask_env "venv/" "python3.11 -m venv venv"
+```
+
 ## 📜 License
 
 This runner is distributed under the [MIT License](LICENSE).
