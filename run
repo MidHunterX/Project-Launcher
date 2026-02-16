@@ -564,9 +564,9 @@ detect_project_type() {
 # █▀▄▀█ ▄▀█ █ █▄░█
 # █░▀░█ █▀█ █ █░▀█
 
-main() {
+load_user_overrides() {
     # INIT: Load global config if available
-    config_file="$XDG_CONFIG_HOME/run/config.conf"
+    config_file="${XDG_CONFIG_HOME:-$HOME/.config}/run/config.conf"
     # shellcheck disable=SC1090
     [[ -f "$config_file" ]] && source "$config_file"
 
@@ -574,9 +574,9 @@ main() {
     OVERRIDE_FILE=".runrc"
     # shellcheck disable=SC1090
     [[ -f "$OVERRIDE_FILE" ]] && source "$OVERRIDE_FILE"
+}
 
-    init_services
-
+autoconfigure() {
     # FALLBACK: PROJECT_NAME={project dir name}
     if [[ -z "$PROJECT_NAME" ]]; then
         PROJECT_NAME="$(basename "$PWD")"
@@ -586,7 +586,7 @@ main() {
         PROJECT_NAME="${PROJECT_NAME//[^a-zA-Z0-9 _-]/}"
         # EDGE_CASE: No valid characters at all
         if [[ -z "$PROJECT_NAME" ]]; then
-            PROJECT_NAME="Invalid Project Name"
+            PROJECT_NAME="invalid_project_name"
         fi
     fi
 
@@ -600,21 +600,25 @@ main() {
     if [[ -z "$URL" ]]; then
         URL=$(get_server_url "$PROJECT_TYPE")
     fi
+}
 
+init_environment() {
     # SETUP: ENV or custom
     if [[ "$USE_CUSTOM_ENV" = true ]]; then
         setup_env_custom
     else
         setup_env "$PROJECT_TYPE"
     fi
+}
 
-    preflight "$PROJECT_TYPE"
-
+exec_output() {
     # ACTION: OPEN BROWSER
     if [[ "$URL" != "none" ]]; then
         open_browser "$URL" "$BROWSER"
     fi
+}
 
+exec_tmux_devsetup() {
     # REQUIRE: tmux dependency for LAYOUT
     if ! command -v tmux >/dev/null; then
         # FALLBACK: RUN SERVER (Blocking)
@@ -650,8 +654,12 @@ main() {
     tmux attach -t "$PROJECT_NAME:1"
 }
 
-main
-
+load_user_overrides
+autoconfigure
+init_services
+init_environment
+preflight "$PROJECT_TYPE"
+exec_output
+exec_tmux_devsetup
 postflight "$PROJECT_TYPE"
-
 log "👋 Goodbye!"
