@@ -331,40 +331,10 @@ setup_django_env() {
     fi
 }
 
-migrate_alembic() {
-    # CHECK: alembic is installed
-    if ! command -v alembic >/dev/null; then
-        log "❌ Error: alembic.ini found but alembic is not installed"
-        return
-    fi
-
-    # Capture both stdout + stderr
-    local alembic_output
-    alembic_output="$(alembic check 2>&1)"
-    local alembic_status=$?
-
-    if [[ $alembic_status == 0 ]]; then
-        # CASE: Revision Created | DB Migrated
-        return
-    fi
-
-    case "$alembic_output" in
-        *"ERROR [alembic.util.messaging] Target database is not up to date."*)
-            # CASE: Revision Created | DB Not Migrated
-            log "✈️  Migrating DB to latest alembic revision..."
-            alembic upgrade head
-            ;;
-        *) ;;
-    esac
-}
-
 setup_fastapi_env() {
     local dependency_dir="${1:-venv/}"
     local dependency_cmd="${2:-python -m venv venv}"
     setup_python_env "$dependency_dir" "$dependency_cmd"
-    if [[ -f "alembic.ini" ]]; then
-        migrate_alembic
-    fi
 }
 
 setup_flask_env() {
@@ -402,10 +372,68 @@ setup_env() {
     esac
 }
 
-# █▀█ █▀█ █▀ ▀█▀   █░█ █▀▀ █▀█ █ █▀▀ █▄█
-# █▀▀ █▄█ ▄█ ░█░   ▀▄▀ ██▄ █▀▄ █ █▀░ ░█░
+# █▀█ █▀█ █▀▀   █▀▀ █░░ █ █▀▀ █░█ ▀█▀
+# █▀▀ █▀▄ ██▄   █▀░ █▄▄ █ █▄█ █▀█ ░█░
 
-verify_alembic() {
+precheck_alembic() {
+    # CHECK: alembic is installed
+    if ! command -v alembic >/dev/null; then
+        log "❌ Error: alembic.ini found but alembic is not installed"
+        return
+    fi
+
+    # Capture both stdout + stderr
+    local alembic_output
+    alembic_output="$(alembic check 2>&1)"
+    local alembic_status=$?
+
+    if [[ $alembic_status == 0 ]]; then
+        # CASE: Revision Created | DB Migrated
+        return
+    fi
+
+    case "$alembic_output" in
+        *"ERROR [alembic.util.messaging] Target database is not up to date."*)
+            # CASE: Revision Created | DB Not Migrated
+            log "✈️ Migrating DB to latest alembic revision..."
+            alembic upgrade head
+            ;;
+        *) ;;
+    esac
+}
+
+preflight_fastapi() {
+    if [[ -f "alembic.ini" ]]; then
+        log "✈️ Preflight: alembic"
+        precheck_alembic
+    fi
+}
+
+# preflight(str:project_type)
+preflight() {
+    local project_type="$1"
+    case "$project_type" in
+        "none") ;;
+        "python") ;;
+        "django") ;;
+        "fastapi") preflight_fastapi ;;
+        "flask") ;;
+        "html") ;;
+        "nodejs") ;;
+        "nextjs") ;;
+        "angular") ;;
+        "flutter") ;;
+        "astal-gtk") ;;
+        "elixir") ;;
+        "rust") ;;
+        *) ;;
+    esac
+}
+
+# █▀█ █▀█ █▀ ▀█▀   █▀▀ █░░ █ █▀▀ █░█ ▀█▀
+# █▀▀ █▄█ ▄█ ░█░   █▀░ █▄▄ █ █▄█ █▀█ ░█░
+
+postcheck_alembic() {
     # CHECK: alembic is installed
     if ! command -v alembic >/dev/null; then
         log "❌ Error: alembic.ini found but alembic is not installed"
@@ -449,20 +477,21 @@ verify_alembic() {
     esac
 }
 
-verify_fastapi() {
+postflight_fastapi() {
     if [[ -f "alembic.ini" ]]; then
-        verify_alembic
+        log "✈️ Postflight: alembic"
+        postcheck_alembic
     fi
 }
 
-# post_verify(str:project_type)
-post_verify() {
+# postflight(str:project_type)
+postflight() {
     local project_type="$1"
     case "$project_type" in
         "none") ;;
         "python") ;;
         "django") ;;
-        "fastapi") verify_fastapi ;;
+        "fastapi") postflight_fastapi ;;
         "flask") ;;
         "html") ;;
         "nodejs") ;;
@@ -579,6 +608,8 @@ main() {
         setup_env "$PROJECT_TYPE"
     fi
 
+    preflight "$PROJECT_TYPE"
+
     # ACTION: OPEN BROWSER
     if [[ "$URL" != "none" ]]; then
         open_browser "$URL" "$BROWSER"
@@ -621,6 +652,6 @@ main() {
 
 main
 
-post_verify "$PROJECT_TYPE"
+postflight "$PROJECT_TYPE"
 
 log "👋 Goodbye!"
