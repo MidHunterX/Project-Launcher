@@ -2,7 +2,8 @@
 # DevNote: This script is kinda hard to re-write in a compiled language due to
 # the way how a spawned process vs shell script modifies its environment. Using
 # other forms of configs like yaml won't have the flexibility a shell script +
-# source conf offers.
+# source conf offers. Therefore bash is the best tool for this job of handling
+# parent shell environment.
 
 # -----------------------------[ CONFIGURATION ]----------------------------- #
 
@@ -113,7 +114,7 @@ open_browser() {
         }
     fi
 
-    log "🔗 Launching browser..."
+    log "🌐 Launching browser"
     (
         # Wait for the server to start
         local timeout=20
@@ -324,11 +325,6 @@ setup_django_env() {
     local dependency_dir="${1:-venv/}"
     local dependency_cmd="${2:-python -m venv venv}"
     setup_python_env "$dependency_dir" "$dependency_cmd"
-    # Run migrations if needed
-    if python manage.py showmigrations --plan | grep '\[ \]'; then
-        log "✈️ Running migrations to database..."
-        python manage.py migrate
-    fi
 }
 
 setup_fastapi_env() {
@@ -402,6 +398,15 @@ precheck_alembic() {
     esac
 }
 
+preflight_django() {
+    # Run migrations if needed
+    log "✈️ Preflight: django"
+    if python manage.py showmigrations --plan | grep '\[ \]'; then
+        log "✈️ Running migrations to database..."
+        python manage.py migrate
+    fi
+}
+
 preflight_fastapi() {
     if [[ -f "alembic.ini" ]]; then
         log "✈️ Preflight: alembic"
@@ -415,7 +420,7 @@ preflight() {
     case "$project_type" in
         "none") ;;
         "python") ;;
-        "django") ;;
+        "django") preflight_django ;;
         "fastapi") preflight_fastapi ;;
         "flask") ;;
         "html") ;;
@@ -477,6 +482,26 @@ postcheck_alembic() {
     esac
 }
 
+postflight_django() {
+    log "✈️ Postflight: django"
+    # Capture both stdout + stderr
+    local django_output
+    django_output="$(python manage.py migrate 2>&1)"
+
+    case "$django_output" in
+        *"Your models in app(s):"*"have changes that are not yet reflected in a migration"*)
+            # CASE: Model Changed | Revision Not Created
+            app_names=$(grep -oP "Your models in app\(s\): '\K[^']+" <<<"$django_output")
+            log "📎 - Model changes detected in: ${red}$app_names${rst}. Consider:"
+            code_block "python manage.py makemigrations\npython manage.py migrate"
+            ;;
+        *)
+            # CASE: Revision Created | DB Migrated
+            return 0
+            ;;
+    esac
+}
+
 postflight_fastapi() {
     if [[ -f "alembic.ini" ]]; then
         log "✈️ Postflight: alembic"
@@ -490,7 +515,7 @@ postflight() {
     case "$project_type" in
         "none") ;;
         "python") ;;
-        "django") ;;
+        "django") postflight_django ;;
         "fastapi") postflight_fastapi ;;
         "flask") ;;
         "html") ;;
