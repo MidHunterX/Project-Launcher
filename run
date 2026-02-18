@@ -7,30 +7,32 @@
 
 # -----------------------------[ CONFIGURATION ]----------------------------- #
 
-# Default: project dir name
-PROJECT_NAME=""
-# Default: automatic detection
-# Available values:
-# none | rust | python | django | fastapi | flask | html | nodejs | nextjs | elixir | angular | flutter | astal-gtk
-PROJECT_TYPE=""
+init_default_config() {
+    # Default: project dir name
+    PROJECT_NAME=""
+    # Default: automatic detection
+    # Available values:
+    # none | rust | python | django | fastapi | flask | html | nodejs | nextjs | elixir | angular | flutter | astal-gtk
+    PROJECT_TYPE=""
 
-# Services: add any valid systemd services here
-ENABLED_SERVICES=(
-    # postgresql
-    # docker
-    # mongod
-    # nginx
-)
+    # Services: add any valid systemd services here
+    ENABLED_SERVICES=(
+        # postgresql
+        # docker
+        # mongod
+        # nginx
+    )
 
-# Default: automatic detection
-# Available values: none | {custom url}
-URL=""
-# Default: xdg-open
-# Available values: {custom command with arguments ending with newtab flag}
-BROWSER=""
+    # Default: automatic detection
+    # Available values: none | {custom url}
+    URL=""
+    # Default: xdg-open
+    # Available values: {custom command with arguments ending with newtab flag}
+    BROWSER=""
 
-# Settings: [ true | false ]
-AUTORUN_COMMANDS=true
+    # Settings: [ true | false ]
+    AUTORUN_COMMANDS=true
+}
 
 # ---------------------------[ CUSTOM OVERRIDES ]--------------------------- #
 
@@ -679,6 +681,7 @@ exec_tmux_devsetup() {
     tmux attach -t "$PROJECT_NAME:1"
 }
 
+init_default_config
 load_user_overrides
 autoconfigure
 init_services
