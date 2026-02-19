@@ -296,9 +296,11 @@ You can also add environment variables to `.runrc`
 export RUST_LOG=debug
 ```
 
-### Example Scenarios
+### Python Problems
 
-A python project's requirements only works with an older python version.
+A python project's requirements only works with an older python version due to
+any of the dependencies not supporting newer python versions? Here's the
+solution:
 
 ```sh
 USE_CUSTOM_ENV=true
@@ -314,6 +316,34 @@ setup_fastapi_env "venv/" "python3.11 -m venv venv"
 setup_django_env "venv/" "python3.11 -m venv venv"
 setup_flask_env "venv/" "python3.11 -m venv venv"
 ```
+
+### Adding an Unknown Technology
+
+If you want to add support for a new technology, you can support it by
+following the per project overriding with `.runrc`:
+
+1. Setting up dependencies
+   ```sh
+   USE_CUSTOM_ENV=true
+   setup_env_custom() {
+      # env_directory: is the directory which gets created after doing the init_command.
+      # init_command: is the command you do to initialize the project. eg: npm install
+      # eg: node_modules/ gets created after "npm install" -> setup_base_env "node_modules/" "npm install"
+      #     venv/ gets created after "python -m venv venv" -> setup_base_env "venv/" "python -m venv venv"
+      setup_base_env "env_directory/" "init_command"
+      # add other dependency initialization commands here
+   }
+   ```
+2. Setting up tmux layout
+   ```sh
+   USE_CUSTOM_LAYOUT=true
+   setup_layout_custom() {
+      create_window "Window 1" "command 1"
+      create_window "Window 2" "command 2"
+      create_window "Window 3" "command 3"
+      # Add windows other here
+   }
+   ```
 
 ## 📜 License
 
