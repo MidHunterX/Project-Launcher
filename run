@@ -370,8 +370,8 @@ setup_env() {
     esac
 }
 
-# █▀█ █▀█ █▀▀   █▀▀ █░░ █ █▀▀ █░█ ▀█▀
-# █▀▀ █▀▄ ██▄   █▀░ █▄▄ █ █▄█ █▀█ ░█░
+# █▀▀ █░█ █▀▀ █▀▀ █▄▀ █▀
+# █▄▄ █▀█ ██▄ █▄▄ █░█ ▄█
 
 precheck_alembic() {
     # CHECK: alembic is installed
@@ -393,52 +393,12 @@ precheck_alembic() {
     case "$alembic_output" in
         *"ERROR [alembic.util.messaging] Target database is not up to date."*)
             # CASE: Revision Created | DB Not Migrated
-            log "✈️ Migrating DB to latest alembic revision..."
+            log "📎 - Migrating DB to latest alembic revision..."
             alembic upgrade head
             ;;
         *) ;;
     esac
 }
-
-preflight_django() {
-    # Run migrations if needed
-    log "✈️ Preflight: django"
-    if python manage.py showmigrations --plan | grep '\[ \]'; then
-        log "✈️ Running migrations to database..."
-        python manage.py migrate
-    fi
-}
-
-preflight_fastapi() {
-    if [[ -f "alembic.ini" ]]; then
-        log "✈️ Preflight: alembic"
-        precheck_alembic
-    fi
-}
-
-# preflight(str:project_type)
-preflight() {
-    local project_type="$1"
-    case "$project_type" in
-        "none") ;;
-        "python") ;;
-        "django") preflight_django ;;
-        "fastapi") preflight_fastapi ;;
-        "flask") ;;
-        "html") ;;
-        "nodejs") ;;
-        "nextjs") ;;
-        "angular") ;;
-        "flutter") ;;
-        "astal-gtk") ;;
-        "elixir") ;;
-        "rust") ;;
-        *) ;;
-    esac
-}
-
-# █▀█ █▀█ █▀ ▀█▀   █▀▀ █░░ █ █▀▀ █░█ ▀█▀
-# █▀▀ █▄█ ▄█ ░█░   █▀░ █▄▄ █ █▄█ █▀█ ░█░
 
 postcheck_alembic() {
     # CHECK: alembic is installed
@@ -484,8 +444,15 @@ postcheck_alembic() {
     esac
 }
 
-postflight_django() {
-    log "✈️ Postflight: django"
+precheck_django() {
+    # Run migrations if needed
+    if python manage.py showmigrations --plan | grep '\[ \]'; then
+        log "📎 - Running migrations to database..."
+        python manage.py migrate
+    fi
+}
+
+postcheck_django() {
     # Capture both stdout + stderr
     local django_output
     django_output="$(python manage.py migrate 2>&1)"
@@ -504,6 +471,45 @@ postflight_django() {
     esac
 }
 
+# █▀█ █▀█ █▀▀   █▀▀ █░░ █ █▀▀ █░█ ▀█▀
+# █▀▀ █▀▄ ██▄   █▀░ █▄▄ █ █▄█ █▀█ ░█░
+
+preflight_fastapi() {
+    if [[ -f "alembic.ini" ]]; then
+        log "✈️ Preflight: alembic"
+        precheck_alembic
+    fi
+}
+
+preflight_django() {
+    log "✈️ Preflight: django"
+    precheck_django
+}
+
+# preflight(str:project_type)
+preflight_check() {
+    local project_type="$1"
+    case "$project_type" in
+        "none") ;;
+        "python") ;;
+        "django") preflight_django ;;
+        "fastapi") preflight_fastapi ;;
+        "flask") ;;
+        "html") ;;
+        "nodejs") ;;
+        "nextjs") ;;
+        "angular") ;;
+        "flutter") ;;
+        "astal-gtk") ;;
+        "elixir") ;;
+        "rust") ;;
+        *) ;;
+    esac
+}
+
+# █▀█ █▀█ █▀ ▀█▀   █▀▀ █░░ █ █▀▀ █░█ ▀█▀
+# █▀▀ █▄█ ▄█ ░█░   █▀░ █▄▄ █ █▄█ █▀█ ░█░
+
 postflight_fastapi() {
     if [[ -f "alembic.ini" ]]; then
         log "✈️ Postflight: alembic"
@@ -511,8 +517,13 @@ postflight_fastapi() {
     fi
 }
 
-# postflight(str:project_type)
-postflight() {
+postflight_django() {
+    log "✈️ Postflight: django"
+    postcheck_django
+}
+
+# postflight_check(str:project_type)
+postflight_check() {
     local project_type="$1"
     case "$project_type" in
         "none") ;;
@@ -686,8 +697,8 @@ load_user_overrides
 autoconfigure
 init_services
 init_environment
-preflight "$PROJECT_TYPE"
+preflight_check "$PROJECT_TYPE"
 exec_output
 exec_tmux_devsetup
-postflight "$PROJECT_TYPE"
+postflight_check "$PROJECT_TYPE"
 log "👋 Goodbye!"
