@@ -166,7 +166,7 @@ PROJECT_NAME=""
 
 # Default: automatic detection
 # Available values:
-# none | rust | python | django | fastapi | flask | html | nodejs | nextjs | elixir | angular | flutter | astal-gtk
+# none | rust | python | python-uv | django | fastapi | flask | html | nodejs | nextjs | elixir | angular | flutter | astal-gtk
 PROJECT_TYPE=""
 
 # ------------------------------------------------------------- SYSTEM SERVICES
@@ -307,14 +307,6 @@ USE_CUSTOM_ENV=true
 setup_env_custom() {
   setup_python_env "venv" "python3.11 -m venv venv"
 }
-```
-
-Same command override is available for other python based frameworks as well.
-
-```bash
-setup_fastapi_env "venv/" "python3.11 -m venv venv"
-setup_django_env "venv/" "python3.11 -m venv venv"
-setup_flask_env "venv/" "python3.11 -m venv venv"
 ```
 
 ### Adding an Unknown Technology

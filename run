@@ -12,7 +12,7 @@ init_default_config() {
     PROJECT_NAME=""
     # Default: automatic detection
     # Available values:
-    # none | rust | python | django | fastapi | flask | html | nodejs | nextjs | elixir | angular | flutter | astal-gtk
+    # none | rust | python | python-uv | django | fastapi | flask | html | nodejs | nextjs | elixir | angular | flutter | astal-gtk
     PROJECT_TYPE=""
 
     # Services: add any valid systemd services here
@@ -184,6 +184,7 @@ get_server_url() {
     case "$project_type" in
         "none") ;; # Do nothing
         "python") ;;
+        "python-uv") ;;
         "fastapi") ;;
         "flask") echo "http://localhost:5000" ;;
         "html")
@@ -212,6 +213,7 @@ run_server_command() {
     case "$project_type" in
         "none") ;; # Do nothing
         "python") echo "python main.py" ;;
+        "python-uv") echo "uv run main.py" ;;
         "fastapi") echo "uvicorn main:app --reload" ;;
         "flask") echo "python main.py" ;;
         "html")
@@ -257,6 +259,7 @@ setup_layout() {
     case "$project_type" in
         "none") setup_base_layout ;;
         "python") setup_base_layout ;;
+        "python-uv") setup_base_layout ;;
         "django") setup_django_layout ;;
         "fastapi") setup_fastapi_layout ;;
         "flask") setup_base_layout ;;
@@ -337,6 +340,7 @@ setup_env() {
     case "$project_type" in
         "none") ;; # Do nothing
         "python") setup_python_env ;;
+        "python-uv") ;; # uv manages its own environment
         "django") setup_python_env ;;
         "fastapi") setup_python_env ;;
         "flask") setup_python_env ;;
@@ -474,6 +478,7 @@ preflight_check() {
     case "$project_type" in
         "none") ;;
         "python") ;;
+        "python-uv") ;;
         "django") preflight_django ;;
         "fastapi") preflight_fastapi ;;
         "flask") ;;
@@ -510,6 +515,7 @@ postflight_check() {
     case "$project_type" in
         "none") ;;
         "python") ;;
+        "python-uv") ;;
         "django") postflight_django ;;
         "fastapi") postflight_fastapi ;;
         "flask") ;;
@@ -535,6 +541,9 @@ detect_project_type() {
             echo "fastapi" && return
         elif grep -q "from flask import Flask" main.py; then
             echo "flask" && return
+        fi
+        if [[ -f "pyproject.toml" ]]; then
+            echo "python-uv" && return
         fi
         echo "python" && return
     fi
