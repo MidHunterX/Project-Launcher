@@ -323,24 +323,6 @@ setup_python_env() {
     fi
 }
 
-setup_django_env() {
-    local dependency_dir="${1:-venv/}"
-    local dependency_cmd="${2:-python -m venv venv}"
-    setup_python_env "$dependency_dir" "$dependency_cmd"
-}
-
-setup_fastapi_env() {
-    local dependency_dir="${1:-venv/}"
-    local dependency_cmd="${2:-python -m venv venv}"
-    setup_python_env "$dependency_dir" "$dependency_cmd"
-}
-
-setup_flask_env() {
-    local dependency_dir="${1:-venv/}"
-    local dependency_cmd="${2:-python -m venv venv}"
-    setup_python_env "$dependency_dir" "$dependency_cmd"
-}
-
 setup_node_env() {
     setup_base_env "node_modules/" "npm install"
 }
@@ -355,9 +337,9 @@ setup_env() {
     case "$project_type" in
         "none") ;; # Do nothing
         "python") setup_python_env ;;
-        "django") setup_django_env ;;
-        "fastapi") setup_fastapi_env ;;
-        "flask") setup_flask_env ;;
+        "django") setup_python_env ;;
+        "fastapi") setup_python_env ;;
+        "flask") setup_python_env ;;
         "html") ;;
         "nodejs") setup_node_env ;;
         "nextjs") setup_node_env ;;
