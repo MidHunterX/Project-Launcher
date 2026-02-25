@@ -37,23 +37,7 @@ init_default_config() {
 # ---------------------------[ CUSTOM OVERRIDES ]--------------------------- #
 
 red='\033[1;31m'
-cyan='\033[1;36m'
 rst='\033[0;0m'
-
-USE_CUSTOM_LAYOUT=false
-setup_layout_custom() {
-    log "🔴 Error: ${red}setup_layout_custom()${rst} not defined after ${cyan}USE_CUSTOM_LAYOUT=true${rst}"
-}
-
-USE_CUSTOM_ENV=false
-setup_env_custom() {
-    log "🔴 Error: ${red}setup_env_custom()${rst} not defined after ${cyan}USE_CUSTOM_ENV=true${rst}"
-}
-
-USE_POST_INITIALIZATION_HOOK=false
-setup_post_init_hook() {
-    log "🔴 Error: ${red}setup_post_init_hook()${rst} not defined after ${cyan}USE_POST_INITIALIZATION_HOOK=true${rst}"
-}
 
 # =========================================================================== #
 
@@ -633,7 +617,7 @@ autoconfigure() {
 
 init_environment() {
     # SETUP: ENV or custom
-    if [[ "$USE_CUSTOM_ENV" = true ]]; then
+    if declare -f setup_env_custom > /dev/null; then
         setup_env_custom
     else
         setup_env "$PROJECT_TYPE"
@@ -669,14 +653,14 @@ exec_tmux_devsetup() {
     fi
 
     # SETUP: LAYOUT or custom
-    if [[ "$USE_CUSTOM_LAYOUT" = true ]]; then
+    if declare -f setup_layout_custom > /dev/null; then
         setup_layout_custom
     else
         setup_layout "$PROJECT_TYPE"
     fi
 
     # ACTION: POST INIT HOOK
-    if [[ "$USE_POST_INITIALIZATION_HOOK" = true ]]; then
+    if declare -f setup_post_init_hook > /dev/null; then
         setup_post_init_hook
     fi
 

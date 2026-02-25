@@ -52,6 +52,13 @@ A development environment orchestrator that automatically detects your project t
 # Open up browser and go to localhost:8000
 # Done! Start working on the project.
 
+> cd nextjs-project
+> npm install
+> npm run dev
+# Open up browser and go to localhost:3000
+> nvim
+# Start working on the project.
+
 # Finished development. Now for the next
 > cd fastapi-project
 > python -m venv venv
@@ -84,12 +91,24 @@ A development environment orchestrator that automatically detects your project t
 ```bash
 > cd django-project
 > run
+# You have some pending migrations
+# Applied migrations into database
+# Here's the virtual environment,
+# test cases, running server, code editor
+# and the output opened up in browser.
 # Start coding right away!
 
 # Add a onetime mono-repo config
 > cd nextjs-project
 > run
 # Start coding right away again!
+
+> cd fastapi-project
+> run
+# Changes detected in models and
+# you forgot to create a revision
+# You might want to do this command:
+# "suggested command"
 ```
 
   </td>
@@ -230,7 +249,6 @@ Add `#!/usr/bin/env bash` at the top of the file to make it play nice with LSP.
 ```bash
 # ------------------------------------------------------ OVERRIDE PROJECT SETUP
 
-USE_CUSTOM_ENV=false
 setup_env_custom() {
   # Project specific custom init setup example
   # Syntax: setup_base_env "env_directory" "command to init env_directory"
@@ -239,7 +257,6 @@ setup_env_custom() {
 
 # -------------------------------------------------------- OVERRIDE TMUX LAYOUT
 
-USE_CUSTOM_LAYOUT=false
 setup_layout_custom() {
   # Project specific custom layout example
   local current_dir=$(pwd)
@@ -267,7 +284,6 @@ setup_layout_custom() {
 
 # ------------------------------------------------------- CUSTOM POST INIT HOOK
 
-USE_POST_INITIALIZATION_HOOK=false
 setup_post_init_hook() {
   # Project specific post execution hook example
   # Custom browser launch logic
@@ -303,7 +319,6 @@ any of the dependencies not supporting newer python versions? Here's the
 solution:
 
 ```sh
-USE_CUSTOM_ENV=true
 setup_env_custom() {
   setup_python_env "venv" "python3.11 -m venv venv"
 }
@@ -316,7 +331,6 @@ following the per project overriding with `.runrc`:
 
 1. Setting up dependencies
    ```sh
-   USE_CUSTOM_ENV=true
    setup_env_custom() {
       # env_directory: is the directory which gets created after doing the init_command.
       # init_command: is the command you do to initialize the project. eg: npm install
@@ -328,7 +342,6 @@ following the per project overriding with `.runrc`:
    ```
 2. Setting up tmux layout
    ```sh
-   USE_CUSTOM_LAYOUT=true
    setup_layout_custom() {
       create_window "Window 1" "command 1"
       create_window "Window 2" "command 2"
