@@ -1,38 +1,33 @@
-# Project Launcher
+= Project Launcher
 
 A development environment orchestrator that automatically detects your project type and sets up appropriate tmux sessions, environment variables, optional system services and other script based automations.
 
-### Supported Technologies
+=== Supported Technologies
 
-<p>
-  <img src="https://img.shields.io/badge/Rust-black?style=for-the-badge&logo=rust&logoColor=#E57324" />
-  <img src="https://img.shields.io/badge/Elixir-4B275F?style=for-the-badge&logo=elixir&logoColor=white" />
-  <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" />
+image:https://img.shields.io/badge/Rust-black?style=for-the-badge&logo=rust&logoColor=#E57324[Rust]
+image:https://img.shields.io/badge/Elixir-4B275F?style=for-the-badge&logo=elixir&logoColor=white[Elixir]
+image:https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white[Flutter]
+image:https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&&logo=nodedotjs&logoColor=white[NodeJs]
+image:https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white[NextJs]
+image:https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white[Angular]
+image:https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue[Python]
+image:https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white[HTML5]
+image:https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white[Flask]
+image:https://img.shields.io/badge/fastapi-109989?style=for-the-badge&logo=FASTAPI&logoColor=white[FastAPI]
+image:https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green[Django]
+image:https://img.shields.io/badge/Astal-5190cf?style=for-the-badge&logo=astral&logoColor=white[Astal]
 
-  <img src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&&logo=nodedotjs&logoColor=white" />
-  <img src="https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />
-  <img src="https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white" />
+.Show what to expect
+[%collapsible]
+====
+[discrete]
+=== What to expect
 
-  <img src="https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue" />
-  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
-  <img src="https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white" />
-  <img src="https://img.shields.io/badge/fastapi-109989?style=for-the-badge&logo=FASTAPI&logoColor=white" />
-  <img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green" />
+|===
+| Without run | With run
 
-  <img src="https://img.shields.io/badge/Astal-5190cf?style=for-the-badge&logo=astral&logoColor=white" />
-</p>
-
-### What to expect
-
-<table>
-  <tr>
-    <td>Without run</td>
-    <td>With run</td>
-  </tr>
-  <tr>
-    <td>
-
-```bash
+a| [source,bash]
+----
 > cd django-project
 # Now.. what was that venv command?
 > python -m venv venv
@@ -52,14 +47,8 @@ A development environment orchestrator that automatically detects your project t
 # Open up browser and go to localhost:8000
 # Done! Start working on the project.
 
-> cd nextjs-project
-> npm install
-> npm run dev
-# Open up browser and go to localhost:3000
-> nvim
-# Start working on the project.
-
 # Finished development. Now for the next
+# mono-repo project
 > cd fastapi-project
 > python -m venv venv
 > source venv/bin/activate
@@ -83,61 +72,57 @@ A development environment orchestrator that automatically detects your project t
 # Finally time to develop new features.
 > nvim
 # Now what was I supposed to build?
-```
+----
 
-</td>
-  <td>
-
-```bash
+a| [source,bash]
+----
 > cd django-project
 > run
 # You have some pending migrations
-# Applied migrations into database
+# Auto-applied migrations into database
 # Here's the virtual environment,
 # test cases, running server, code editor
 # and the output opened up in browser.
 # Start coding right away!
+> ^c
+# You have changes in tables: [table names]
+# You might want to do this command:
+# "suggested command"
+# Good bye!
 
 # Add a onetime mono-repo config
 > cd nextjs-project
 > run
 # Start coding right away again!
+----
+|===
+====
 
-> cd fastapi-project
-> run
-# Changes detected in models and
-# you forgot to create a revision
-# You might want to do this command:
-# "suggested command"
-```
-
-  </td>
-</tr>
-</table>
-
-## 📦 Installation
+== 📦 Installation
 
 Clone the repository and run the install script:
 
-```bash
+[source,bash]
+----
 git clone "https://github.com/MidHunterX/Project-Launcher" --depth 1
 cd Project-Launcher
 bash ./install.sh
-```
+----
 
-### Requirements
+=== Requirements
 
 - **Required**: `bash`, `systemctl` (for services)
 - **Optional**: `tmux` (for session management)
 - **Per-project**: Technology-specific tools (npm, pip, cargo, etc.)
 
-## 🚀 Quick Start
+== 🚀 Quick Start
 
 Navigate to any project directory and run:
 
-```bash
+[source,bash]
+----
 run
-```
+----
 
 The runner will:
 
@@ -151,33 +136,35 @@ The runner will:
 8. Open server URL (if any) in browser
 9. Does a post validation and warns if models are left changed without creating migrations on exit
 
-> [!NOTE]
-> If TMUX is not installed, the runner will just detect project, run the
-> appropriate server command and open server URL in browser.
+[NOTE]
+If TMUX is not installed, the runner will just detect project, run the
+appropriate server command and open server URL in browser.
 
-## ⚙️ Configuration Settings
+== ⚙️ Configuration Settings
 
 Create a `.runrc` file in your project root and add following overrides for
 project-specific customization. All settings are optional.
 
-### Per-Project Configuration
+=== Per-Project Configuration
 
-#### Minimal Configuration
+==== Minimal Configuration
 
 The most minimal configuration is actually NO configuration at all. But, if you
 are like me who don't want PostgreSQL running in the background all the time
 and only wants it running when developing a specific project only then, your
 minimal config for that project would just be:
 
-```bash
+[source,bash]
+----
 ENABLED_SERVICES=(
   postgresql
 )
-```
+----
 
-#### Full Configuration
+==== Full Configuration
 
-```bash
+[source,bash]
+----
 # ------------------------------------------------------------- PROJECT DETAILS
 
 # Default: project dir name
@@ -211,7 +198,7 @@ BROWSER=""
 
 # Settings: [ true | false ]
 AUTORUN_COMMANDS=true
-```
+----
 
 ### Global Configuration
 
@@ -219,26 +206,29 @@ Create `run/config.conf` in your config directory.
 
 Example 1: Just Browser
 
-```bash
+[source,bash]
+----
 # custom browser, arguments and newtab flag at the end
 BROWSER="firefox --new-tab"
-```
+----
 
 Example 2: Custom Timezone + Browser
 
-```bash
+[source,bash]
+----
 BROWSER="TZ=Asia/Dubai firefox --new-tab"
-```
+----
 
 Example 3: Window Manager + Custom Timezone + Custom Browser Profile
 
-```bash
+[source,bash]
+----
 BROWSER="hyprctl dispatch -- exec [workspace 2] TZ=Asia/Dubai firefox-developer-edition -P Personal -no-remote -new-tab"
-```
+----
 
 The global configuration file sets default values for all projects.
 
-### Per-Project Logic Overriding
+=== Per-Project Logic Overriding
 
 Use the following overrides in `.runrc` for more granular customization.
 
@@ -246,7 +236,8 @@ These can also be used to extend support for new technologies as well.
 
 Add `#!/usr/bin/env bash` at the top of the file to make it play nice with LSP.
 
-```bash
+[source,bash]
+----
 # ------------------------------------------------------ OVERRIDE PROJECT SETUP
 
 setup_env_custom() {
@@ -302,54 +293,61 @@ setup_post_init_hook() {
     firefox-developer-edition -P Personal -no-remote -new-tab $new_tab_url &
   ) &
 }
-```
+----
 
-### Environment Variables
+=== Environment Variables
 
 You can also add environment variables to `.runrc`
 
-```bash
+[source,bash]
+----
 export RUST_LOG=debug
-```
+----
 
-### Python Problems
+=== Python Problems
 
 A python project's requirements only works with an older python version due to
 any of the dependencies not supporting newer python versions? Here's the
 solution:
 
-```sh
+[source,bash]
+----
 setup_env_custom() {
   setup_python_env "venv" "python3.11 -m venv venv"
 }
-```
+----
 
-### Adding an Unknown Technology
+=== Adding an Unknown Technology
 
 If you want to add support for a new technology, you can support it by
 following the per project overriding with `.runrc`:
 
-1. Setting up dependencies
-   ```sh
-   setup_env_custom() {
-      # env_directory: is the directory which gets created after doing the init_command.
-      # init_command: is the command you do to initialize the project. eg: npm install
-      # eg: node_modules/ gets created after "npm install" -> setup_base_env "node_modules/" "npm install"
-      #     venv/ gets created after "python -m venv venv" -> setup_base_env "venv/" "python -m venv venv"
-      setup_base_env "env_directory/" "init_command"
-      # add other dependency initialization commands here
-   }
-   ```
-2. Setting up tmux layout
-   ```sh
-   setup_layout_custom() {
-      create_window "Window 1" "command 1"
-      create_window "Window 2" "command 2"
-      create_window "Window 3" "command 3"
-      # Add windows other here
-   }
-   ```
+* Setting up dependencies
 
-## 📜 License
+[source,bash]
+----
+setup_env_custom() {
+  # env_directory: is the directory which gets created after doing the init_command.
+  # init_command: is the command you do to initialize the project. eg: npm install
+  # eg: node_modules/ gets created after "npm install" -> setup_base_env "node_modules/" "npm install"
+  #     venv/ gets created after "python -m venv venv" -> setup_base_env "venv/" "python -m venv venv"
+  setup_base_env "env_directory/" "init_command"
+  # add other dependency initialization commands here
+}
+----
 
-This runner is distributed under the [MIT License](LICENSE).
+* Setting up tmux layout
+
+[source,bash]
+----
+setup_layout_custom() {
+  create_window "Window 1" "command 1"
+  create_window "Window 2" "command 2"
+  create_window "Window 3" "command 3"
+  # Add windows other here
+}
+----
+
+== 📜 License
+
+This runner is distributed under the link:LICENSE[MIT License].
