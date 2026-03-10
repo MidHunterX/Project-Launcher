@@ -404,7 +404,12 @@ postcheck_alembic() {
 
             return 1
             ;;
-
+        *"ERROR [alembic.util.messaging] Target database is not up to date."*)
+            # CASE: Revision Created | DB Not Migrated
+            log "📎 - Looks like you forgot to migrate DB"
+            alembic upgrade head
+            log "📎 - DB migrated to latest revision"
+            ;;
         *)
             # CASE: Unrecognized Error
             log "❌ Alembic failed with an unrecognized error"
