@@ -12,7 +12,7 @@ init_default_config() {
     PROJECT_NAME=""
     # Default: automatic detection
     # Available values:
-    # none | rust | python | python-uv | django | fastapi | flask | html | nodejs | nextjs | elixir | angular | flutter | astal-gtk
+    # none | rust | python | python-uv | django | fastapi | flask | html | nodejs | reactjs | nextjs | elixir | angular | flutter | astal-gtk
     PROJECT_TYPE=""
 
     # Services: add any valid systemd services here
@@ -178,6 +178,7 @@ get_server_url() {
             ;;
         "django") echo "http://localhost:8000" ;;
         "nodejs") ;;
+        "reactjs") echo "http://localhost:3000" ;;
         "nextjs") echo "http://localhost:3000" ;;
         "angular") echo "http://localhost:4200" ;;
         "flutter") ;;
@@ -207,6 +208,7 @@ run_server_command() {
             ;;
         "django") echo "python manage.py runserver" ;;
         "nodejs") echo "npm start" ;;
+        "reactjs") echo "npm start" ;;
         "nextjs") echo "npm run dev" ;;
         "angular") echo "ng serve" ;;
         "flutter") echo "flutter run" ;;
@@ -249,6 +251,7 @@ setup_layout() {
         "flask") setup_base_layout ;;
         "html") setup_base_layout ;;
         "nodejs") setup_base_layout ;;
+        "reactjs") setup_base_layout ;;
         "nextjs") setup_base_layout ;;
         "angular") setup_base_layout ;;
         "flutter") setup_base_layout ;;
@@ -330,6 +333,7 @@ setup_env() {
         "flask") setup_python_env ;;
         "html") ;;
         "nodejs") setup_node_env ;;
+        "reactjs") setup_node_env ;;
         "nextjs") setup_node_env ;;
         "angular") setup_node_env ;;
         "flutter") ;;
@@ -473,6 +477,7 @@ preflight_check() {
         "flask") ;;
         "html") ;;
         "nodejs") ;;
+        "react") ;;
         "nextjs") ;;
         "angular") ;;
         "flutter") ;;
@@ -510,6 +515,7 @@ postflight_check() {
         "flask") ;;
         "html") ;;
         "nodejs") ;;
+        "react") ;;
         "nextjs") ;;
         "angular") ;;
         "flutter") ;;
@@ -548,8 +554,9 @@ detect_project_type() {
             echo "angular" && return
         elif [[ -f "next.config.js" ]] || [[ -f "next.config.ts" ]] || [[ -f "next.config.mjs" ]]; then
             echo "nextjs" && return
-        fi
-        if [[ -d "@girs" ]]; then
+        elif grep -q "react" package.json; then
+            echo "reactjs" && return
+        elif [[ -d "@girs" ]]; then
             echo "astal-gtk" && return
         fi
         echo "nodejs" && return
