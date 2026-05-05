@@ -7,7 +7,7 @@
 
 # -----------------------------[ CONFIGURATION ]----------------------------- #
 
-init_default_config() {
+config.clear() {
     # Default: project dir name
     PROJECT_NAME=""
     # Default: automatic detection
@@ -33,11 +33,6 @@ init_default_config() {
     # Settings: [ true | false ]
     AUTORUN_COMMANDS=true
 }
-
-# ---------------------------[ CUSTOM OVERRIDES ]--------------------------- #
-
-red='\033[1;31m'
-rst='\033[0;0m'
 
 # =========================================================================== #
 
@@ -268,7 +263,7 @@ setup_layout() {
 # █▀ █▀▀ █▀█ █░█ █ █▀▀ █▀▀ █▀
 # ▄█ ██▄ █▀▄ ▀▄▀ █ █▄▄ ██▄ ▄█
 
-init_services() {
+project.load_services() {
     for service in "${ENABLED_SERVICES[@]}"; do
         if ! systemctl is-active --quiet "$service"; then
             log "🔧 Starting $service..."
@@ -432,6 +427,9 @@ precheck_django() {
 }
 
 postcheck_django() {
+    local red='\033[1;31m'
+    local rst='\033[0;0m'
+
     # Capture both stdout + stderr
     local django_output
     django_output="$(python manage.py migrate 2>&1)"
@@ -466,7 +464,7 @@ preflight_django() {
 }
 
 # preflight(str:project_type)
-preflight_check() {
+check.preflight() {
     local project_type="$1"
     case "$project_type" in
         "none") ;;
@@ -504,7 +502,7 @@ postflight_django() {
 }
 
 # postflight_check(str:project_type)
-postflight_check() {
+check.postflight() {
     local project_type="$1"
     case "$project_type" in
         "none") ;;
@@ -589,7 +587,7 @@ detect_project_type() {
 # █▀▄▀█ ▄▀█ █ █▄░█
 # █░▀░█ █▀█ █ █░▀█
 
-load_user_overrides() {
+config.load_user_overrides() {
     # INIT: Load global config if available
     config_file="${XDG_CONFIG_HOME:-$HOME/.config}/run/config.conf"
     # shellcheck disable=SC1090
@@ -601,7 +599,7 @@ load_user_overrides() {
     [[ -f "$OVERRIDE_FILE" ]] && source "$OVERRIDE_FILE"
 }
 
-autoconfigure() {
+config.detect_project_settings() {
     # FALLBACK: PROJECT_NAME={project dir name}
     if [[ -z "$PROJECT_NAME" ]]; then
         PROJECT_NAME="$(basename "$PWD")"
@@ -627,7 +625,7 @@ autoconfigure() {
     fi
 }
 
-init_environment() {
+project.load_environment() {
     # SETUP: ENV or custom
     if declare -f setup_env_custom > /dev/null; then
         setup_env_custom
@@ -636,14 +634,14 @@ init_environment() {
     fi
 }
 
-exec_output() {
+setup.code_output() {
     # ACTION: OPEN BROWSER
     if [[ "$URL" != "none" ]]; then
         open_browser "$URL" "$BROWSER"
     fi
 }
 
-exec_tmux_devsetup() {
+setup.tmux_layout() {
     # REQUIRE: tmux dependency for LAYOUT
     if ! command -v tmux >/dev/null; then
         # FALLBACK: RUN SERVER (Blocking)
@@ -679,13 +677,18 @@ exec_tmux_devsetup() {
     tmux attach -t "$PROJECT_NAME:1"
 }
 
-init_default_config
-load_user_overrides
-autoconfigure
-init_services
-init_environment
-preflight_check "$PROJECT_TYPE"
-exec_output
-exec_tmux_devsetup
-postflight_check "$PROJECT_TYPE"
+# =========================================================================== #
+
+config.clear
+config.load_user_overrides
+config.detect_project_settings
+
+project.load_services
+project.load_environment
+
+check.preflight "$PROJECT_TYPE"
+setup.code_output
+setup.tmux_layout
+check.postflight "$PROJECT_TYPE"
+
 log "👋 Goodbye!"
