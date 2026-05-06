@@ -155,6 +155,16 @@ create_temp_window() {
     fi
 }
 
+get_python_entrypoint() {
+    for entry in "main.py" "app.py" "server.py"; do
+        if [[ -f "$entry" ]]; then
+            echo "$entry"
+            return 0
+        fi
+    done
+    return 1
+}
+
 # █▄▄ █▀█ █▀█ █░█░█ █▀ █▀▀ █▀█
 # █▄█ █▀▄ █▄█ ▀▄▀▄▀ ▄█ ██▄ █▀▄
 
@@ -192,10 +202,10 @@ run_server_command() {
     local project_type="$1"
     case "$project_type" in
         "none") ;; # Do nothing
-        "python") echo "python main.py" ;;
-        "python-uv") echo "uv run main.py" ;;
+        "python") echo "python $(get_python_entrypoint)" ;;
+        "python-uv") echo "uv run $(get_python_entrypoint)" ;;
         "fastapi") echo "uvicorn main:app --reload" ;;
-        "flask") echo "python main.py" ;;
+        "flask") echo "python $(get_python_entrypoint)" ;;
         "html")
             if command -v live-server >/dev/null; then
                 echo "live-server --no-browser"
@@ -529,10 +539,11 @@ check.postflight() {
 
 detect_project_type() {
     # python
-    if [[ -f "main.py" ]]; then
-        if grep -q "from fastapi import FastAPI" main.py; then
+    python_file=$(get_python_entrypoint)
+    if [[ -f "$python_file" ]]; then
+        if grep -q "from fastapi import FastAPI" $python_file; then
             echo "fastapi" && return
-        elif grep -q "from flask import Flask" main.py; then
+        elif grep -q "from flask import Flask" $python_file; then
             echo "flask" && return
         fi
         if [[ -f "pyproject.toml" ]]; then
