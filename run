@@ -42,7 +42,7 @@ config.clear() {
 # log(str:message)
 log() {
     local green='\033[1;32m'
-    local reset='\033[0;0m'
+    local reset='\033[0m'
     echo -e "[${green}$(date +'%H:%M:%S')${reset}] $1"
 }
 
@@ -438,7 +438,7 @@ precheck_django() {
 
 postcheck_django() {
     local red='\033[1;31m'
-    local rst='\033[0;0m'
+    local rst='\033[0m'
 
     # Capture both stdout + stderr
     local django_output
