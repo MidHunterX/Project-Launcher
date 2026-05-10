@@ -2,6 +2,12 @@
 
 set -e # Exit on any error
 
+grn='\033[1;32m'
+grn_bg='\033[1;42m'
+blk='\033[1;30m'
+blk_bg='\033[1;40m'
+rst='\033[0;0m'
+
 SOURCE_FILE="./run"
 if [ ! -f "$SOURCE_FILE" ]; then
     echo "Error: $SOURCE_FILE not found in current directory"
@@ -45,7 +51,7 @@ else
 fi
 
 if $UPDATE; then
-    echo "Updated successfully!"
+    echo -e "${grn}${blk}${grn_bg}✔ Updated successfully!${rst}${grn}${rst}"
 else
-    echo "Installed successfully!"
+    echo -e "${grn}${blk}${grn_bg}✔ Installed successfully!${rst}${grn}${rst}"
 fi
