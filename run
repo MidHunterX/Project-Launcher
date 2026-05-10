@@ -12,7 +12,7 @@ config.clear() {
     PROJECT_NAME=""
     # Default: automatic detection
     # Available values:
-    # none | rust | python | python-uv | django | fastapi | flask | html | nodejs | reactjs | nextjs | elixir | angular | flutter | astal-gtk
+    # none | angular | astal-gtk | django | elixir | fastapi | flask | flutter | go | html | nextjs | nodejs | python | python-uv | reactjs | rust
     PROJECT_TYPE=""
 
     # Services: add any valid systemd services here
@@ -190,6 +190,7 @@ get_server_url() {
         "astal-gtk") ;;
         "elixir") echo "http://localhost:4000" ;;
         "rust") ;;
+        "go") ;;
         *) log "🚧 Warning: No server url for ${project_type}" ;;
     esac
 }
@@ -220,6 +221,7 @@ run_server_command() {
         "astal-gtk") echo "ags run" ;;
         "elixir") echo "iex -S mix phx.server" ;;
         "rust") echo "cargo run" ;;
+        "go") echo "go run ." ;;
         *) log "🚧 Warning: No server setup for ${project_type}" ;;
     esac
 }
@@ -244,6 +246,11 @@ setup_rust_layout() {
     create_window "Test" "cargo test"
 }
 
+setup_go_layout() {
+    setup_base_layout
+    create_window "Test" "go test ./..."
+}
+
 # select_layout(str:project_type)
 setup_layout() {
     local project_type="$1"
@@ -263,6 +270,7 @@ setup_layout() {
         "astal-gtk") setup_base_layout ;;
         "elixir") setup_base_layout ;;
         "rust") setup_rust_layout ;;
+        "go") setup_go_layout ;;
         *)
             log "🚧 Unknown technology: ${project_type}. Using default layout..."
             setup_base_layout
@@ -345,6 +353,7 @@ setup_env() {
         "astal-gtk") setup_node_env ;;
         "elixir") setup_elixir_env ;;
         "rust") ;; # Rust sets up its own environment with cargo
+        "go") ;; # No environment in Go
         *) log "🚧 Unknown technology: ${project_type}" ;;
     esac
 }
@@ -492,6 +501,7 @@ check.preflight() {
         "astal-gtk") ;;
         "elixir") ;;
         "rust") ;;
+        "go") ;;
         *) ;;
     esac
 }
@@ -530,6 +540,7 @@ check.postflight() {
         "astal-gtk") ;;
         "elixir") ;;
         "rust") ;;
+        "go") ;;
         *) ;;
     esac
 }
@@ -584,6 +595,11 @@ detect_project_type() {
     # rust
     if [[ -f "Cargo.toml" ]]; then
         echo "rust" && return
+    fi
+
+    # go
+    if [[ -f "go.mod" ]]; then
+        echo "go" && return
     fi
 
     # html
