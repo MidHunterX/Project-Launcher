@@ -1,3 +1,5 @@
+image:./.assets/project_launcher_banner.jpg[]
+
 = Project Launcher
 
 A development environment orchestrator that automatically detects your project type and sets up appropriate tmux sessions, environment variables, optional system services and other script based automations.
