@@ -401,7 +401,7 @@ postcheck_alembic() {
             # CASE: Model Changed | Revision Not Created
             case "$alembic_output" in
                 *"INFO  [alembic.autogenerate.compare] Detected added table"*)
-                    table_name=$(grep -oP "Detected added table '\K[^']+" <<<"$alembic_output")
+                    local table_name=$(grep -oP "Detected added table '\K[^']+" <<<"$alembic_output")
                     log "📎 - New table detected. You probably want:"
                     code_block "alembic revision --autogenerate -m \"add $table_name\"\nalembic upgrade head"
                     ;;
@@ -447,7 +447,7 @@ postcheck_django() {
     case "$django_output" in
         *"Your models in app(s):"*"have changes that are not yet reflected in a migration"*)
             # CASE: Model Changed | Revision Not Created
-            app_names=$(grep -oP "Your models in app\(s\): '\K[^']+" <<<"$django_output")
+            local app_names=$(grep -oP "Your models in app\(s\): '\K[^']+" <<<"$django_output")
             log "📎 - Model changes detected in: ${red}$app_names${rst}. Consider:"
             code_block "python manage.py makemigrations\npython manage.py migrate"
             ;;
@@ -656,7 +656,7 @@ setup.tmux_layout() {
     # REQUIRE: tmux dependency for LAYOUT
     if ! command -v tmux >/dev/null; then
         # FALLBACK: RUN SERVER (Blocking)
-        cmd=$(run_server_command "$PROJECT_TYPE")
+        local cmd=$(run_server_command "$PROJECT_TYPE")
         if [[ -z "$cmd" ]]; then
             log "🚫 Error: No server found for this type"
             exit 1

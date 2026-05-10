@@ -18,7 +18,7 @@ image:https://img.shields.io/badge/fastapi-109989?style=for-the-badge&logo=FASTA
 image:https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green[Django]
 image:https://img.shields.io/badge/Astal-5190cf?style=for-the-badge&logo=astral&logoColor=white[Astal]
 
-.Show what to expect
+.`*💡 What to Expect?*`
 [%collapsible]
 ====
 [discrete]
@@ -317,6 +317,10 @@ setup_env_custom() {
   setup_python_env "venv" "python3.11 -m venv venv"
 }
 ----
+
+NOTE: `setup_python_env` is a special function specific to python. It allows
+you to override commands only without changing the underlying logic for
+applying environment. This function is used by `setup_env` under the hood.
 
 === Adding an Unknown Technology
 
