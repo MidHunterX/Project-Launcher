@@ -177,7 +177,8 @@ PROJECT_NAME=""
 
 # Default: automatic detection
 # Available values:
-# none | angular | astal-gtk | django | elixir | fastapi | flask | flutter | go | html | nextjs | nodejs | python | python-uv | reactjs | rust
+# none | angular | astal-gtk | django | elixir | fastapi | flask | flutter
+# go | html | nextjs | nodejs | python | python-uv | reactjs | rust
 PROJECT_TYPE=""
 
 # ------------------------------------------------------------- SYSTEM SERVICES
@@ -356,6 +357,10 @@ setup_layout_custom() {
   # Add windows other here
 }
 ----
+
+== 🐞 Known Issues
+
+* Script does cleanup routine on detaching TMUX because it thinks the project is closed.
 
 == 📜 License
 

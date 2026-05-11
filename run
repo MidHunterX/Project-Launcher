@@ -12,7 +12,8 @@ config.clear() {
     PROJECT_NAME=""
     # Default: automatic detection
     # Available values:
-    # none | angular | astal-gtk | django | elixir | fastapi | flask | flutter | go | html | nextjs | nodejs | python | python-uv | reactjs | rust
+    # none | angular | astal-gtk | django | elixir | fastapi | flask | flutter
+    # go | html | nextjs | nodejs | python | python-uv | reactjs | rust
     PROJECT_TYPE=""
 
     # Services: add any valid systemd services here
@@ -98,7 +99,7 @@ open_browser() {
     log "🌐 Launching browser"
     (
         # Wait for the server to start
-        local timeout=20
+        local timeout=60
         while ! curl -sf "$url" >/dev/null; do
             sleep 1
             ((timeout--)) || { exit 1; }
@@ -281,13 +282,48 @@ setup_layout() {
 # █▀ █▀▀ █▀█ █░█ █ █▀▀ █▀▀ █▀
 # ▄█ ██▄ █▀▄ ▀▄▀ █ █▄▄ ██▄ ▄█
 
-project.load_services() {
+# Already Running Services
+# Since you started the service by yourself, script will not touch it
+RUNNING_SERVICES=()
+
+project.services.start() {
+    set_running_services() {
+        RUNNING_SERVICES=() # reset
+        for service in "${ENABLED_SERVICES[@]}"; do
+            if systemctl is-active --quiet "$service"; then
+                RUNNING_SERVICES+=("$service")
+                # log "🔧 Service: $service is already running"
+            fi
+        done
+    }
+    set_running_services
     for service in "${ENABLED_SERVICES[@]}"; do
         if ! systemctl is-active --quiet "$service"; then
-            log "🔧 Starting $service..."
+            log "🔧 Service: Starting $service..."
             sudo systemctl start "$service"
         fi
     done
+}
+
+project.services.stop() {
+    # associative array for O(1) lookup
+    local -A running_map
+    for svc in "${RUNNING_SERVICES[@]}"; do
+        running_map["$svc"]=1
+    done
+    for service in "${ENABLED_SERVICES[@]}"; do
+        if [[ -n "${running_map[$service]}" ]]; then
+            # log "🔧 Service: Skipping $service"
+            continue
+        fi
+        if systemctl is-active --quiet "$service"; then
+            log "🔧 Service: Stopping $service..."
+            sudo systemctl stop "$service"
+        else
+            log "🤔 Service: $service is not running"
+        fi
+    done
+    sudo -k
 }
 
 # █▀▀ █▄░█ █░█   █▀ █▀▀ ▀█▀ █░█ █▀█
@@ -353,7 +389,7 @@ setup_env() {
         "astal-gtk") setup_node_env ;;
         "elixir") setup_elixir_env ;;
         "rust") ;; # Rust sets up its own environment with cargo
-        "go") ;; # No environment in Go
+        "go") ;;   # No environment in Go
         *) log "🚧 Unknown technology: ${project_type}" ;;
     esac
 }
@@ -654,7 +690,7 @@ config.detect_project_settings() {
 
 project.load_environment() {
     # SETUP: ENV or custom
-    if declare -f setup_env_custom > /dev/null; then
+    if declare -f setup_env_custom >/dev/null; then
         setup_env_custom
     else
         setup_env "$PROJECT_TYPE"
@@ -690,14 +726,14 @@ setup.tmux_layout() {
     fi
 
     # SETUP: LAYOUT or custom
-    if declare -f setup_layout_custom > /dev/null; then
+    if declare -f setup_layout_custom >/dev/null; then
         setup_layout_custom
     else
         setup_layout "$PROJECT_TYPE"
     fi
 
     # ACTION: POST INIT HOOK
-    if declare -f setup_post_init_hook > /dev/null; then
+    if declare -f setup_post_init_hook >/dev/null; then
         setup_post_init_hook
     fi
 
@@ -710,7 +746,7 @@ config.clear
 config.load_user_overrides
 config.detect_project_settings
 
-project.load_services
+project.services.start
 project.load_environment
 
 check.preflight "$PROJECT_TYPE"
@@ -718,4 +754,5 @@ setup.code_output
 setup.tmux_layout
 check.postflight "$PROJECT_TYPE"
 
+project.services.stop
 log "👋 Goodbye!"
