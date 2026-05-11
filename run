@@ -139,11 +139,33 @@ create_window() {
     # ACTION: Create window only if valid command
     if command -v "${cmd%% *}" >/dev/null; then
         ensure_window "$name"
-        # "clear" Enter fixes send-keys doubling text due to shell race condition
-        tmux send-keys -t "$PROJECT_NAME:$name" "clear" Enter "$cmd"
-        if [ "$AUTORUN_COMMANDS" == true ]; then
-            tmux send-keys -t "$PROJECT_NAME:$name" Enter
-        fi
+
+        local STRATEGY="clear" # clear | socket
+
+        case "$STRATEGY" in
+            clear)
+                # "clear" Enter fixes send-keys doubling text due to shell race condition
+                # Even though it's a hack, the logic is simple, it works and it's extremely fast
+                tmux send-keys -t "$PROJECT_NAME:$name" "clear" Enter "$cmd"
+                if [ "$AUTORUN_COMMANDS" == true ]; then
+                    tmux send-keys -t "$PROJECT_NAME:$name" Enter
+                fi
+                ;;
+            socket)
+                # PHASE 1: Synchronize with shell readiness via wait-for
+                local sync_channel="sync_${PROJECT_NAME}_${name}_$$_${RANDOM}"
+                tmux wait-for -L "$sync_channel" # Lock
+                tmux send-keys -t "$PROJECT_NAME:$name" "tmux wait-for -U $sync_channel" Enter
+                tmux wait-for -L "$sync_channel"
+                # PHASE 2: Shell is now ready. Send the actual command cleanly.
+                tmux send-keys -t "$PROJECT_NAME:$name" "$cmd"
+                if [ "$AUTORUN_COMMANDS" == true ]; then
+                    tmux send-keys -t "$PROJECT_NAME:$name" Enter
+                fi
+                # PHASE 3: Unlock
+                tmux wait-for -U "$sync_channel" 2>/dev/null || true
+                ;;
+        esac
     fi
 }
 
