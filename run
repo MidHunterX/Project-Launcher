@@ -195,25 +195,25 @@ get_server_url() {
     local project_type="$1"
     case "$project_type" in
         "none") ;; # Do nothing
-        "python") ;;
-        "python-uv") ;;
+        "angular") echo "http://localhost:4200" ;;
+        "astal-gtk") ;;
+        "django") echo "http://localhost:8000" ;;
+        "elixir") echo "http://localhost:4000" ;;
         "fastapi") ;;
         "flask") echo "http://localhost:5000" ;;
+        "flutter") ;;
+        "go") ;;
         "html")
             if command -v live-server >/dev/null; then
                 echo "http://localhost:8080"
             fi
             ;;
-        "django") echo "http://localhost:8000" ;;
-        "nodejs") ;;
-        "reactjs") echo "http://localhost:3000" ;;
         "nextjs") echo "http://localhost:3000" ;;
-        "angular") echo "http://localhost:4200" ;;
-        "flutter") ;;
-        "astal-gtk") ;;
-        "elixir") echo "http://localhost:4000" ;;
+        "nodejs") ;;
+        "python") ;;
+        "python-uv") ;;
+        "reactjs") echo "http://localhost:3000" ;;
         "rust") ;;
-        "go") ;;
         *) log "🚧 Warning: No server url for ${project_type}" ;;
     esac
 }
@@ -226,25 +226,25 @@ run_server_command() {
     local project_type="$1"
     case "$project_type" in
         "none") ;; # Do nothing
-        "python") echo "python $(get_python_entrypoint)" ;;
-        "python-uv") echo "uv run $(get_python_entrypoint)" ;;
+        "angular") echo "ng serve" ;;
+        "astal-gtk") echo "ags run" ;;
+        "django") echo "python manage.py runserver" ;;
+        "elixir") echo "iex -S mix phx.server" ;;
         "fastapi") echo "uvicorn main:app --reload" ;;
         "flask") echo "python $(get_python_entrypoint)" ;;
+        "flutter") echo "flutter run" ;;
+        "go") echo "go run ." ;;
         "html")
             if command -v live-server >/dev/null; then
                 echo "live-server --no-browser"
             fi
             ;;
-        "django") echo "python manage.py runserver" ;;
-        "nodejs") echo "npm start" ;;
-        "reactjs") echo "npm start" ;;
         "nextjs") echo "npm run dev" ;;
-        "angular") echo "ng serve" ;;
-        "flutter") echo "flutter run" ;;
-        "astal-gtk") echo "ags run" ;;
-        "elixir") echo "iex -S mix phx.server" ;;
+        "nodejs") echo "npm start" ;;
+        "python") echo "python $(get_python_entrypoint)" ;;
+        "python-uv") echo "uv run $(get_python_entrypoint)" ;;
+        "reactjs") echo "npm start" ;;
         "rust") echo "cargo run" ;;
-        "go") echo "go run ." ;;
         *) log "🚧 Warning: No server setup for ${project_type}" ;;
     esac
 }
@@ -279,21 +279,21 @@ setup_layout() {
     local project_type="$1"
     case "$project_type" in
         "none") setup_base_layout ;;
-        "python") setup_base_layout ;;
-        "python-uv") setup_base_layout ;;
+        "angular") setup_base_layout ;;
+        "astal-gtk") setup_base_layout ;;
         "django") setup_django_layout ;;
+        "elixir") setup_base_layout ;;
         "fastapi") setup_fastapi_layout ;;
         "flask") setup_base_layout ;;
-        "html") setup_base_layout ;;
-        "nodejs") setup_base_layout ;;
-        "reactjs") setup_base_layout ;;
-        "nextjs") setup_base_layout ;;
-        "angular") setup_base_layout ;;
         "flutter") setup_base_layout ;;
-        "astal-gtk") setup_base_layout ;;
-        "elixir") setup_base_layout ;;
-        "rust") setup_rust_layout ;;
         "go") setup_go_layout ;;
+        "html") setup_base_layout ;;
+        "nextjs") setup_base_layout ;;
+        "nodejs") setup_base_layout ;;
+        "python") setup_base_layout ;;
+        "python-uv") setup_base_layout ;;
+        "reactjs") setup_base_layout ;;
+        "rust") setup_rust_layout ;;
         *)
             log "🚧 Unknown technology: ${project_type}. Using default layout..."
             setup_base_layout
@@ -397,21 +397,21 @@ setup_env() {
     local project_type="$1"
     case "$project_type" in
         "none") ;; # Do nothing
-        "python") setup_python_env ;;
-        "python-uv") ;; # uv manages its own environment
+        "angular") setup_node_env ;;
+        "astal-gtk") setup_node_env ;;
         "django") setup_python_env ;;
+        "elixir") setup_elixir_env ;;
         "fastapi") setup_python_env ;;
         "flask") setup_python_env ;;
-        "html") ;;
-        "nodejs") setup_node_env ;;
-        "reactjs") setup_node_env ;;
-        "nextjs") setup_node_env ;;
-        "angular") setup_node_env ;;
         "flutter") ;;
-        "astal-gtk") setup_node_env ;;
-        "elixir") setup_elixir_env ;;
-        "rust") ;; # Rust sets up its own environment with cargo
         "go") ;;   # No environment in Go
+        "html") ;;
+        "nextjs") setup_node_env ;;
+        "nodejs") setup_node_env ;;
+        "python") setup_python_env ;;
+        "python-uv") ;; # uv manages its own environment
+        "reactjs") setup_node_env ;;
+        "rust") ;; # Rust sets up its own environment with cargo
         *) log "🚧 Unknown technology: ${project_type}" ;;
     esac
 }
@@ -545,21 +545,21 @@ check.preflight() {
     local project_type="$1"
     case "$project_type" in
         "none") ;;
-        "python") ;;
-        "python-uv") ;;
+        "angular") ;;
+        "astal-gtk") ;;
         "django") preflight_django ;;
+        "elixir") ;;
         "fastapi") preflight_fastapi ;;
         "flask") ;;
-        "html") ;;
-        "nodejs") ;;
-        "react") ;;
-        "nextjs") ;;
-        "angular") ;;
         "flutter") ;;
-        "astal-gtk") ;;
-        "elixir") ;;
-        "rust") ;;
         "go") ;;
+        "html") ;;
+        "nextjs") ;;
+        "nodejs") ;;
+        "python") ;;
+        "python-uv") ;;
+        "reactjs") ;;
+        "rust") ;;
         *) ;;
     esac
 }
@@ -584,21 +584,21 @@ check.postflight() {
     local project_type="$1"
     case "$project_type" in
         "none") ;;
-        "python") ;;
-        "python-uv") ;;
+        "angular") ;;
+        "astal-gtk") ;;
         "django") postflight_django ;;
+        "elixir") ;;
         "fastapi") postflight_fastapi ;;
         "flask") ;;
-        "html") ;;
-        "nodejs") ;;
-        "react") ;;
-        "nextjs") ;;
-        "angular") ;;
         "flutter") ;;
-        "astal-gtk") ;;
-        "elixir") ;;
-        "rust") ;;
         "go") ;;
+        "html") ;;
+        "nextjs") ;;
+        "nodejs") ;;
+        "python") ;;
+        "python-uv") ;;
+        "reactjs") ;;
+        "rust") ;;
         *) ;;
     esac
 }
