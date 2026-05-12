@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# vim: filetype=bash
 # DevNote: This script is kinda hard to re-write in a compiled language due to
 # the way how a spawned process vs shell script modifies its environment. Using
 # other forms of configs like yaml won't have the flexibility a shell script +
@@ -12,8 +13,8 @@ config.clear() {
     PROJECT_NAME=""
     # Default: automatic detection
     # Available values:
-    # none | angular | astal-gtk | django | elixir | fastapi | flask | flutter
-    # go | html | nextjs | nodejs | python | python-uv | reactjs | rust
+    # none, angular, gtk_astal, django, elixir, python_fastapi, python_flask,
+    # flutter, go, html, nextjs, nodejs, python, python-uv, reactjs, rust
     PROJECT_TYPE=""
 
     # Services: add any valid systemd services here
@@ -196,22 +197,18 @@ get_server_url() {
     case "$project_type" in
         "none") ;; # Do nothing
         "angular") echo "http://localhost:4200" ;;
-        "astal-gtk") ;;
         "django") echo "http://localhost:8000" ;;
         "elixir") echo "http://localhost:4000" ;;
-        "fastapi") ;;
-        "flask") echo "http://localhost:5000" ;;
         "flutter") ;;
         "go") ;;
-        "html")
-            if command -v live-server >/dev/null; then
-                echo "http://localhost:8080"
-            fi
-            ;;
+        "gtk_astal") ;;
+        "html") command -v live-server >/dev/null && echo "http://localhost:8080" ;;
         "nextjs") echo "http://localhost:3000" ;;
         "nodejs") ;;
         "python") ;;
         "python-uv") ;;
+        "python_fastapi") ;; # No need to open API url in browser
+        "python_flask") echo "http://localhost:5000" ;;
         "reactjs") echo "http://localhost:3000" ;;
         "rust") ;;
         *) log "🚧 Warning: No server url for ${project_type}" ;;
@@ -227,22 +224,18 @@ run_server_command() {
     case "$project_type" in
         "none") ;; # Do nothing
         "angular") echo "ng serve" ;;
-        "astal-gtk") echo "ags run" ;;
         "django") echo "python manage.py runserver" ;;
         "elixir") echo "iex -S mix phx.server" ;;
-        "fastapi") echo "uvicorn main:app --reload" ;;
-        "flask") echo "python $(get_python_entrypoint)" ;;
         "flutter") echo "flutter run" ;;
         "go") echo "go run ." ;;
-        "html")
-            if command -v live-server >/dev/null; then
-                echo "live-server --no-browser"
-            fi
-            ;;
+        "gtk_astal") echo "ags run" ;;
+        "html") command -v live-server >/dev/null && echo "live-server --no-browser" ;;
         "nextjs") echo "npm run dev" ;;
         "nodejs") echo "npm start" ;;
         "python") echo "python $(get_python_entrypoint)" ;;
         "python-uv") echo "uv run $(get_python_entrypoint)" ;;
+        "python_fastapi") echo "uvicorn main:app --reload" ;;
+        "python_flask") echo "python $(get_python_entrypoint)" ;;
         "reactjs") echo "npm start" ;;
         "rust") echo "cargo run" ;;
         *) log "🚧 Warning: No server setup for ${project_type}" ;;
@@ -280,22 +273,22 @@ setup_layout() {
     case "$project_type" in
         "none") setup_base_layout ;;
         "angular") setup_base_layout ;;
-        "astal-gtk") setup_base_layout ;;
         "django") setup_django_layout ;;
         "elixir") setup_base_layout ;;
-        "fastapi") setup_fastapi_layout ;;
-        "flask") setup_base_layout ;;
         "flutter") setup_base_layout ;;
         "go") setup_go_layout ;;
+        "gtk_astal") setup_base_layout ;;
         "html") setup_base_layout ;;
         "nextjs") setup_base_layout ;;
         "nodejs") setup_base_layout ;;
         "python") setup_base_layout ;;
         "python-uv") setup_base_layout ;;
+        "python_fastapi") setup_fastapi_layout ;;
+        "python_flask") setup_base_layout ;;
         "reactjs") setup_base_layout ;;
         "rust") setup_rust_layout ;;
         *)
-            log "🚧 Unknown technology: ${project_type}. Using default layout..."
+            log "🚧 Unknown technology: ${project_type}. Using default layout."
             setup_base_layout
             ;;
     esac
@@ -321,7 +314,7 @@ project.services.start() {
     set_running_services
     for service in "${ENABLED_SERVICES[@]}"; do
         if ! systemctl is-active --quiet "$service"; then
-            log "🔧 Service: Starting $service..."
+            log "🔧 Service: Starting $service"
             sudo systemctl start "$service"
         fi
     done
@@ -339,7 +332,7 @@ project.services.stop() {
             continue
         fi
         if systemctl is-active --quiet "$service"; then
-            log "🔧 Service: Stopping $service..."
+            log "🔧 Service: Stopping $service"
             sudo systemctl stop "$service"
         else
             log "🤔 Service: $service is not running"
@@ -356,7 +349,7 @@ setup_base_env() {
     local dependency_dir="$1"
     local dependency_cmd="$2"
     if [[ ! -d $dependency_dir ]]; then
-        log "🚀 Setting up dependencies..."
+        log "🚀 Setting up dependencies"
         command -v "${dependency_cmd%% *}" >/dev/null || {
             log "❌ Error: ${dependency_cmd%% *} not found"
             exit 1
@@ -370,7 +363,7 @@ setup_python_env() {
     local dependency_cmd="${2:-python -m venv venv}"
     if [[ ! -d $dependency_dir ]]; then
         setup_base_env "$dependency_dir" "$dependency_cmd"
-        log "📦 Installing requirements..."
+        log "📦 Installing requirements"
         # shellcheck disable=SC1090
         source "./$dependency_dir/bin/activate"
         if [[ -f "requirements.txt" ]]; then
@@ -398,18 +391,18 @@ setup_env() {
     case "$project_type" in
         "none") ;; # Do nothing
         "angular") setup_node_env ;;
-        "astal-gtk") setup_node_env ;;
         "django") setup_python_env ;;
         "elixir") setup_elixir_env ;;
-        "fastapi") setup_python_env ;;
-        "flask") setup_python_env ;;
         "flutter") ;;
-        "go") ;;   # No environment in Go
+        "go") ;; # No environment in Go
+        "gtk_astal") setup_node_env ;;
         "html") ;;
         "nextjs") setup_node_env ;;
         "nodejs") setup_node_env ;;
         "python") setup_python_env ;;
         "python-uv") ;; # uv manages its own environment
+        "python_fastapi") setup_python_env ;;
+        "python_flask") setup_python_env ;;
         "reactjs") setup_node_env ;;
         "rust") ;; # Rust sets up its own environment with cargo
         *) log "🚧 Unknown technology: ${project_type}" ;;
@@ -439,7 +432,7 @@ precheck_alembic() {
     case "$alembic_output" in
         *"ERROR [alembic.util.messaging] Target database is not up to date."*)
             # CASE: Revision Created | DB Not Migrated
-            log "📎 - Migrating DB to latest alembic revision..."
+            log "📎 - Migrating DB to latest alembic revision"
             alembic upgrade head
             ;;
         *) ;;
@@ -463,12 +456,13 @@ postcheck_alembic() {
         return
     fi
 
+    local table_name
     case "$alembic_output" in
         *"ERROR [alembic.util.messaging] New upgrade operations detected"*)
             # CASE: Model Changed | Revision Not Created
             case "$alembic_output" in
                 *"INFO  [alembic.autogenerate.compare] Detected added table"*)
-                    local table_name=$(grep -oP "Detected added table '\K[^']+" <<<"$alembic_output")
+                    table_name=$(grep -oP "Detected added table '\K[^']+" <<<"$alembic_output")
                     log "📎 - New table detected. You probably want:"
                     code_block "alembic revision --autogenerate -m \"add $table_name\"\nalembic upgrade head"
                     ;;
@@ -498,7 +492,7 @@ postcheck_alembic() {
 precheck_django() {
     # Run migrations if needed
     if python manage.py showmigrations --plan | grep '\[ \]'; then
-        log "📎 - Running migrations to database..."
+        log "📎 - Running migrations to database"
         python manage.py migrate
     fi
 }
@@ -511,10 +505,11 @@ postcheck_django() {
     local django_output
     django_output="$(python manage.py migrate 2>&1)"
 
+    local app_names
     case "$django_output" in
         *"Your models in app(s):"*"have changes that are not yet reflected in a migration"*)
             # CASE: Model Changed | Revision Not Created
-            local app_names=$(grep -oP "Your models in app\(s\): '\K[^']+" <<<"$django_output")
+            app_names=$(grep -oP "Your models in app\(s\): '\K[^']+" <<<"$django_output")
             log "📎 - Model changes detected in: ${red}$app_names${rst}. Consider:"
             code_block "python manage.py makemigrations\npython manage.py migrate"
             ;;
@@ -546,18 +541,18 @@ check.preflight() {
     case "$project_type" in
         "none") ;;
         "angular") ;;
-        "astal-gtk") ;;
         "django") preflight_django ;;
         "elixir") ;;
-        "fastapi") preflight_fastapi ;;
-        "flask") ;;
         "flutter") ;;
         "go") ;;
+        "gtk_astal") ;;
         "html") ;;
         "nextjs") ;;
         "nodejs") ;;
         "python") ;;
         "python-uv") ;;
+        "python_fastapi") preflight_fastapi ;;
+        "python_flask") ;;
         "reactjs") ;;
         "rust") ;;
         *) ;;
@@ -585,18 +580,18 @@ check.postflight() {
     case "$project_type" in
         "none") ;;
         "angular") ;;
-        "astal-gtk") ;;
         "django") postflight_django ;;
         "elixir") ;;
-        "fastapi") postflight_fastapi ;;
-        "flask") ;;
         "flutter") ;;
         "go") ;;
+        "gtk_astal") ;;
         "html") ;;
         "nextjs") ;;
         "nodejs") ;;
         "python") ;;
         "python-uv") ;;
+        "python_fastapi") postflight_fastapi ;;
+        "python_flask") ;;
         "reactjs") ;;
         "rust") ;;
         *) ;;
@@ -610,10 +605,10 @@ detect_project_type() {
     # python
     python_file=$(get_python_entrypoint)
     if [[ -f "$python_file" ]]; then
-        if grep -q "from fastapi import FastAPI" $python_file; then
-            echo "fastapi" && return
-        elif grep -q "from flask import Flask" $python_file; then
-            echo "flask" && return
+        if grep -q "from fastapi import FastAPI" "$python_file"; then
+            echo "python_fastapi" && return
+        elif grep -q "from flask import Flask" "$python_file"; then
+            echo "python_flask" && return
         fi
         if [[ -f "pyproject.toml" ]]; then
             echo "python-uv" && return
@@ -635,7 +630,7 @@ detect_project_type() {
         elif grep -q "react" package.json; then
             echo "reactjs" && return
         elif [[ -d "@girs" ]]; then
-            echo "astal-gtk" && return
+            echo "gtk_astal" && return
         fi
         echo "nodejs" && return
     fi
@@ -730,19 +725,20 @@ setup.tmux_layout() {
     # REQUIRE: tmux dependency for LAYOUT
     if ! command -v tmux >/dev/null; then
         # FALLBACK: RUN SERVER (Blocking)
-        local cmd=$(run_server_command "$PROJECT_TYPE")
+        local cmd
+        cmd=$(run_server_command "$PROJECT_TYPE")
         if [[ -z "$cmd" ]]; then
             log "🚫 Error: No server found for this type"
             exit 1
         fi
-        log "ℹ️ Running server without tmux..."
+        log "ℹ️ Running server without tmux"
         eval "$cmd"
         exit 0
     fi
 
     # ACTION: Attach session if exists
     if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
-        log "Session '$PROJECT_NAME' already exists. Attaching..."
+        log "Session '$PROJECT_NAME' already exists"
         tmux attach -t "$PROJECT_NAME"
         exit 0
     fi

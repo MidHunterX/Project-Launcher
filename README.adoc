@@ -177,8 +177,8 @@ PROJECT_NAME=""
 
 # Default: automatic detection
 # Available values:
-# none | angular | astal-gtk | django | elixir | fastapi | flask | flutter
-# go | html | nextjs | nodejs | python | python-uv | reactjs | rust
+# none, angular, gtk_astal, django, elixir, python_fastapi, python_flask,
+# flutter, go, html, nextjs, nodejs, python, python-uv, reactjs, rust
 PROJECT_TYPE=""
 
 # ------------------------------------------------------------- SYSTEM SERVICES
