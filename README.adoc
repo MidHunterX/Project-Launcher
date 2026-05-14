@@ -229,7 +229,7 @@ Example 3: Window Manager + Custom Timezone + Custom Browser Profile
 
 [source,bash]
 ----
-BROWSER="hyprctl dispatch 'hl.dsp.focus({ workspace = 2 })' && TZ=Asia/Dubai firefox-developer-edition -P Personal -no-remote -new-tab"
+BROWSER="hyprctl dispatch 'hl.dsp.focus({ workspace = 2 })' && TZ=Asia/Dubai firefox-developer-edition -P Personal --no-remote --new-tab"
 ----
 
 The global configuration file sets default values for all projects.
@@ -296,7 +296,7 @@ setup_post_init_hook() {
     done
 
     # Launch the browser
-    firefox-developer-edition -P Personal -no-remote -new-tab $new_tab_url &
+    firefox-developer-edition -P Personal --no-remote --new-tab $new_tab_url &
   ) &
 }
 ----
@@ -360,16 +360,28 @@ setup_layout_custom() {
 
 == 🐞 Known Issues & Limitations
 
-* Script does cleanup routine on detaching TMUX because it thinks the project is closed.
-* No Lockfile awareness beyond basic checks; no automatic npm install decision upon repo dependency update.
+* No live lockfile tracking beyond initial check. If any dependencies change in repo while development, it has to be handled manually.
 
 == 🙋 Q&A
 
 Initial run without the Internet::
 If there is a need to download dependencies and there is no internet available,
-the script will immediately stop with an error until there is an internet
-connection to download the required dependencies. After that, it's perfectly
-fine to be offline.
+`run` will immediately stop with an error until there is an internet connection
+to download the required dependencies. After that, it's perfectly fine to be
+offline.
+
+Running without any config::
+If you are running `run` without any configuration, it will auto-detect all
+config parameters. Root directory name is set as PROJECT_NAME. PROJECT_TYPE is
+set based on the files or imports in the project. After detecting the type, the
+default url and port of framework is set as URL. xdg-open is set as BROWSER.
+
+TMUX session detached instead of exiting::
+`run` expects you to tackle one project at a time. So, after you finish, it
+ends with a cleanup and postflight checks. If you detach the session instead,
+the currently running services are elevated to highly important as other
+sessions might need it. So, it will not be cleaned up by current and subsequent
+sessions as well.
 
 == 📜 License
 

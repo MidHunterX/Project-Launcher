@@ -118,9 +118,17 @@ open_browser() {
     ) &
 }
 
+tmux_session_exists() {
+    local name="$1"
+    if tmux has-session -t "$name" 2>/dev/null; then
+        return 0
+    fi
+    return 1
+}
+
 ensure_window() {
     local name="$1"
-    if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
+    if tmux_session_exists "$PROJECT_NAME"; then
         tmux new-window -t "$PROJECT_NAME" -n "$name"
     else
         tmux new-session -d -s "$PROJECT_NAME" -n "$name"
@@ -321,7 +329,7 @@ project.services.start() {
     set_running_services
     for service in "${ENABLED_SERVICES[@]}"; do
         if ! systemctl is-active --quiet "$service"; then
-            log "🔧 Service: Starting $service"
+            log "🔧 Service: Starting $service"...
             sudo systemctl start "$service"
         fi
     done
@@ -339,7 +347,7 @@ project.services.stop() {
             continue
         fi
         if systemctl is-active --quiet "$service"; then
-            log "🔧 Service: Stopping $service"
+            log "🔧 Service: Stopping $service"...
             sudo systemctl stop "$service"
         else
             log "🤔 Service: $service is not running"
@@ -787,6 +795,12 @@ check.preflight "$PROJECT_TYPE"
 setup.code_output
 setup.tmux_layout
 check.postflight "$PROJECT_TYPE"
+
+# CASE: tmux session still exists / detached
+if tmux_session_exists "$PROJECT_NAME"; then
+    log "🌼 See you later!"
+    exit 0
+fi
 
 project.services.stop
 log "👋 Goodbye!"
