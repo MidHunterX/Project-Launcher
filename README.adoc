@@ -229,7 +229,7 @@ Example 3: Window Manager + Custom Timezone + Custom Browser Profile
 
 [source,bash]
 ----
-BROWSER="hyprctl dispatch -- exec [workspace 2] TZ=Asia/Dubai firefox-developer-edition -P Personal -no-remote -new-tab"
+BROWSER="hyprctl dispatch 'hl.dsp.focus({ workspace = 2 })' && TZ=Asia/Dubai firefox-developer-edition -P Personal -no-remote -new-tab"
 ----
 
 The global configuration file sets default values for all projects.
@@ -358,9 +358,11 @@ setup_layout_custom() {
 }
 ----
 
-== 🐞 Known Issues
+== 🐞 Known Issues & Limitations
 
 * Script does cleanup routine on detaching TMUX because it thinks the project is closed.
+* No Lockfile awareness beyond basic checks; no automatic npm install decision upon dependency update.
+* Always assumes you have stable internet connection to download dependencies.
 
 == 📜 License
 

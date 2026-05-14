@@ -107,7 +107,7 @@ open_browser() {
         done
 
         # Launch the browser
-        $browser "$url" >/dev/null &
+        eval "$browser $url" >/dev/null &
     ) &
 }
 
@@ -244,7 +244,7 @@ run_server_command() {
 
 setup_base_layout() {
     create_window "Cmd" "$(run_server_command "$PROJECT_TYPE")"
-    create_window "Editor" "nvim"
+    [[ -n $EDITOR ]] && create_window "Editor" "$EDITOR"
 }
 
 setup_fastapi_layout() {
@@ -732,7 +732,7 @@ setup.tmux_layout() {
             exit 1
         fi
         log "ℹ️ Running server without tmux"
-        eval "$cmd"
+        $cmd
         exit 0
     fi
 
@@ -755,7 +755,10 @@ setup.tmux_layout() {
         setup_post_init_hook
     fi
 
-    tmux attach -t "$PROJECT_NAME:1"
+    # Use "$PROJECT_NAME:1" to attach to the first window (server)
+    # Use "$PROJECT_NAME" to see the test window in most projects
+    # This is much better. You see breaking changes -> know what to fix next
+    tmux attach -t "$PROJECT_NAME"
 }
 
 # =========================================================================== #
