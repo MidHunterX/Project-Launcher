@@ -361,8 +361,15 @@ setup_layout_custom() {
 == 🐞 Known Issues & Limitations
 
 * Script does cleanup routine on detaching TMUX because it thinks the project is closed.
-* No Lockfile awareness beyond basic checks; no automatic npm install decision upon dependency update.
-* Always assumes you have stable internet connection to download dependencies.
+* No Lockfile awareness beyond basic checks; no automatic npm install decision upon repo dependency update.
+
+== 🙋 Q&A
+
+Initial run without the Internet::
+If there is a need to download dependencies and there is no internet available,
+the script will immediately stop with an error until there is an internet
+connection to download the required dependencies. After that, it's perfectly
+fine to be offline.
 
 == 📜 License
 

@@ -78,6 +78,13 @@ code_block() {
     echo ""
 }
 
+check_internet() {
+    local host="${1:-1.1.1.1}"
+    local timeout="${2:-3}"
+    ping -c 1 -W "$timeout" "$host" >/dev/null 2>&1 && return 0
+    return 1
+}
+
 # open_browser(str:new_tab_url str:browser_cmd?)
 open_browser() {
     # CHECK: Valid URL
@@ -349,6 +356,12 @@ setup_base_env() {
     local dependency_dir="$1"
     local dependency_cmd="$2"
     if [[ ! -d $dependency_dir ]]; then
+        # CHECK: Internet Connection
+        if ! check_internet; then
+            log "❌ Error: Internet connection is required to install dependencies"
+            exit 1
+        fi
+
         log "🚀 Setting up dependencies"
         command -v "${dependency_cmd%% *}" >/dev/null || {
             log "❌ Error: ${dependency_cmd%% *} not found"
@@ -767,8 +780,8 @@ config.clear
 config.load_user_overrides
 config.detect_project_settings
 
-project.services.start
 project.load_environment
+project.services.start
 
 check.preflight "$PROJECT_TYPE"
 setup.code_output
