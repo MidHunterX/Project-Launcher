@@ -150,7 +150,7 @@ appropriate server command and open server URL in browser.
 Create a `.runrc` file in your project root and add following overrides for
 project-specific customization. All settings are optional.
 
-=== Per-Project Configuration
+=== 📂 Per-Project Configuration
 
 ==== Minimal Configuration
 
@@ -178,7 +178,7 @@ PROJECT_NAME=""
 # Default: automatic detection
 # Available values:
 # none, angular, gtk_astal, django, elixir, python_fastapi, python_flask,
-# flutter, go, html, nextjs, nodejs, python, python-uv, reactjs, rust
+# flutter, go, html, nextjs, nodejs, python, python_uv, reactjs, rust
 PROJECT_TYPE=""
 
 # ------------------------------------------------------------- SYSTEM SERVICES
@@ -206,9 +206,9 @@ BROWSER=""
 AUTORUN_COMMANDS=true
 ----
 
-### Global Configuration
+=== 🌐 Global Configuration
 
-Create `run/config.conf` in your config directory.
+Just create `~/.config/run/config.conf` or `run/config.conf` in your XDG config path.
 
 Example 1: Just Browser
 
@@ -372,9 +372,9 @@ offline.
 
 Running without any config::
 If you are running `run` without any configuration, it will auto-detect all
-config parameters. Root directory name is set as PROJECT_NAME. PROJECT_TYPE is
-set based on the files or imports in the project. After detecting the type, the
-default url and port of framework is set as URL. xdg-open is set as BROWSER.
+config parameters. Root directory name is set as `PROJECT_NAME`. `PROJECT_TYPE`
+is set based on the files or imports in the project. After detecting type, the
+default url:port of framework is set as `URL`. xdg-open is set as `BROWSER`.
 
 TMUX session detached instead of exiting::
 `run` expects you to tackle one project at a time. So, after you finish, it

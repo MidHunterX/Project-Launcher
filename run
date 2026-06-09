@@ -14,7 +14,7 @@ config.clear() {
     # Default: automatic detection
     # Available values:
     # none, angular, gtk_astal, django, elixir, python_fastapi, python_flask,
-    # flutter, go, html, nextjs, nodejs, python, python-uv, reactjs, rust
+    # flutter, go, html, nextjs, nodejs, python, python_uv, reactjs, rust
     PROJECT_TYPE=""
 
     # Services: add any valid systemd services here
@@ -195,7 +195,7 @@ create_temp_window() {
 }
 
 get_python_entrypoint() {
-    for entry in "main.py" "app.py" "server.py"; do
+    for entry in "app/main.py" "main.py" "app.py" "server.py"; do
         if [[ -f "$entry" ]]; then
             echo "$entry"
             return 0
@@ -221,7 +221,7 @@ get_server_url() {
         "nextjs") echo "http://localhost:3000" ;;
         "nodejs") ;;
         "python") ;;
-        "python-uv") ;;
+        "python_uv") ;;
         "python_fastapi") ;; # No need to open API url in browser
         "python_flask") echo "http://localhost:5000" ;;
         "reactjs") echo "http://localhost:3000" ;;
@@ -248,8 +248,8 @@ run_server_command() {
         "nextjs") echo "npm run dev" ;;
         "nodejs") echo "npm start" ;;
         "python") echo "python $(get_python_entrypoint)" ;;
-        "python-uv") echo "uv run $(get_python_entrypoint)" ;;
-        "python_fastapi") echo "uvicorn main:app --reload" ;;
+        "python_uv") echo "uv run $(get_python_entrypoint)" ;;
+        "python_fastapi") echo "fastapi dev" ;; # uvicorn main:app --reload
         "python_flask") echo "python $(get_python_entrypoint)" ;;
         "reactjs") echo "npm start" ;;
         "rust") echo "cargo run" ;;
@@ -297,7 +297,7 @@ setup_layout() {
         "nextjs") setup_base_layout ;;
         "nodejs") setup_base_layout ;;
         "python") setup_base_layout ;;
-        "python-uv") setup_base_layout ;;
+        "python_uv") setup_base_layout ;;
         "python_fastapi") setup_fastapi_layout ;;
         "python_flask") setup_base_layout ;;
         "reactjs") setup_base_layout ;;
@@ -421,7 +421,7 @@ setup_env() {
         "nextjs") setup_node_env ;;
         "nodejs") setup_node_env ;;
         "python") setup_python_env ;;
-        "python-uv") ;; # uv manages its own environment
+        "python_uv") ;; # uv manages its own environment
         "python_fastapi") setup_python_env ;;
         "python_flask") setup_python_env ;;
         "reactjs") setup_node_env ;;
@@ -571,7 +571,7 @@ check.preflight() {
         "nextjs") ;;
         "nodejs") ;;
         "python") ;;
-        "python-uv") ;;
+        "python_uv") ;;
         "python_fastapi") preflight_fastapi ;;
         "python_flask") ;;
         "reactjs") ;;
@@ -610,7 +610,7 @@ check.postflight() {
         "nextjs") ;;
         "nodejs") ;;
         "python") ;;
-        "python-uv") ;;
+        "python_uv") ;;
         "python_fastapi") postflight_fastapi ;;
         "python_flask") ;;
         "reactjs") ;;
@@ -632,7 +632,7 @@ detect_project_type() {
             echo "python_flask" && return
         fi
         if [[ -f "pyproject.toml" ]]; then
-            echo "python-uv" && return
+            echo "python_uv" && return
         fi
         echo "python" && return
     fi
