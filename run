@@ -14,7 +14,8 @@ config.clear() {
     # Default: automatic detection
     # Available values:
     # none, angular, gtk_astal, django, elixir, python_fastapi, python_flask,
-    # flutter, go, html, nextjs, nodejs, python, python_uv, reactjs, rust
+    # flutter, go, html, nextjs, nodejs, python, python_uv, reactjs,
+    # react_vite, rust
     PROJECT_TYPE=""
 
     # Services: add any valid systemd services here
@@ -225,6 +226,7 @@ get_server_url() {
         "python_fastapi") ;; # No need to open API url in browser
         "python_flask") echo "http://localhost:5000" ;;
         "reactjs") echo "http://localhost:3000" ;;
+        "react_vite") echo "http://localhost:5173" ;;
         "rust") ;;
         *) log "🚧 Warning: No server url for ${project_type}" ;;
     esac
@@ -252,6 +254,7 @@ run_server_command() {
         "python_fastapi") echo "fastapi dev" ;; # uvicorn main:app --reload
         "python_flask") echo "python $(get_python_entrypoint)" ;;
         "reactjs") echo "npm start" ;;
+        "react_vite") echo "npm run dev" ;;
         "rust") echo "cargo run" ;;
         *) log "🚧 Warning: No server setup for ${project_type}" ;;
     esac
@@ -301,6 +304,7 @@ setup_layout() {
         "python_fastapi") setup_fastapi_layout ;;
         "python_flask") setup_base_layout ;;
         "reactjs") setup_base_layout ;;
+        "react_vite") setup_base_layout ;;
         "rust") setup_rust_layout ;;
         *)
             log "🚧 Unknown technology: ${project_type}. Using default layout."
@@ -425,6 +429,7 @@ setup_env() {
         "python_fastapi") setup_python_env ;;
         "python_flask") setup_python_env ;;
         "reactjs") setup_node_env ;;
+        "react_vite") setup_node_env ;;
         "rust") ;; # Rust sets up its own environment with cargo
         *) log "🚧 Unknown technology: ${project_type}" ;;
     esac
@@ -575,6 +580,7 @@ check.preflight() {
         "python_fastapi") preflight_fastapi ;;
         "python_flask") ;;
         "reactjs") ;;
+        "react_vite") ;;
         "rust") ;;
         *) ;;
     esac
@@ -614,6 +620,7 @@ check.postflight() {
         "python_fastapi") postflight_fastapi ;;
         "python_flask") ;;
         "reactjs") ;;
+        "react_vite") ;;
         "rust") ;;
         *) ;;
     esac
@@ -631,7 +638,7 @@ detect_project_type() {
         elif grep -q "from flask import Flask" "$python_file"; then
             echo "python_flask" && return
         fi
-        if [[ -f "pyproject.toml" ]]; then
+        if [[ -f "uv.lock" ]]; then
             echo "python_uv" && return
         fi
         echo "python" && return
@@ -648,6 +655,8 @@ detect_project_type() {
             echo "angular" && return
         elif [[ -f "next.config.js" ]] || [[ -f "next.config.ts" ]] || [[ -f "next.config.mjs" ]]; then
             echo "nextjs" && return
+        elif [[ -f "vite.config.js" ]] || [[ -f "vite.config.ts" ]]; then
+            echo "react_vite" && return
         elif grep -q "react" package.json; then
             echo "reactjs" && return
         elif [[ -d "@girs" ]]; then

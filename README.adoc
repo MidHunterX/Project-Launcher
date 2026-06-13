@@ -1,4 +1,4 @@
-image:./.assets/project_launcher_banner.jpg[]
+image:./.assets/project_launcher_banner.jpg["Banner for Project Launcher. The background features a GTA San Andreas meme with CJ walking through an alleyway. The subtitle shows a modified line from the video game meme 'Another project? Ah shit, here we go again.' Which accurately represents the use of this tool. Rocket Launcher icon from GTA is showcased as the logo, signifying the force which a project can be launched with this tool. Besides the logo, there is a text 'Project Launcher' in GTA San Andreas aesthetic."]
 
 = Project Launcher
 
@@ -20,6 +20,7 @@ image:https://img.shields.io/badge/node%20js-339933?style=for-the-badge&&logo=no
 image:https://img.shields.io/badge/python-FFD43B?style=for-the-badge&logo=python&logoColor=blue[Python]
 image:https://img.shields.io/badge/uv-DE5FE9?style=for-the-badge&logo=uv&logoColor=white[uv]
 image:https://img.shields.io/badge/react-20232A?style=for-the-badge&logo=react&logoColor=61DAFB[React]
+image:https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E[Vite]
 image:https://img.shields.io/badge/rust-black?style=for-the-badge&logo=rust&logoColor=#E57324[Rust]
 
 .`*💡 What to Expect?*`
@@ -178,7 +179,8 @@ PROJECT_NAME=""
 # Default: automatic detection
 # Available values:
 # none, angular, gtk_astal, django, elixir, python_fastapi, python_flask,
-# flutter, go, html, nextjs, nodejs, python, python_uv, reactjs, rust
+# flutter, go, html, nextjs, nodejs, python, python_uv, reactjs,
+# react_vite, rust
 PROJECT_TYPE=""
 
 # ------------------------------------------------------------- SYSTEM SERVICES
