@@ -104,7 +104,7 @@ a| [source,bash]
 |===
 ====
 
-== 📦 Installation
+== image:./.assets/icons/property_available.gif["Green House",32] Installation
 
 Clone the repository and run the install script:
 
@@ -121,7 +121,7 @@ bash ./install.sh
 - **Optional**: `tmux` (for session management)
 - **Per-project**: Technology-specific tools (npm, pip, cargo, etc.)
 
-== 🚀 Quick Start
+== image:./.assets/icons/race.gif["Checkered Flag",32] Quick Start
 
 Navigate to any project directory and run:
 
@@ -146,19 +146,20 @@ The runner will:
 If TMUX is not installed, the runner will just detect project, run the
 appropriate server command and open server URL in browser.
 
-== ⚙️ Configuration Settings
+== image:./.assets/icons/mod_garage.gif["Wrench",32] Configuration Settings
 
 Create a `.runrc` file in your project root and add following overrides for
 project-specific customization. All settings are optional.
 
-=== 📂 Per-Project Configuration
+=== image:./.assets/icons/player_position.gif["Navigator",20] Per-Project Configuration
 
 ==== Minimal Configuration
 
-The most minimal configuration is actually NO configuration at all. But, if you
-are like me who don't want PostgreSQL running in the background all the time
-and only wants it running when developing a specific project only then, your
-minimal config for that project would just be:
+The most minimal configuration is actually NO configuration at all. Everything is auto-detected.
+
+But, if you are like me who don't want PostgreSQL running in the background all
+the time and only wants it running when developing a specific project only
+then, your minimal config for that project would just be:
 
 [source,bash]
 ----
@@ -208,7 +209,7 @@ BROWSER=""
 AUTORUN_COMMANDS=true
 ----
 
-=== 🌐 Global Configuration
+=== image:./.assets/icons/north.gif["North",20] Global Configuration
 
 Just create `~/.config/run/config.conf` or `run/config.conf` in your XDG config path.
 
@@ -235,6 +236,8 @@ BROWSER="hyprctl dispatch 'hl.dsp.focus({ workspace = 2 })' && TZ=Asia/Dubai fir
 ----
 
 The global configuration file sets default values for all projects.
+
+== image:./.assets/icons/tattoo.gif["Tattoo",32] Customization
 
 === Per-Project Logic Overriding
 
@@ -360,11 +363,11 @@ setup_layout_custom() {
 }
 ----
 
-== 🐞 Known Issues & Limitations
+== image:./.assets/icons/property_unavailable.gif["Red House",32] Known Issues & Limitations
 
 * No live lockfile tracking beyond initial check. If any dependencies change in repo while development, it has to be handled manually.
 
-== 🙋 Q&A
+== image:./.assets/icons/unknown.gif["Question Mark",32] Q&A
 
 Initial run without the Internet::
 If there is a need to download dependencies and there is no internet available,
@@ -385,6 +388,6 @@ the currently running services are elevated to highly important as other
 sessions might need it. So, it will not be cleaned up by current and subsequent
 sessions as well.
 
-== 📜 License
+== image:./.assets/icons/emmet.gif["Gun",32] License
 
 This runner is distributed under the link:LICENSE[MIT License].

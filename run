@@ -267,7 +267,7 @@ setup_base_layout() {
 
 setup_fastapi_layout() {
     setup_base_layout
-    create_window "Test" "clear && pytest"
+    create_window "Test" "pytest"
 }
 
 setup_django_layout() {
