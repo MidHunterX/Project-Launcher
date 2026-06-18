@@ -285,6 +285,11 @@ setup_go_layout() {
     create_window "Test" "go test ./..."
 }
 
+setup_flutter_layout() {
+    setup_base_layout
+    create_window "Test" "flutter test"
+}
+
 # select_layout(str:project_type)
 setup_layout() {
     local project_type="$1"
@@ -293,7 +298,7 @@ setup_layout() {
         "angular") setup_base_layout ;;
         "django") setup_django_layout ;;
         "elixir") setup_base_layout ;;
-        "flutter") setup_base_layout ;;
+        "flutter") setup_flutter_layout ;;
         "go") setup_go_layout ;;
         "gtk_astal") setup_base_layout ;;
         "html") setup_base_layout ;;
