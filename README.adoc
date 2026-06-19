@@ -1,4 +1,4 @@
-image:./.assets/project_launcher_banner.jpg["Banner for Project Launcher. The background features a GTA San Andreas meme with CJ walking through an alleyway. The subtitle shows a modified line from the video game meme 'Another project? Ah shit, here we go again.' Which accurately represents the use of this tool. Rocket Launcher icon from GTA is showcased as the logo, signifying the force which a project can be launched with this tool. Besides the logo, there is a text 'Project Launcher' in GTA San Andreas aesthetic."]
+image:./.assets/project_launcher_banner.jpg["A stylized GTA San Andreas-themed graphic features a rocket launcher icon logo on the left and bold white 'PROJECT LAUNCHER' text in the iconic blocky GTA font on the right. The background shows CJ (Carl Johnson) from GTA San Andreas walking down a narrow alleyway between brick walls at sunset. Below the logo and title is the meme caption: 'Another project? Ah shit, here we go again.']
 
 = Project Launcher
 
@@ -104,7 +104,7 @@ a| [source,bash]
 |===
 ====
 
-== image:./.assets/icons/property_available.gif["Green House",32] Installation
+== image:./.assets/icons/property_available.png["Green House",32] Installation
 
 Clone the repository and run the install script:
 
@@ -121,7 +121,7 @@ bash ./install.sh
 - **Optional**: `tmux` (for session management)
 - **Per-project**: Technology-specific tools (npm, pip, cargo, etc.)
 
-== image:./.assets/icons/race.gif["Checkered Flag",32] Quick Start
+== image:./.assets/icons/race.png["Checkered Flag",32] Quick Start
 
 Navigate to any project directory and run:
 
@@ -146,12 +146,12 @@ The runner will:
 If TMUX is not installed, the runner will just detect project, run the
 appropriate server command and open server URL in browser.
 
-== image:./.assets/icons/mod_garage.gif["Wrench",32] Configuration Settings
+== image:./.assets/icons/mod_garage.png["Wrench",32] Configuration Settings
 
 Create a `.runrc` file in your project root and add following overrides for
 project-specific customization. All settings are optional.
 
-=== image:./.assets/icons/player_position.gif["Navigator",20] Per-Project Configuration
+=== image:./.assets/icons/player_position.png["Navigator",20] Per-Project Configuration
 
 ==== Minimal Configuration
 
@@ -209,7 +209,7 @@ BROWSER=""
 AUTORUN_COMMANDS=true
 ----
 
-=== image:./.assets/icons/north.gif["North",20] Global Configuration
+=== image:./.assets/icons/north.png["North",20] Global Configuration
 
 Just create `~/.config/run/config.conf` or `run/config.conf` in your XDG config path.
 
@@ -237,7 +237,7 @@ BROWSER="hyprctl dispatch 'hl.dsp.focus({ workspace = 2 })' && TZ=Asia/Dubai fir
 
 The global configuration file sets default values for all projects.
 
-== image:./.assets/icons/tattoo.gif["Tattoo",32] Customization
+== image:./.assets/icons/tattoo.png["Tattoo",32] Customization
 
 === Per-Project Logic Overriding
 
@@ -294,7 +294,7 @@ setup_post_init_hook() {
     new_tab_url="http://localhost:3000"
 
     # Wait for the server to start
-    local timeout=20
+    local timeout=120
     while ! curl -sf "$new_tab_url" >/dev/null; do
       sleep 1
       ((timeout--)) || { exit 1; }
@@ -313,6 +313,41 @@ You can also add environment variables to `.runrc`
 [source,bash]
 ----
 export RUST_LOG=debug
+----
+
+=== Flutter + Hyprland Development
+
+If you are using Flutter with Hyprland, you can do something like the following
+to make development workflow much more nicer and app output stays out of your
+way aesthetically.
+
+[source,bash]
+----
+setup_post_init_hook() {
+  log "📏 Resizing output window..."
+  (
+    local timeout=120
+    while true; do
+      sleep 1
+      workspace_id=$(hyprctl -j activeworkspace | jq '.id')
+      tiled_window_count=$(hyprctl -j clients | jq "[.[] | select(.workspace.id == $workspace_id and .floating == false and .pinned == false)] | length")
+      # Check if the output window popped up
+      if [ "$tiled_window_count" -eq 2 ]; then
+        is_active_window_floating=$(hyprctl -j activewindow | jq -r '.floating')
+        if [ "$is_active_window_floating" = "false" ]; then
+          # Move app output to left
+          hyprctl dispatch "hl.dsp.window.swap({ direction = 'l' })"
+          # Make it smartphone like
+          hyprctl dispatch "hl.dsp.window.resize({ x = -450, y = 0, relative = true })"
+          # Since that is done, Select back the development window
+          hyprctl dispatch "hl.dsp.focus({ direction = 'r' })"
+          exit 0
+        fi
+      fi
+      ((timeout--)) || { exit 1; }
+    done
+  ) &
+}
 ----
 
 === Python Problems
@@ -363,11 +398,11 @@ setup_layout_custom() {
 }
 ----
 
-== image:./.assets/icons/property_unavailable.gif["Red House",32] Known Issues & Limitations
+== image:./.assets/icons/property_unavailable.png["Red House",32] Known Issues & Limitations
 
 * No live lockfile tracking beyond initial check. If any dependencies change in repo while development, it has to be handled manually.
 
-== image:./.assets/icons/unknown.gif["Question Mark",32] Q&A
+== image:./.assets/icons/unknown.png["Question Mark",32] Q&A
 
 Initial run without the Internet::
 If there is a need to download dependencies and there is no internet available,
@@ -388,6 +423,6 @@ the currently running services are elevated to highly important as other
 sessions might need it. So, it will not be cleaned up by current and subsequent
 sessions as well.
 
-== image:./.assets/icons/emmet.gif["Gun",32] License
+== image:./.assets/icons/emmet.png["Gun",32] License
 
 This runner is distributed under the link:LICENSE[MIT License].
