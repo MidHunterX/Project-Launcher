@@ -14,8 +14,8 @@ config.clear() {
     # Default: automatic detection
     # Available values:
     # none, angular, gtk_astal, django, elixir, python_fastapi, python_flask,
-    # flutter, go, html, nextjs, nodejs, python, python_uv, reactjs,
-    # react_vite, rust
+    # flutter, go, html, nextjs, nodejs, bun, python, python_uv, react_vite,
+    # rust
     PROJECT_TYPE=""
 
     # Services: add any valid systemd services here
@@ -221,11 +221,11 @@ get_server_url() {
         "html") command -v live-server >/dev/null && echo "http://localhost:8080" ;;
         "nextjs") echo "http://localhost:3000" ;;
         "nodejs") ;;
+        "bun") echo "http://localhost:8080" ;;
         "python") ;;
         "python_uv") ;;
         "python_fastapi") ;; # No need to open API url in browser
         "python_flask") echo "http://localhost:5000" ;;
-        "reactjs") echo "http://localhost:3000" ;;
         "react_vite") echo "http://localhost:5173" ;;
         "rust") ;;
         *) log "🚧 Warning: No server url for ${project_type}" ;;
@@ -249,11 +249,11 @@ run_server_command() {
         "html") command -v live-server >/dev/null && echo "live-server --no-browser" ;;
         "nextjs") echo "npm run dev" ;;
         "nodejs") echo "npm start" ;;
+        "bun") echo "bun run dev" ;;
         "python") echo "python $(get_python_entrypoint)" ;;
         "python_uv") echo "uv run $(get_python_entrypoint)" ;;
         "python_fastapi") echo "fastapi dev" ;; # uvicorn main:app --reload
         "python_flask") echo "python $(get_python_entrypoint)" ;;
-        "reactjs") echo "npm start" ;;
         "react_vite") echo "npm run dev" ;;
         "rust") echo "cargo run" ;;
         *) log "🚧 Warning: No server setup for ${project_type}" ;;
@@ -304,11 +304,11 @@ setup_layout() {
         "html") setup_base_layout ;;
         "nextjs") setup_base_layout ;;
         "nodejs") setup_base_layout ;;
+        "bun") setup_base_layout ;;
         "python") setup_base_layout ;;
         "python_uv") setup_base_layout ;;
         "python_fastapi") setup_fastapi_layout ;;
         "python_flask") setup_base_layout ;;
-        "reactjs") setup_base_layout ;;
         "react_vite") setup_base_layout ;;
         "rust") setup_rust_layout ;;
         *)
@@ -407,6 +407,10 @@ setup_python_env() {
     fi
 }
 
+setup_bun_env() {
+    setup_base_env "node_modules/" "bun install"
+}
+
 setup_node_env() {
     setup_base_env "node_modules/" "npm install"
 }
@@ -429,11 +433,11 @@ setup_env() {
         "html") ;;
         "nextjs") setup_node_env ;;
         "nodejs") setup_node_env ;;
+        "bun") setup_bun_env ;;
         "python") setup_python_env ;;
         "python_uv") ;; # uv manages its own environment
         "python_fastapi") setup_python_env ;;
         "python_flask") setup_python_env ;;
-        "reactjs") setup_node_env ;;
         "react_vite") setup_node_env ;;
         "rust") ;; # Rust sets up its own environment with cargo
         *) log "🚧 Unknown technology: ${project_type}" ;;
@@ -580,11 +584,11 @@ check.preflight() {
         "html") ;;
         "nextjs") ;;
         "nodejs") ;;
+        "bun") ;;
         "python") ;;
         "python_uv") ;;
         "python_fastapi") preflight_fastapi ;;
         "python_flask") ;;
-        "reactjs") ;;
         "react_vite") ;;
         "rust") ;;
         *) ;;
@@ -620,11 +624,11 @@ check.postflight() {
         "html") ;;
         "nextjs") ;;
         "nodejs") ;;
+        "bun") ;;
         "python") ;;
         "python_uv") ;;
         "python_fastapi") postflight_fastapi ;;
         "python_flask") ;;
-        "reactjs") ;;
         "react_vite") ;;
         "rust") ;;
         *) ;;
@@ -654,16 +658,16 @@ detect_project_type() {
         echo "django" && return
     fi
 
-    # nodejs
+    # javascript
     if [[ -f "package.json" ]]; then
-        if [[ -f "angular.json" ]]; then
+        if [[ -f "bun.lock" ]]; then
+            echo "bun" && return
+        elif [[ -f "angular.json" ]]; then
             echo "angular" && return
         elif [[ -f "next.config.js" ]] || [[ -f "next.config.ts" ]] || [[ -f "next.config.mjs" ]]; then
             echo "nextjs" && return
         elif [[ -f "vite.config.js" ]] || [[ -f "vite.config.ts" ]]; then
             echo "react_vite" && return
-        elif grep -q "react" package.json; then
-            echo "reactjs" && return
         elif [[ -d "@girs" ]]; then
             echo "gtk_astal" && return
         fi
