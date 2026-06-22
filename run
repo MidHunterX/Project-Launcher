@@ -115,7 +115,8 @@ open_browser() {
         done
 
         # Launch the browser
-        eval "$browser $url" >/dev/null &
+        eval "$BROWSER $url" >/dev/null 2>&1 &
+        disown
     ) &
 }
 
