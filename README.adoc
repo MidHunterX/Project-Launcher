@@ -315,6 +315,37 @@ You can also add environment variables to `.runrc`
 export RUST_LOG=debug
 ----
 
+=== Adding an Unknown Technology
+
+If you want to add support for a new technology, you can support it by
+following the per project overriding with `.runrc`:
+
+* Setting up dependencies
+
+[source,bash]
+----
+setup_env_custom() {
+  # env_directory: is the directory which gets created after doing the init_command.
+  # init_command: is the command you do to initialize the project. eg: npm install
+  # eg: node_modules/ gets created after "npm install" -> setup_base_env "node_modules/" "npm install"
+  #     venv/ gets created after "python -m venv venv" -> setup_base_env "venv/" "python -m venv venv"
+  setup_base_env "env_directory/" "init_command"
+  # add other dependency initialization commands here
+}
+----
+
+* Setting up tmux layout
+
+[source,bash]
+----
+setup_layout_custom() {
+  create_window "Window 1" "command 1"
+  create_window "Window 2" "command 2"
+  create_window "Window 3" "command 3"
+  # Add windows other here
+}
+----
+
 === Flutter + Hyprland Development
 
 If you are using Flutter with Hyprland, you can do something like the following
@@ -367,40 +398,37 @@ NOTE: `setup_python_env` is a special function specific to python. It allows
 you to override commands only without changing the underlying logic for
 applying environment. This function is used by `setup_env` under the hood.
 
-=== Adding an Unknown Technology
+=== Library/Framework
 
-If you want to add support for a new technology, you can support it by
-following the per project overriding with `.runrc`:
-
-* Setting up dependencies
+Building a library or framework? The dependencies and workflow varies
+drastically without any kind of patterns due to swappable dependencies and
+custom configurations. In this scenario, runner most likely detects "none" as
+project type. You can write the workflow logic yourself.
 
 [source,bash]
 ----
+# vim: set filetype=bash :
+
 setup_env_custom() {
-  # env_directory: is the directory which gets created after doing the init_command.
-  # init_command: is the command you do to initialize the project. eg: npm install
-  # eg: node_modules/ gets created after "npm install" -> setup_base_env "node_modules/" "npm install"
-  #     venv/ gets created after "python -m venv venv" -> setup_base_env "venv/" "python -m venv venv"
-  setup_base_env "env_directory/" "init_command"
-  # add other dependency initialization commands here
+    if [[ ! -d "venv" ]]; then
+        setup_base_env "venv" "python -m venv venv"
+        source "./venv/bin/activate"
+        log "📦 Installing dependencies"
+        pip install -e .[dev]
+    else
+        source "./venv/bin/activate"
+    fi
 }
-----
 
-* Setting up tmux layout
-
-[source,bash]
-----
 setup_layout_custom() {
-  create_window "Window 1" "command 1"
-  create_window "Window 2" "command 2"
-  create_window "Window 3" "command 3"
-  # Add windows other here
+    create_window "Editor" "$EDITOR"
+    create_window "Test" "pytest --no-header"
 }
 ----
 
 == image:./.assets/icons/property_unavailable.png["Red House",32] Known Issues & Limitations
 
-* No live lockfile tracking beyond initial check. If any dependencies change in repo while development, it has to be handled manually.
+* No live lockfile tracking beyond initial check. If any dependencies change in repo while development, it has to be handled manually. Or just delete the dependency dir and run again for a clean project.
 
 == image:./.assets/icons/unknown.png["Question Mark",32] Q&A
 
@@ -426,3 +454,13 @@ sessions as well.
 == image:./.assets/icons/emmet.png["Gun",32] License
 
 This runner is distributed under the link:LICENSE[MIT License].
+
+== image:./.assets/icons/bank.png["Green Dollar",32] Notes
+
+Structure::
+Following documented official dir structure: link:https://go.dev/doc/modules/layout[layout]
+
+'''
+image::./.assets/icons/save_game.png["Floppy Disk",46,align="center",link="https://www.bored.com/"]
+[.text-center]
+You dug down this far and struck gold, here's a save file just for you. Click on it.
