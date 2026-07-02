@@ -457,10 +457,51 @@ This runner is distributed under the link:LICENSE[MIT License].
 
 == image:./.assets/icons/bank.png["Green Dollar",32] Notes
 
-Structure::
-Following documented official dir structure: link:https://go.dev/doc/modules/layout[layout]
+=== Passwordless Service Toggle
+
+To make remove the toggle service password friction, you can set up the service to be passwordless in systemd:
+
+First check where systemctl is:
+
+[source,bash]
+----
+which systemctl
+----
+
+Create a sudoer entry for the service
+
+[source,bash]
+----
+sudo visudo -f /etc/sudoers.d/<service_name>
+----
+
+Add entry in the following structure:
+
+[source,bash]
+----
+<username> ALL= NOPASSWD: <systemctl_path> * <service_name>
+----
+
+==== Example for PostgreSQL
+
+.sudo visudo -f /etc/sudoers.d/postgresql
+[source,bash]
+----
+
+midhunter ALL= NOPASSWD: usr/bin/systemctl * postgresql.service
+----
 
 '''
-image::./.assets/icons/save_game.png["Floppy Disk",46,align="center",link="https://www.bored.com/"]
-[.text-center]
+
+++++
+<div align="center">
+++++
+
+// Fun, interesting & cool websites, never be bored again. Hundreds of hand-picked fun websites, funny finds, free online games, cool tools and things to learn.
+image::./.assets/icons/save_game.png["Floppy Disk",46,link="https://www.bored.com/",window=_blank]
+
 You dug down this far and struck gold, here's a save file just for you. Click on it.
+
+++++
+</div>
+++++
