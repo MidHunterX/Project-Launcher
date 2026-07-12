@@ -4,8 +4,7 @@ set -e # Exit on any error
 
 grn='\033[1;32m'
 grn_bg='\033[1;42m'
-blk='\033[1;30m'
-blk_bg='\033[1;40m'
+blk='\033[1;30m' # blk_bg='\033[1;40m'
 rst='\033[0;0m'
 
 SOURCE_FILE="./run"

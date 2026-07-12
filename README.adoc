@@ -164,7 +164,7 @@ then, your minimal config for that project would just be:
 [source,bash]
 ----
 ENABLED_SERVICES=(
-  postgresql
+  postgresql.service
 )
 ----
 

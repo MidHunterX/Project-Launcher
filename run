@@ -212,7 +212,7 @@ get_python_entrypoint() {
 get_server_url() {
     local project_type="$1"
     case "$project_type" in
-        "none") ;; # Do nothing
+        "none" | "custom") ;; # Do nothing
         "angular") echo "http://localhost:4200" ;;
         "django") echo "http://localhost:8000" ;;
         "elixir") echo "http://localhost:4000" ;;
@@ -240,7 +240,7 @@ get_server_url() {
 run_server_command() {
     local project_type="$1"
     case "$project_type" in
-        "none") ;; # Do nothing
+        "none" | "custom") ;; # Do nothing
         "angular") echo "ng serve" ;;
         "django") echo "python manage.py runserver" ;;
         "elixir") echo "iex -S mix phx.server" ;;
@@ -295,7 +295,7 @@ setup_flutter_layout() {
 setup_layout() {
     local project_type="$1"
     case "$project_type" in
-        "none") setup_base_layout ;;
+        "none" | "custom") setup_base_layout ;;
         "angular") setup_base_layout ;;
         "django") setup_django_layout ;;
         "elixir") setup_base_layout ;;
@@ -424,7 +424,7 @@ setup_elixir_env() {
 setup_env() {
     local project_type="$1"
     case "$project_type" in
-        "none") ;; # Do nothing
+        "none" | "custom") ;; # Do nothing
         "angular") setup_node_env ;;
         "django") setup_python_env ;;
         "elixir") setup_elixir_env ;;
@@ -575,7 +575,7 @@ preflight_django() {
 check.preflight() {
     local project_type="$1"
     case "$project_type" in
-        "none") ;;
+        "none" | "custom") ;;
         "angular") ;;
         "django") preflight_django ;;
         "elixir") ;;
@@ -615,7 +615,7 @@ postflight_django() {
 check.postflight() {
     local project_type="$1"
     case "$project_type" in
-        "none") ;;
+        "none" | "custom") ;;
         "angular") ;;
         "django") postflight_django ;;
         "elixir") ;;
@@ -698,6 +698,13 @@ detect_project_type() {
     # html
     if [[ -f "index.html" ]]; then
         echo "html" && return
+    fi
+
+    # Custom
+    if declare -f setup_layout_custom >/dev/null ||
+        declare -f setup_post_init_hook >/dev/null ||
+        declare -f setup_env_custom >/dev/null; then
+        echo "custom" && return
     fi
 
     # none
