@@ -237,9 +237,18 @@ BROWSER="hyprctl dispatch 'hl.dsp.focus({ workspace = 2 })' && TZ=Asia/Dubai fir
 
 The global configuration file sets default values for all projects.
 
-== image:./.assets/icons/tattoo.png["Tattoo",32] Customization
+== image:./.assets/icons/tattoo.png["Tattoo",32] Customization Examples
 
-=== Per-Project Logic Overriding
+=== Environment Variables
+
+You can also add environment variables to `.runrc`
+
+[source,bash]
+----
+export RUST_LOG=debug
+----
+
+=== Logic Overriding (Mono-Repo)
 
 Use the following overrides in `.runrc` for more granular customization.
 
@@ -304,15 +313,6 @@ setup_post_init_hook() {
     firefox-developer-edition -P Personal --no-remote --new-tab $new_tab_url &
   ) &
 }
-----
-
-=== Environment Variables
-
-You can also add environment variables to `.runrc`
-
-[source,bash]
-----
-export RUST_LOG=debug
 ----
 
 === Adding an Unknown Technology

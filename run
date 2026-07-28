@@ -755,6 +755,7 @@ config.detect_project_settings() {
 project.load_environment() {
     # SETUP: ENV or custom
     if declare -f setup_env_custom >/dev/null; then
+        log "⚙️ runrc: Loading custom env..."
         setup_env_custom
     else
         setup_env "$PROJECT_TYPE"
@@ -792,6 +793,7 @@ setup.tmux_layout() {
 
     # SETUP: LAYOUT or custom
     if declare -f setup_layout_custom >/dev/null; then
+        log "⚙️ runrc: Setting custom layout..."
         setup_layout_custom
     else
         setup_layout "$PROJECT_TYPE"
@@ -799,12 +801,14 @@ setup.tmux_layout() {
 
     # ACTION: POST INIT HOOK
     if declare -f setup_post_init_hook >/dev/null; then
+        log "⚙️ runrc:Running post init hook..."
         setup_post_init_hook
     fi
 
     # Use "$PROJECT_NAME:1" to attach to the first window (server)
     # Use "$PROJECT_NAME" to see the test window in most projects
     # This is much better. You see breaking changes -> know what to fix next
+    log "📡 Session: Starting ${PROJECT_NAME}..."
     tmux attach -t "$PROJECT_NAME"
 }
 
