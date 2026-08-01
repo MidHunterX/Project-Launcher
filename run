@@ -49,6 +49,19 @@ log() {
     echo -e "[${green}$(date +'%H:%M:%S')${reset}] $1"
 }
 
+# formatted_time(int:total_seconds)
+elapsed_time() {
+    local total_time="$1"
+    hour=$((total_time / 3600))
+    minute=$((total_time % 3600 / 60))
+    second=$((total_time % 60))
+    if [[ $hour -gt 0 ]]; then
+        printf "%02d:%02d:%02d\n" "$hour" "$minute" "$second"
+    else
+        printf "%02d:%02d\n" "$minute" "$second"
+    fi
+}
+
 # code_block(str:message)
 code_block() {
     local green='\033[1;32m'
@@ -801,15 +814,20 @@ setup.tmux_layout() {
 
     # ACTION: POST INIT HOOK
     if declare -f setup_post_init_hook >/dev/null; then
-        log "⚙️ runrc:Running post init hook..."
+        log "⚙️ runrc: Running post init hook..."
         setup_post_init_hook
     fi
+
+    log "📡 Session: Starting ${PROJECT_NAME}..."
+    start_time="$(date +%s)"
 
     # Use "$PROJECT_NAME:1" to attach to the first window (server)
     # Use "$PROJECT_NAME" to see the test window in most projects
     # This is much better. You see breaking changes -> know what to fix next
-    log "📡 Session: Starting ${PROJECT_NAME}..."
-    tmux attach -t "$PROJECT_NAME"
+    tmux attach -t "$PROJECT_NAME" > /dev/null
+
+    end_time="$(date +%s)"
+    log "📡 Session: [exited] Took $(elapsed_time $((end_time - start_time)))"
 }
 
 # =========================================================================== #
