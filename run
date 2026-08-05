@@ -42,11 +42,31 @@ config.clear() {
 # █░█ ▀█▀ █ █░░ █▀
 # █▄█ ░█░ █ █▄▄ ▄█
 
-# log(str:message)
+# log(str:message, int:indent_level=0, bool:is_last=false)
 log() {
     local green='\033[1;32m'
     local reset='\033[0m'
-    echo -e "[${green}$(date +'%H:%M:%S')${reset}] $1"
+
+    local message="$1"
+    local indent_level="${2:-0}"
+    local is_last="${3:-false}"
+
+    local indent_prefix=""
+    if [[ $indent_level -gt 0 ]]; then
+        # Add indentation for each level (except the last)
+        for ((i = 0; i < indent_level - 1; i++)); do
+            indent_prefix+="│   "
+        done
+
+        # Add the current level connector
+        if [[ "$is_last" == "true" ]]; then
+            indent_prefix+="╰── "
+        else
+            indent_prefix+="├── "
+        fi
+    fi
+
+    echo -e "[${green}$(date +'%H:%M:%S')${reset}] ${indent_prefix}${reset}${message}"
 }
 
 # formatted_time(int:total_seconds)
@@ -824,7 +844,7 @@ setup.tmux_layout() {
     # Use "$PROJECT_NAME:1" to attach to the first window (server)
     # Use "$PROJECT_NAME" to see the test window in most projects
     # This is much better. You see breaking changes -> know what to fix next
-    tmux attach -t "$PROJECT_NAME" > /dev/null
+    tmux attach -t "$PROJECT_NAME" >/dev/null
 
     end_time="$(date +%s)"
     log "📡 Session: [exited] Took $(elapsed_time $((end_time - start_time)))"
