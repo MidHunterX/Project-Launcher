@@ -47,11 +47,7 @@ config.clear() {
 # █░█ ▀█▀ █ █░░ █▀
 # █▄█ ░█░ █ █▄▄ ▄█
 
-# log(str:message, int:indent_level=0, bool:is_last=false)
-log() {
-    local green='\033[1;32m'
-    local reset='\033[0m'
-
+message() {
     local message="$1"
     local indent_level="${2:-0}"
     local is_last="${3:-false}"
@@ -71,7 +67,31 @@ log() {
         fi
     fi
 
-    echo -e "[${green}$(date +'%H:%M:%S')${reset}] ${indent_prefix}${reset}${message}"
+    echo "${indent_prefix}${message}"
+}
+
+# log(str:message, int:indent_level=0, bool:is_last=false)
+log() {
+    local message="$1"
+    local indent_level="${2:-0}"
+    local is_last="${3:-false}"
+    local green='\033[1;32m'
+    local reset='\033[0m'
+    local formatted_message
+    formatted_message=$(message "$message" "$indent_level" "$is_last")
+    echo -e "[${green}$(date +'%H:%M:%S')${reset}] ${formatted_message}"
+}
+
+# error(str:message, int:indent_level=0, bool:is_last=false)
+error() {
+    local message="$1"
+    local indent_level="${2:-0}"
+    local is_last="${3:-false}"
+    local red='\033[1;31m'
+    local reset='\033[0m'
+    local formatted_message
+    formatted_message=$(message "$message" "$indent_level" "$is_last")
+    echo -e "[${red}$(date +'%H:%M:%S')${reset}] ${formatted_message}"
 }
 
 # formatted_time(int:total_seconds)
@@ -146,7 +166,7 @@ open_browser() {
     log "🌐 Launching browser"
     (
         # Wait for the server to start
-        local timeout=60
+        local timeout=120
         while ! curl -sf "$url" >/dev/null; do
             sleep 1
             ((timeout--)) || { exit 1; }
@@ -911,8 +931,7 @@ check.postflight "$PROJECT_TYPE"
 # CASE: tmux session still exists / detached
 if tmux_session_exists "$PROJECT_NAME"; then
     log "🌼 See you later!"
-    exit 0
+else
+    project.services.stop
+    log "👋 Goodbye!"
 fi
-
-project.services.stop
-log "👋 Goodbye!"
