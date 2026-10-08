@@ -198,6 +198,10 @@ ENABLED_SERVICES=(
 # Available values: none | {custom url}
 URL=""
 
+# Default: false
+# Available values: true (generated unique port) | false (framework default)
+GENERATE_UNIQUE_PORT=false
+
 # Default: xdg-open
 # Available values: {custom command, arguments and newtab flag at the end}
 BROWSER=""
@@ -253,7 +257,8 @@ Use the following overrides in `.runrc` for more granular customization.
 
 These can also be used to extend support for new technologies as well.
 
-Add `#!/usr/bin/env bash` at the top of the file to make it play nice with LSP.
+Add `#!/usr/bin/env sh` at the top of the file to make it play nice with LSP.
+`# vim: set filetype=sh :` also works if you are using Vim/Neovim.
 
 [source,bash]
 ----

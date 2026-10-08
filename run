@@ -34,6 +34,18 @@ config.clear() {
     # Default: automatic detection
     # Available values: none | {custom url}
     URL=""
+
+    # Default: automatic generation
+    # Available values: none
+    # NOTE: Currently for internal use only. Not user configurable
+    PORT=""
+
+    # Default: false
+    # Available values: true (generated unique port) | false (framework default)
+    # WARNING: This feature is experimental and supports limited frameworks for now
+    # TODO: Add url port override support to all frameworks
+    GENERATE_UNIQUE_PORT=false
+
     # Default: xdg-open
     # Available values: {custom command with arguments ending with newtab flag}
     BROWSER=""
@@ -290,6 +302,12 @@ get_server_url() {
     esac
 }
 
+generate_port() {
+    seed=$(echo -n "$PROJECT_NAME" | cksum | cut -d' ' -f1)
+    port=$((8000 + seed % 1000)) # 8000-8999
+    echo "$port"
+}
+
 # █░░ ▄▀█ █▄█ █▀█ █░█ ▀█▀ █▀
 # █▄▄ █▀█ ░█░ █▄█ █▄█ ░█░ ▄█
 
@@ -307,7 +325,13 @@ run_server_command() {
         "html") command -v live-server >/dev/null && echo "live-server --no-browser" ;;
         "nextjs") echo "npm run dev" ;;
         "nodejs") echo "npm start" ;;
-        "bun") echo "bun run dev" ;;
+        "bun")
+            if [[ "$GENERATE_UNIQUE_PORT" == true ]]; then
+                echo "bun run dev --port=$PORT"
+            else
+                echo "bun run dev"
+            fi
+            ;;
         "python")
             if [[ $PROJECT_ENV == "uv" ]]; then
                 echo "uv run $(get_python_entrypoint)"
@@ -846,6 +870,13 @@ config.detect_project_settings() {
     # FALLBACK: NEW_TAB_URL={automatic detection}
     if [[ -z "$URL" ]]; then
         URL=$(get_server_url "$PROJECT_TYPE")
+    fi
+
+    # OVERRIDE: NEW_TAB_URL={generated unique port}
+    if [[ "$GENERATE_UNIQUE_PORT" == true && -n "$URL" ]]; then
+        PORT=$(generate_port)
+        URL="http://localhost:$PORT"
+        log "🔗 Generated URL: $URL"
     fi
 }
 
