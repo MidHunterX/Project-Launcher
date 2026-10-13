@@ -198,6 +198,23 @@ tmux_session_exists() {
     return 1
 }
 
+attach_and_track_tmux_session() {
+    start_time="$(date +%s)"
+
+    # Use "$PROJECT_NAME:1" to attach to the first window (server)
+    # Use "$PROJECT_NAME" to see the test window in most projects
+    # This is much better. You see breaking changes -> know what to fix next
+    tmux attach -t "$PROJECT_NAME" >/dev/null
+
+    # ACTION: POST EXIT NOTIFICATION
+    end_time="$(date +%s)"
+    status="exited"
+    if tmux_session_exists "$PROJECT_NAME"; then
+        status="detached"
+    fi
+    log "📡 Session: [$status] Took $(elapsed_time $((end_time - start_time)))"
+}
+
 ensure_window() {
     local name="$1"
     if tmux_session_exists "$PROJECT_NAME"; then
@@ -839,7 +856,7 @@ config.load_user_overrides() {
     [[ -f "$OVERRIDE_FILE" ]] && source "$OVERRIDE_FILE"
 }
 
-config.detect_project_settings() {
+config.detect_project_name() {
     # FALLBACK: PROJECT_NAME={project dir name}
     if [[ -z "$PROJECT_NAME" ]]; then
         PROJECT_NAME="$(basename "$PWD")"
@@ -852,7 +869,9 @@ config.detect_project_settings() {
             PROJECT_NAME="invalid_project_name"
         fi
     fi
+}
 
+config.detect_project_settings() {
     # FALLBACK: PROJECT_TYPE={automatic detection}
     if [[ -z "$PROJECT_TYPE" ]]; then
         PROJECT_TYPE="$(detect_project_type)"
@@ -897,6 +916,16 @@ setup.code_output() {
     fi
 }
 
+setup.tmux_attach_session() {
+    # ACTION: Attach session if exists
+    if tmux_session_exists "$PROJECT_NAME"; then
+        log "📡 Session: Attaching to $PROJECT_NAME"
+        attach_and_track_tmux_session
+        return 0
+    fi
+    return 1
+}
+
 setup.tmux_layout() {
     # REQUIRE: tmux dependency for LAYOUT
     if ! command -v tmux >/dev/null; then
@@ -910,13 +939,6 @@ setup.tmux_layout() {
         log "ℹ️ Running server without tmux"
         $cmd
         exit 0
-    fi
-
-    # ACTION: Attach session if exists
-    if tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
-        log "📡 Session: Attaching to '$PROJECT_NAME'"
-        tmux attach -t "$PROJECT_NAME"
-        return
     fi
 
     # SETUP: LAYOUT or custom
@@ -934,29 +956,26 @@ setup.tmux_layout() {
     fi
 
     log "📡 Session: Starting ${PROJECT_NAME}..."
-    start_time="$(date +%s)"
-
-    # Use "$PROJECT_NAME:1" to attach to the first window (server)
-    # Use "$PROJECT_NAME" to see the test window in most projects
-    # This is much better. You see breaking changes -> know what to fix next
-    tmux attach -t "$PROJECT_NAME" >/dev/null
-
-    end_time="$(date +%s)"
-    log "📡 Session: [exited] Took $(elapsed_time $((end_time - start_time)))"
+    attach_and_track_tmux_session
 }
 
 # =========================================================================== #
 
 config.clear
 config.load_user_overrides
-config.detect_project_settings
+config.detect_project_name
 
-project.load_environment
-project.services.start
+if ! setup.tmux_attach_session; then
+    config.detect_project_settings
 
-check.preflight "$PROJECT_TYPE"
-setup.code_output
-setup.tmux_layout
+    project.load_environment
+    project.services.start
+
+    check.preflight "$PROJECT_TYPE"
+    setup.code_output
+    setup.tmux_layout
+fi
+
 check.postflight "$PROJECT_TYPE"
 
 # CASE: tmux session still exists / detached
