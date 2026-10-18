@@ -94,6 +94,18 @@ log() {
     echo -e "[${green}$(date +'%H:%M:%S')${reset}] ${formatted_message}"
 }
 
+# warn(str:message, int:indent_level=0, bool:is_last=false)
+warn() {
+    local message="$1"
+    local indent_level="${2:-0}"
+    local is_last="${3:-false}"
+    local yellow='\033[1;33m'
+    local reset='\033[0m'
+    local formatted_message
+    formatted_message=$(message "$message" "$indent_level" "$is_last")
+    echo -e "[${yellow}$(date +'%H:%M:%S')${reset}] ${formatted_message}"
+}
+
 # error(str:message, int:indent_level=0, bool:is_last=false)
 error() {
     local message="$1"
@@ -926,6 +938,14 @@ setup.tmux_attach_session() {
     return 1
 }
 
+setup.post_init_hook() {
+    # ACTION: POST INIT HOOK
+    if declare -f setup_post_init_hook >/dev/null; then
+        log "⚙️ runrc: Running post init hook..."
+        setup_post_init_hook
+    fi
+}
+
 setup.tmux_layout() {
     # REQUIRE: tmux dependency for LAYOUT
     if ! command -v tmux >/dev/null; then
@@ -949,12 +969,6 @@ setup.tmux_layout() {
         setup_layout "$PROJECT_TYPE"
     fi
 
-    # ACTION: POST INIT HOOK
-    if declare -f setup_post_init_hook >/dev/null; then
-        log "⚙️ runrc: Running post init hook..."
-        setup_post_init_hook
-    fi
-
     log "📡 Session: Starting ${PROJECT_NAME}..."
     attach_and_track_tmux_session
 }
@@ -972,6 +986,8 @@ if ! setup.tmux_attach_session; then
     project.services.start
 
     check.preflight "$PROJECT_TYPE"
+
+    setup.post_init_hook
     setup.code_output
     setup.tmux_layout
 fi

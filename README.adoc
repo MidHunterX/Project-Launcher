@@ -350,6 +350,34 @@ setup_layout_custom() {
 }
 ----
 
+==== Example for Adding Unknown Technology
+
+Here's an example I used on a project to add support for native Android development.
+
+[source,bash]
+----
+has_adb_device() {
+  adb devices | awk '$2=="device" {found=1; exit} END {exit !found}'
+}
+
+setup_post_init_hook() {
+  log "🏗️ Building APK"
+  ./gradlew assembleDebug --quiet
+
+  if ! has_adb_device; then
+    warn "📱 No device found. Waiting for one..."
+    adb wait-for-device
+  fi
+  log "📱 Device detected: $(adb devices | awk '$2=="device" {print $1}')"
+}
+
+setup_layout_custom() {
+  create_window "Cmd" "android run --apks=app/build/outputs/apk/debug/app-debug.apk"
+  create_window "Editor" "$EDITOR"
+  create_window "Test" "./gradlew test"
+}
+----
+
 === Flutter + Hyprland Development
 
 If you are using Flutter with Hyprland, you can do something like the following
@@ -492,7 +520,7 @@ Add entry in the following structure:
 [source,bash]
 ----
 
-midhunter ALL= NOPASSWD: usr/bin/systemctl * postgresql.service
+midhunter ALL= NOPASSWD: /usr/bin/systemctl * postgresql.service
 ----
 
 '''
