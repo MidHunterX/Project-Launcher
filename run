@@ -309,7 +309,7 @@ get_server_url() {
         "nodejs") ;;
         "bun") echo "http://localhost:8080" ;;
         "python") ;;
-        "python_fastapi") ;; # No need to open API url in browser
+        "python_fastapi") echo "http://localhost:8000" ;;
         "python_flask") echo "http://localhost:5000" ;;
         "react_vite") echo "http://localhost:5173" ;;
         "rust") ;;
@@ -357,9 +357,17 @@ run_server_command() {
         "python_fastapi")
             local command="fastapi dev"
             if [[ $PROJECT_ENV == "uv" ]]; then
-                echo "uv run $command"
+                if [[ "$GENERATE_UNIQUE_PORT" == true ]]; then
+                    echo "uv run $command --port $PORT"
+                else
+                    echo "uv run $command"
+                fi
             else
-                echo "$command" # uvicorn main:app --reload
+                if [[ "$GENERATE_UNIQUE_PORT" == true ]]; then
+                    echo "$command --port=$PORT"
+                else
+                    echo "$command" # uvicorn main:app --reload
+                fi
             fi
             ;;
         "python_flask")
