@@ -251,7 +251,7 @@ You can also add environment variables to `.runrc`
 export RUST_LOG=debug
 ----
 
-=== Logic Overriding (Mono-Repo)
+=== Logic Overriding
 
 Use the following overrides in `.runrc` for more granular customization.
 
@@ -297,7 +297,7 @@ setup_layout_custom() {
   create_window "Editor (Web)" "nvim"
 }
 
-# ------------------------------------------------------- CUSTOM POST INIT HOOK
+# ----------------------------------------------------- CUSTOM FUNCTIONAL HOOKS
 
 setup_post_init_hook() {
   # Project specific post execution hook example
@@ -316,6 +316,10 @@ setup_post_init_hook() {
     # Launch the browser
     firefox-developer-edition -P Personal --no-remote --new-tab $new_tab_url &
   ) &
+}
+
+setup_post_exit_hook () {
+  intention clear
 }
 ----
 

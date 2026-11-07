@@ -839,6 +839,7 @@ detect_project_type() {
     # Custom
     if declare -f setup_layout_custom >/dev/null ||
         declare -f setup_post_init_hook >/dev/null ||
+        declare -f setup_post_exit_hook >/dev/null ||
         declare -f setup_env_custom >/dev/null; then
         echo "custom" && return
     fi
@@ -940,6 +941,14 @@ setup.post_init_hook() {
     fi
 }
 
+setup.post_exit_hook() {
+    # ACTION: POST EXIT HOOK
+    if declare -f setup_post_exit_hook >/dev/null; then
+        log "⚙️ runrc: Running post exit hook..."
+        setup_post_exit_hook
+    fi
+}
+
 setup.tmux_layout() {
     # REQUIRE: tmux dependency for LAYOUT
     if ! command -v tmux >/dev/null; then
@@ -993,5 +1002,6 @@ if tmux_session_exists "$PROJECT_NAME"; then
     log "🌼 See you later!"
 else
     project.services.stop
+    setup.post_exit_hook
     log "👋 Goodbye!"
 fi
