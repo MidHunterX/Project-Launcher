@@ -299,6 +299,28 @@ setup_layout_custom() {
 
 # ----------------------------------------------------- CUSTOM FUNCTIONAL HOOKS
 
+# Executes at the startup before doing anything important but after detection and
+# auto-configuration so that you can still work with the filled config variables.
+# Here is an example hook which only starts the run orchestrator only if
+# there's a stable internet connection.
+setup_startup_hook() {
+    check_stable_internet() {
+        check_internet() { curl -sSf --max-time 5 -o /dev/null "https://1.1.1.1"; }
+        log "Checking internet stability" 1 true false
+        local attempts=3 success=0
+        for _ in {1..3}; do
+            check_internet >/dev/null 2>&1 && { printf "."; ((success++)); }
+            sleep 1
+        done
+        printf "\n"
+        [[ $success -eq $attempts ]]
+    }
+    check_stable_internet || { echo "No stable connection"; exit 1; }
+}
+
+# Executes right after setting up init, dependencies, packages, services etc.
+# Any extra project specific setup chores goes here.
+# Here is an example hook which waits for server and opens the URL in browser.
 setup_post_init_hook() {
   # Project specific post execution hook example
   # Custom browser launch logic
@@ -318,6 +340,8 @@ setup_post_init_hook() {
   ) &
 }
 
+# Executes at the very end after cleanup, post-flight check and right before
+# complete exit. Any extra checkups or cleanup tasks goes here.
 setup_post_exit_hook () {
   intention clear
 }

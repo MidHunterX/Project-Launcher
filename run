@@ -842,6 +842,7 @@ detect_project_type() {
 
     # Custom
     if declare -f setup_layout_custom >/dev/null ||
+        declare -f setup_startup_hook >/dev/null ||
         declare -f setup_post_init_hook >/dev/null ||
         declare -f setup_post_exit_hook >/dev/null ||
         declare -f setup_env_custom >/dev/null; then
@@ -937,6 +938,14 @@ setup.tmux_attach_session() {
     return 1
 }
 
+setup.startup_hook() {
+    # ACTION: STARTUP HOOK
+    if declare -f setup_startup_hook >/dev/null; then
+        log "⚙️ runrc: Running startup hook..."
+        setup_startup_hook
+    fi
+}
+
 setup.post_init_hook() {
     # ACTION: POST INIT HOOK
     if declare -f setup_post_init_hook >/dev/null; then
@@ -988,13 +997,13 @@ config.detect_project_name
 
 if ! setup.tmux_attach_session; then
     config.detect_project_settings
+    setup.startup_hook
 
     project.load_environment
     project.services.start
-
     check.preflight "$PROJECT_TYPE"
-
     setup.post_init_hook
+
     setup.code_output
     setup.tmux_layout
 fi
